@@ -2159,3 +2159,67 @@ Later: consider from-scratch or bigger-data training if dataset scale supports i
 
 This does not mean from-scratch is wrong. It means it should be treated as a later experimental branch, not the first answer to the current Milestone 3 instability.
 
+### Could the Milestone 3 failure be caused by loading the wrong weights?
+
+That was a good advisor question, so we checked it.
+
+The original Lite-Mono folder has:
+
+```text
+encoder.pth
+depth.pth
+```
+
+During Milestone 3 fine-tuning, we intentionally loaded:
+
+```text
+--load_weights_folder weights/lite-mono
+--models_to_load encoder depth
+```
+
+Plain meaning:
+
+```text
+start depth from original Lite-Mono
+let pose be created for training
+```
+
+The audit found:
+
+- all actual encoder model tensors loaded
+- all actual depth-decoder model tensors loaded
+- the extra checkpoint tensors were profiling metadata, not needed model weights
+- a fully depth-frozen checkpoint stayed exactly identical to the original encoder/depth tensors
+
+So the current evidence says:
+
+```text
+wrong depth-weight loading is probably not the reason Milestone 3 failed
+```
+
+### If we evaluate on training images, should the adapted model be very accurate?
+
+Not necessarily.
+
+Milestone 3 did not train directly on LiDAR depth labels. It trained with photo matching:
+
+```text
+use predicted depth + pose to warp nearby RGB frames
+```
+
+So even on training images, the model is not directly forced to match the LiDAR depth label.
+
+We checked first 100 training images. The adapted checkpoints still did not become clearly better than the original model. The same pattern appeared:
+
+```text
+raw scale sometimes moved
+relative depth structure still got worse
+```
+
+Plain meaning:
+
+```text
+This is not just "bad validation generalization."
+The self-supervised training signal itself is not producing LiDAR-good Citrus depth.
+```
+

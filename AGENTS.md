@@ -824,7 +824,14 @@ Current:
    - training stopped cleanly at `--max_train_steps=500`; saved `step_250`, `step_500`, and `weights_0`; `step_500` and `weights_0` are identical
    - first-100 validation: raw `abs_rel=0.7235`, median-scaled `abs_rel=0.5300`, median-scaled `a1=0.3513`, median scale ratio `4.322919`
    - interpretation: no color augmentation is still better than color augmentation at 500 steps, but it worsens from 250 to 500 and still does not beat the untouched baseline; this recipe should not be scaled further without a new method/technical reason
-29. Milestone 3 closeout decision:
+29. Advisor-requested Milestone 3 loading/train-image check:
+   - note: `citrus_project/milestones/03_self_supervised_adaptation/professor_loading_and_train_eval_check.md`
+   - ignored outputs: `citrus_project/milestones/03_self_supervised_adaptation/runs/professor_train_eval_check/`
+   - parameter-loading audit found no missing encoder/depth model tensors when loading `weights/lite-mono`; extra checkpoint tensors are profiling metadata
+   - the fully depth-frozen checkpoint is tensor-identical to the original encoder/depth checkpoint on common model tensors: encoder and depth decoder `max_abs_diff=0.0`
+   - first-100 train-image evaluation did not become high-accuracy for adapted checkpoints; train split mirrors the validation pattern where raw scale may move but median-scaled relative-depth quality worsens
+   - interpretation: current evidence does not support wrong depth-weight loading or train/validation generalization alone as the Milestone 3 failure cause
+30. Milestone 3 closeout decision:
    - the tested standard self-supervised adaptation recipe family is closed as negative/weak baseline evidence
    - do not keep searching this same recipe family by running longer jobs
    - Milestone 4 should start from the documented failure target: preserve or improve Citrus relative depth structure while adapting to vegetation scenes
@@ -1255,6 +1262,7 @@ Milestone 3 compact experiment status:
 - 2026-05-07: Ran the approved 250-step no-color-augmentation Milestone 3 control; it improved over the color-augmented 250-step conservative run but still did not beat the untouched baseline on first-100 median-scaled relative-depth metrics. Added a student Q&A note explaining why from-scratch training should be treated as a later larger-data branch rather than the immediate Milestone 3 fix.
 - 2026-05-07: Ran the approved 500-step no-color-augmentation Milestone 3 gate; it finished cleanly but worsened versus the 250-step no-augmentation checkpoint and still trailed the untouched baseline, supporting a stop to blind Milestone 3 recipe scaling.
 - 2026-05-07: Closed Milestone 3 standard self-supervised adaptation as documented weak/negative baseline evidence and updated handoff notes so the next chat should start Milestone 4 planning rather than restart Milestone 3 recipe scaling.
+- 2026-05-07: Ran advisor-requested Milestone 3 checks for parameter loading and first-100 train-image evaluation; original encoder/depth loading had no missing model tensors, the fully depth-frozen checkpoint matched original encoder/depth tensors exactly, and adapted checkpoints still did not become high-accuracy on training images.
 
 ## Update Template (For Future Changes)
 

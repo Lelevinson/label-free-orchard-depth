@@ -134,6 +134,7 @@ Current status:
 - Use carefully: it supports the claim that standard self-supervised Citrus adaptation is not enough under the tested recipe family, rather than claiming all possible adaptation can never work.
 - Next paper-facing need is to compare the future Milestone 4 improvement against original Lite-Mono and this documented Milestone 3 failure pattern.
 - Visual comparison panels were generated on 2026-05-07 under the Milestone 3 ignored run folder.
+- Advisor-requested checks on 2026-05-07 strengthen this interpretation: original encoder/depth loading has no missing model tensors, the fully depth-frozen checkpoint is tensor-identical to the original encoder/depth weights, and first-100 train-image evaluation is not high-accuracy for the adapted checkpoints.
 
 ### Original Lite-Mono Qualitative Citrus Prediction
 

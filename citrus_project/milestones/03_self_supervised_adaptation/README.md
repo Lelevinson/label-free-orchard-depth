@@ -1110,3 +1110,48 @@ Interpretation:
 - But the 500-step no-augmentation checkpoint is worse than the 250-step no-augmentation checkpoint.
 - This means disabling color augmentation reduces the damage but does not make the recipe stable.
 - The current Milestone 3 recipe family should not be scaled into a long run. The best current adapted control remains weak/negative evidence, not an improved model.
+
+## Advisor Check: Parameter Loading And Train-Image Evaluation
+
+Date: 2026-05-07
+
+Purpose: answer advisor questions about whether the bad Milestone 3 results could be caused by wrong parameter loading, and whether evaluating on training images gives high accuracy.
+
+Detailed note:
+
+```text
+citrus_project/milestones/03_self_supervised_adaptation/professor_loading_and_train_eval_check.md
+```
+
+Saved train-evaluation outputs:
+
+```text
+citrus_project/milestones/03_self_supervised_adaptation/runs/professor_train_eval_check/
+```
+
+Parameter-loading audit result:
+
+- Original `weights/lite-mono` encoder/depth tensors load into the Lite-Mono inference model with no missing model tensors.
+- Extra checkpoint tensors are profiling metadata such as `total_ops` and `total_params`, not required model weights.
+- The fully depth-frozen Milestone 3 checkpoint is tensor-identical to the original encoder/depth checkpoint: encoder and depth decoder both have `max_abs_diff=0.0` on all common model tensors.
+
+First 100 train versus validation samples:
+
+| checkpoint | train raw abs_rel | train median abs_rel | train median a1 | val raw abs_rel | val median abs_rel | val median a1 |
+|---|---:|---:|---:|---:|---:|---:|
+| original | 0.7289 | 0.3814 | 0.4649 | 0.7289 | 0.3680 | 0.4807 |
+| seed0 depth0/25 | 0.7340 | 0.3853 | 0.4726 | 0.7274 | 0.3758 | 0.4797 |
+| seed0 depth5/30 | 0.6909 | 0.4105 | 0.4199 | 0.6781 | 0.3902 | 0.4484 |
+| seed0 depth15/40 | 0.6713 | 0.4217 | 0.4229 | 0.6697 | 0.4409 | 0.3908 |
+| seed0 depth25/50 | 0.7830 | 0.6026 | 0.2460 | 0.7901 | 0.6354 | 0.2280 |
+| conservative step250 | 0.7331 | 0.4631 | 0.4067 | 0.7331 | 0.4542 | 0.4290 |
+| conservative final1000 | 0.7496 | 0.6590 | 0.1901 | 0.7448 | 0.6615 | 0.1827 |
+| no aug 250 | 0.7213 | 0.4283 | 0.4336 | 0.7192 | 0.4108 | 0.4568 |
+| no aug 500 | 0.7251 | 0.5313 | 0.3297 | 0.7235 | 0.5300 | 0.3513 |
+
+Interpretation:
+
+- The current evidence does not support wrong encoder/depth parameter loading as the cause of the Milestone 3 failure.
+- Training-image evaluation is not high-accuracy for the adapted checkpoints.
+- The train split shows the same broad pattern as validation: raw scale can move, but median-scaled relative-depth quality worsens.
+- This strengthens the current interpretation that the self-supervised objective is not aligned enough with LiDAR-valid Citrus depth quality, rather than the failure being only a validation-generalization issue.
