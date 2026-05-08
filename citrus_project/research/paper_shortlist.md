@@ -135,6 +135,8 @@ Current status:
 - Next paper-facing need is to compare the future Milestone 4 improvement against original Lite-Mono and this documented Milestone 3 failure pattern.
 - Visual comparison panels were generated on 2026-05-07 under the Milestone 3 ignored run folder.
 - Advisor-requested checks on 2026-05-07 strengthen this interpretation: original encoder/depth loading has no missing model tensors, the fully depth-frozen checkpoint is tensor-identical to the original encoder/depth weights, and first-100 train-image evaluation is not high-accuracy for the adapted checkpoints.
+- A sparse LiDAR-only first-100 validation sanity check on 2026-05-08 also keeps the same direction: original median-scaled `abs_rel=0.6072`, `a1=0.3724`; conservative adapted final1000 `abs_rel=0.8445`, `a1=0.1441`; no-augmentation 250-step `abs_rel=0.6712`, `a1=0.3234`. This reduces concern that the negative result comes only from semi-dense `local_idw` evaluation labels.
+- A normal one-epoch true batch-size-12 control on 2026-05-08 also failed to recover: original first-100 validation median-scaled `abs_rel=0.3680`, `a1=0.4807`; batch12 step100 `abs_rel=0.6906`, `a1=0.1465`; final one-epoch `abs_rel=3.0501`, `a1=0.2473`, despite photo loss decreasing during training.
 
 ### Original Lite-Mono Qualitative Citrus Prediction
 

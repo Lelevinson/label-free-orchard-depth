@@ -824,14 +824,27 @@ Current:
    - training stopped cleanly at `--max_train_steps=500`; saved `step_250`, `step_500`, and `weights_0`; `step_500` and `weights_0` are identical
    - first-100 validation: raw `abs_rel=0.7235`, median-scaled `abs_rel=0.5300`, median-scaled `a1=0.3513`, median scale ratio `4.322919`
    - interpretation: no color augmentation is still better than color augmentation at 500 steps, but it worsens from 250 to 500 and still does not beat the untouched baseline; this recipe should not be scaled further without a new method/technical reason
-29. Advisor-requested Milestone 3 loading/train-image check:
+29. Advisor-requested Milestone 3 loading/train-image/sparse-label checks:
    - note: `citrus_project/milestones/03_self_supervised_adaptation/professor_loading_and_train_eval_check.md`
    - ignored outputs: `citrus_project/milestones/03_self_supervised_adaptation/runs/professor_train_eval_check/`
    - parameter-loading audit found no missing encoder/depth model tensors when loading `weights/lite-mono`; extra checkpoint tensors are profiling metadata
    - the fully depth-frozen checkpoint is tensor-identical to the original encoder/depth checkpoint on common model tensors: encoder and depth decoder `max_abs_diff=0.0`
    - first-100 train-image evaluation did not become high-accuracy for adapted checkpoints; train split mirrors the validation pattern where raw scale may move but median-scaled relative-depth quality worsens
-   - interpretation: current evidence does not support wrong depth-weight loading or train/validation generalization alone as the Milestone 3 failure cause
-30. Milestone 3 closeout decision:
+   - advisor-suggested first-100 sparse LiDAR-only validation check used raw projected sparse LiDAR pixels with no `local_idw` filling; no files were written by the throwaway check
+   - sparse LiDAR-only result: original median-scaled `abs_rel=0.6072`, `a1=0.3724`; conservative adapted final1000 `abs_rel=0.8445`, `a1=0.1441`; no-augmentation 250-step `abs_rel=0.6712`, `a1=0.3234`; sparse valid coverage was about 0.96% of pixels
+   - interpretation: current evidence does not support wrong depth-weight loading, train/validation generalization alone, or `local_idw` densification alone as the Milestone 3 failure cause
+30. Advisor-requested batch-size feasibility check:
+   - device: NVIDIA GeForce RTX 4060 Laptop GPU with about 8 GB VRAM
+   - reference: Lite-Mono README training example uses `--batch_size 12`; `options.py` default is `--batch_size 16`; earlier Milestone 3 controlled runs used `--batch_size 4`
+   - true batch-size CUDA one-step smokes, with no gradient accumulation, passed for batch sizes 8 and 12
+   - ignored run folders: `citrus_ss_batchsize8_vram_smoke_1step` and `citrus_ss_batchsize12_vram_smoke_1step`
+   - normal one-epoch batch-size-12 control: `citrus_project/milestones/03_self_supervised_adaptation/runs/citrus_ss_batch12_normal_lr_1epoch/`
+   - recipe: true `--batch_size 12`, no gradient accumulation, original encoder/depth weights, pretrained pose encoder initialization, no depth freeze, no depth-encoder freeze, default LR, default `drop_path=0.2`, default Citrus color augmentation, one epoch/about 356 optimizer steps
+   - checkpoints saved: `step_100`, `step_200`, `step_300`, `weights_0`
+   - training photo loss decreased from about `0.16435` to `0.13308`, but first-100 validation median-scaled metrics worsened: original `abs_rel=0.3680`, `a1=0.4807`; step100 `0.6906`/`0.1465`; step200 `0.7540`/`0.1375`; step300 `1.0451`/`0.0932`; final one-epoch `3.0501`/`0.2473`
+   - first-100 train-image metrics also worsened versus original, so the batch-size-12 control did not become high-accuracy on training images
+   - interpretation: batch size 12 is feasible on the laptop, but larger true batch size did not fix the Milestone 3 depth-structure drift in the normal control
+31. Milestone 3 closeout decision:
    - the tested standard self-supervised adaptation recipe family is closed as negative/weak baseline evidence
    - do not keep searching this same recipe family by running longer jobs
    - Milestone 4 should start from the documented failure target: preserve or improve Citrus relative depth structure while adapting to vegetation scenes
@@ -1164,6 +1177,8 @@ Milestone 3 compact experiment status:
    - Do not scale existing recipes into a full long run.
    - The terminal-controlled conservative 1000-step probe completed but did not recover; final first-100 median-scaled `abs_rel=0.6615` and `a1=0.1827`, worse than the untouched baseline.
    - The no-color-augmentation 250-step control reduced the damage compared with color augmentation, but still did not beat the untouched baseline; the 500-step no-augmentation continuation worsened again.
+   - An advisor-suggested sparse LiDAR-only first-100 validation check, closer to KITTI-style raw projected LiDAR evaluation and using no `local_idw` filling, still showed original Lite-Mono ahead of the adapted checkpoints on median-scaled relative-depth quality.
+   - Advisor-suggested batch-size feasibility check passed true batch-size 8 and 12 one-step CUDA smokes; the follow-up normal one-epoch batch-size-12 control still degraded first-100 train and validation relative-depth metrics.
    - Next work should move to Milestone 4 method planning. The method should target structure preservation or vegetation-aware depth cues without simply copying the weak original model.
 
 ## Change Log
@@ -1263,6 +1278,9 @@ Milestone 3 compact experiment status:
 - 2026-05-07: Ran the approved 500-step no-color-augmentation Milestone 3 gate; it finished cleanly but worsened versus the 250-step no-augmentation checkpoint and still trailed the untouched baseline, supporting a stop to blind Milestone 3 recipe scaling.
 - 2026-05-07: Closed Milestone 3 standard self-supervised adaptation as documented weak/negative baseline evidence and updated handoff notes so the next chat should start Milestone 4 planning rather than restart Milestone 3 recipe scaling.
 - 2026-05-07: Ran advisor-requested Milestone 3 checks for parameter loading and first-100 train-image evaluation; original encoder/depth loading had no missing model tensors, the fully depth-frozen checkpoint matched original encoder/depth tensors exactly, and adapted checkpoints still did not become high-accuracy on training images.
+- 2026-05-08: Added the advisor-suggested sparse LiDAR-only/KITTI-like first-100 validation sanity check to Milestone 3 notes; it wrote no files and still showed the original baseline ahead of adapted checkpoints on median-scaled relative-depth quality.
+- 2026-05-08: Ran advisor-requested true batch-size CUDA feasibility smokes on the RTX 4060 Laptop GPU; batch sizes 8 and 12 both passed one training step without gradient accumulation, so a short batch-size-12 control is technically possible.
+- 2026-05-08: Ran the advisor-requested normal one-epoch true batch-size-12 control; it finished cleanly and photo loss decreased, but first-100 train and validation median-scaled depth metrics worsened versus the original baseline, so batch size alone did not resolve Milestone 3.
 
 ## Update Template (For Future Changes)
 

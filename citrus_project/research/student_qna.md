@@ -2223,3 +2223,134 @@ This is not just "bad validation generalization."
 The self-supervised training signal itself is not producing LiDAR-good Citrus depth.
 ```
 
+### Does using sparse LiDAR like KITTI change the Milestone 3 conclusion?
+
+So far, no.
+
+The normal Citrus evaluation uses our prepared LiDAR labels:
+
+```text
+raw LiDAR points -> projected into the camera -> locally filled by local_idw -> valid mask
+```
+
+The professor asked a fair question: maybe the filling step makes the evaluation strange. So we also tried a closer-to-KITTI sanity check:
+
+```text
+raw LiDAR points -> projected into the camera -> evaluate only those sparse pixels
+```
+
+This check used no `local_idw` filling. It only used about 0.96% of image pixels, so the numbers are harsher and noisier than the normal evaluation.
+
+First 100 validation images:
+
+| model/checkpoint | median-scaled abs_rel | median-scaled a1 |
+|---|---:|---:|
+| original Lite-Mono | 0.6072 | 0.3724 |
+| adapted 1000-step checkpoint | 0.8445 | 0.1441 |
+| no-color-augmentation 250-step checkpoint | 0.6712 | 0.3234 |
+
+Plain meaning:
+
+```text
+Even when we evaluate only on sparse raw LiDAR points, the adapted checkpoints are still worse than the original model.
+```
+
+This does not prove our whole Citrus label pipeline is perfect. It only says the Milestone 3 failure is probably not caused only by the `local_idw` densification step.
+
+### What does batch size mean, and can our laptop use the original Lite-Mono batch size?
+
+Batch size means:
+
+```text
+how many training examples the model sees before making one optimizer update
+```
+
+Small example:
+
+- batch size 4 = look at 4 image triplets, average their training loss, then update
+- batch size 12 = look at 12 image triplets, average their training loss, then update
+
+Why it matters:
+
+- smaller batch = noisier updates, but easier to fit in GPU memory
+- larger batch = steadier average signal, but uses more GPU memory
+
+The original Lite-Mono README training example uses:
+
+```text
+--batch_size 12
+```
+
+Our earlier Milestone 3 controlled runs used:
+
+```text
+--batch_size 4
+```
+
+We tested true batch sizes on the laptop RTX 4060 GPU with no gradient accumulation:
+
+| true batch size | one-step CUDA training result |
+|---:|---|
+| 8 | passed |
+| 12 | passed |
+
+Plain meaning:
+
+```text
+The laptop can fit the original-example batch size for at least a one-step Citrus training pass.
+```
+
+Important caution:
+
+```text
+This only proves memory feasibility, not model quality.
+```
+
+Batch size might make training less noisy, but it does not automatically fix the Milestone 3 problem where depth structure got worse after depth updates.
+
+### Did batch size 12 fix the Milestone 3 training problem?
+
+No.
+
+We ran a normal one-epoch Citrus fine-tuning control with:
+
+```text
+batch size 12
+normal/default learning rate
+normal trainable depth network
+no freezing tricks
+```
+
+This is closer to the original Lite-Mono README training example than our earlier batch-size-4 controlled runs.
+
+The training photo loss went down:
+
+```text
+about 0.164 -> about 0.133
+```
+
+Plain meaning:
+
+```text
+the model got better at the photo-matching training game
+```
+
+But the depth evaluation got worse:
+
+| checkpoint | validation median-scaled abs_rel | validation median-scaled a1 |
+|---|---:|---:|
+| original Lite-Mono | 0.3680 | 0.4807 |
+| batch 12, step 100 | 0.6906 | 0.1465 |
+| batch 12, step 200 | 0.7540 | 0.1375 |
+| batch 12, step 300 | 1.0451 | 0.0932 |
+| batch 12, final one-epoch | 3.0501 | 0.2473 |
+
+Plain meaning:
+
+```text
+A larger true batch size did not solve the problem.
+The model learned the photo-loss objective, but its LiDAR-valid depth structure got worse.
+```
+
+So batch size may still matter for stability, but it is probably not the main reason Milestone 3 failed.
+

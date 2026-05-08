@@ -1121,3 +1121,109 @@ Interpretation:
 
 Training-image evaluation is not high-accuracy for the adapted checkpoints. The train split shows the same broad pattern as validation: early depth updates can improve raw-scale `abs_rel`, but median-scaled relative-depth quality worsens. This supports the interpretation that the current self-supervised objective is not aligned enough with LiDAR-valid Citrus depth quality, rather than the failure being only a parameter-loading or validation-generalization artifact.
 
+## Milestone 3 Advisor Check: Sparse LiDAR-Only KITTI-Like Evaluation
+
+Date: 2026-05-08
+
+Paper relevance: advisor-requested sanity check. This tests whether the negative Milestone 3 conclusion still appears when evaluation uses only raw projected sparse LiDAR pixels, closer to the KITTI-style LiDAR comparison, instead of the prepared semi-dense `local_idw` Citrus labels.
+
+Detailed note:
+
+```text
+citrus_project/milestones/03_self_supervised_adaptation/professor_loading_and_train_eval_check.md
+```
+
+Scope:
+
+- first 100 validation images
+- transform route: `exact_lidar_parent_child_inverted`
+- no `local_idw` filling
+- mean sparse valid coverage: 0.9555%
+- mean valid sparse pixels per image: 8806
+- no result files were written by the throwaway check
+
+Sparse LiDAR-only result:
+
+| checkpoint | raw abs_rel | median-scaled abs_rel | median-scaled a1 | median scale ratio |
+|---|---:|---:|---:|---:|
+| original | 0.7631 | 0.6072 | 0.3724 | 4.730791 |
+| conservative final1000 | 0.7809 | 0.8445 | 0.1441 | 5.642218 |
+| no aug 250 | 0.7538 | 0.6712 | 0.3234 | 4.797280 |
+
+Interpretation:
+
+The sparse-only/KITTI-like sanity check still shows the adapted checkpoints worse than the untouched original model on median-scaled relative-depth quality. Because sparse LiDAR coverage is below 1% of image pixels, this check should not replace the normal semi-dense valid-mask evaluation. Its value is narrower: it reduces the concern that the Milestone 3 result is only an artifact of `local_idw` densification.
+
+## Milestone 3 Advisor Check: Batch-Size Feasibility
+
+Date: 2026-05-08
+
+Paper relevance: advisor-requested training-feasibility context. This checks whether the laptop can run a true batch size closer to the original Lite-Mono README training example before introducing any gradient-accumulation workaround.
+
+Reference:
+
+- Lite-Mono README training example: `--batch_size 12`
+- `options.py` default: `--batch_size 16`
+- previous Milestone 3 controlled runs: `--batch_size 4`
+
+Device:
+
+- NVIDIA GeForce RTX 4060 Laptop GPU
+- about 8 GB VRAM
+
+One-step CUDA smoke:
+
+| run | true batch size | gradient accumulation? | result | first-step loss | examples/s |
+|---|---:|---|---|---:|---:|
+| `citrus_ss_batchsize8_vram_smoke_1step` | 8 | no | passed | 0.16359 | 7.0 |
+| `citrus_ss_batchsize12_vram_smoke_1step` | 12 | no | passed | 0.16436 | 6.5 |
+
+Interpretation:
+
+The laptop can fit a true batch-size-12 one-step Citrus self-supervised training pass. This means the professor's batch-size concern can be tested more directly than expected, without gradient accumulation for the first feasibility check. However, the check only proves one-step VRAM feasibility; it does not show that a batch-size-12 adaptation recipe will beat the original model or stay stable over a longer run.
+
+## Milestone 3 Batch-Size-12 Normal One-Epoch Control
+
+Date: 2026-05-08
+
+Paper relevance: advisor-requested control. This tests whether using a true batch size closer to the Lite-Mono README example changes the standard self-supervised Citrus adaptation result.
+
+Run:
+
+```text
+citrus_project/milestones/03_self_supervised_adaptation/runs/citrus_ss_batch12_normal_lr_1epoch/
+```
+
+Recipe:
+
+- true `--batch_size 12`, no gradient accumulation
+- original Lite-Mono encoder/depth loaded from `weights/lite-mono`
+- pretrained pose encoder initialization via `--weights_init pretrained`
+- depth encoder and decoder train from step 0
+- no `--freeze_depth_steps`
+- no `--freeze_depth_encoder`
+- default LR: depth `0.0001`, pose `0.0001`
+- default `drop_path=0.2`
+- default Citrus color augmentation probability `0.5`
+- one epoch, about 356 optimizer steps
+- saved checkpoints: `step_100`, `step_200`, `step_300`, `weights_0`
+
+Training status:
+
+- Finished cleanly on CUDA.
+- Training photo loss decreased from `0.16435` at the first logged batch to `0.13308` near the end.
+
+First 100 train and validation samples:
+
+| checkpoint | train raw abs_rel | train median abs_rel | train median a1 | val raw abs_rel | val median abs_rel | val median a1 |
+|---|---:|---:|---:|---:|---:|---:|
+| original | 0.7289 | 0.3814 | 0.4649 | 0.7289 | 0.3680 | 0.4807 |
+| batch12 step100 | 0.7556 | 0.7035 | 0.1290 | 0.7521 | 0.6906 | 0.1465 |
+| batch12 step200 | 0.6737 | 0.7796 | 0.1277 | 0.6643 | 0.7540 | 0.1375 |
+| batch12 step300 | 0.6690 | 1.1209 | 0.0851 | 0.6468 | 1.0451 | 0.0932 |
+| batch12 final | 0.7408 | 3.0331 | 0.2616 | 0.7190 | 3.0501 | 0.2473 |
+
+Interpretation:
+
+The batch-size-12 normal one-epoch control did not rescue Milestone 3. The photo loss went down, and raw-scale `abs_rel` temporarily improved around steps 200-300, but median-scaled relative-depth quality became much worse than the original model on both train and validation images. This supports the conclusion that small batch size was not the main cause of the Milestone 3 failure pattern.
+

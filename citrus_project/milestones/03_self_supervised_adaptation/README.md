@@ -1155,3 +1155,41 @@ Interpretation:
 - Training-image evaluation is not high-accuracy for the adapted checkpoints.
 - The train split shows the same broad pattern as validation: raw scale can move, but median-scaled relative-depth quality worsens.
 - This strengthens the current interpretation that the self-supervised objective is not aligned enough with LiDAR-valid Citrus depth quality, rather than the failure being only a validation-generalization issue.
+
+## Batch-Size-12 Normal One-Epoch Control
+
+Date: 2026-05-08
+
+Purpose: answer the advisor question about whether the earlier batch-size-4 controls were too small/noisy by running a normal recipe closer to the Lite-Mono README training example.
+
+Run:
+
+```text
+citrus_project/milestones/03_self_supervised_adaptation/runs/citrus_ss_batch12_normal_lr_1epoch/
+```
+
+Recipe:
+
+- true `--batch_size 12`, no gradient accumulation
+- original `weights/lite-mono` encoder/depth loaded
+- pose uses pretrained ResNet initialization and trains normally
+- depth encoder and depth decoder both train from step 0
+- default LR, default `drop_path=0.2`, default Citrus color augmentation probability `0.5`
+- one epoch, about 356 optimizer steps
+- saved `step_100`, `step_200`, `step_300`, and `weights_0`
+
+First 100 validation samples:
+
+| checkpoint | raw abs_rel | median-scaled abs_rel | median-scaled a1 | median scale ratio |
+|---|---:|---:|---:|---:|
+| untouched baseline | 0.7289 | 0.3680 | 0.4807 | 3.944117 |
+| batch12 step100 | 0.7521 | 0.6906 | 0.1465 | 4.399174 |
+| batch12 step200 | 0.6643 | 0.7540 | 0.1375 | 3.507003 |
+| batch12 step300 | 0.6468 | 1.0451 | 0.0932 | 4.078192 |
+| batch12 final | 0.7190 | 3.0501 | 0.2473 | 10.353050 |
+
+Interpretation:
+
+- Batch size 12 did not fix Milestone 3.
+- The training photo loss decreased, but the LiDAR-valid relative-depth metrics worsened strongly.
+- This supports the current conclusion that standard self-supervised adaptation is not enough for Citrus under the tested recipe family.
