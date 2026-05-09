@@ -1,6 +1,8 @@
 # Baseline Notes
 
-This file is the single place for baseline-model notes and early model checks that may later support the paper.
+This file is the detailed model-evidence archive for baseline, adaptation, and comparison results that may later support the paper.
+For current project status, read `AGENTS.md` first.
+For the compact Milestone 3 handoff, read `citrus_project/milestones/03_self_supervised_adaptation/README.md`.
 
 ## Original Lite-Mono Single-Image Citrus Demo
 

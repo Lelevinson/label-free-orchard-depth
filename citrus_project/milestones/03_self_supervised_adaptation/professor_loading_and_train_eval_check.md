@@ -1,11 +1,20 @@
-# Professor Check: Loading And Train-Image Evaluation
+# Professor Checks: Loading, Training Images, Sparse LiDAR, And Batch Size
 
-Date: 2026-05-07
+Date: 2026-05-07 to 2026-05-08
 
-Purpose: answer two advisor questions before moving fully into Milestone 4:
+Purpose: answer advisor questions before moving fully into Milestone 4:
 
 1. Could the bad Milestone 3 results be caused by incorrect parameter loading?
 2. If we evaluate on training images instead of validation images, does the adapted model become high-accuracy?
+3. Does the conclusion change if evaluation uses sparse projected LiDAR only, closer to KITTI-style evaluation?
+4. Can the laptop run a true batch size closer to the original Lite-Mono training example, and does that fix the result?
+
+Naming rule:
+
+```text
+Use experiment descriptions in professor-facing tables.
+Keep exact run-folder names in Technical Mapping only.
+```
 
 ## Parameter-Loading Audit
 

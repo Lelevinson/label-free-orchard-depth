@@ -1511,30 +1511,28 @@ The GPU smoke still does not mean the model is trained. It only proves the one-s
 
 ### For Milestone 3, are we fine-tuning or training from scratch?
 
-For the main Milestone 3 result, we should fine-tune.
+For the main Milestone 3 result, we fine-tuned.
 
 Plain meaning:
 
 - training from scratch = start with random model weights and teach everything from the beginning
 - fine-tuning = start from the original Lite-Mono checkpoint, then continue training on Citrus
 
-Why fine-tuning is the main path:
+Why fine-tuning was the right Milestone 3 baseline:
 
-1. Milestone 1 already measured the untouched original Lite-Mono checkpoint on Citrus.
-2. Milestone 3 should answer: "How much does normal Citrus self-supervised adaptation help?"
-3. Milestone 4 can then answer: "Does our new vegetation-focused idea beat normal Citrus adaptation?"
+1. Milestone 1 measured the untouched original Lite-Mono checkpoint on Citrus.
+2. Milestone 3 asked whether normal Citrus self-supervised adaptation helps that checkpoint.
+3. Milestone 4 can now ask whether a vegetation-focused method beats both the original model and normal adaptation.
 
-That gives a fair comparison ladder:
+Fair comparison ladder:
 
 ```text
 A. original Lite-Mono, no Citrus training
-B. original Lite-Mono fine-tuned on Citrus
-C. improved model trained with the same Citrus budget
+B. original Lite-Mono fine-tuned on Citrus with standard self-supervision
+C. improved Milestone 4 method trained with the same Citrus budget
 ```
 
-If C beats B, the improvement is more convincing because B already received the normal Citrus fine-tuning advantage.
-
-Training from scratch can still be a later optional ablation, but it is not the first main comparison.
+Training from scratch remains a possible later branch, but it is not the immediate answer to Milestone 3's standard-adaptation failure.
 
 ### What is `--max_train_steps`?
 
@@ -1542,10 +1540,10 @@ Training from scratch can still be a later optional ablation, but it is not the 
 
 Plain meaning:
 
-- `--max_train_steps 0` means "run the normal requested epochs"
-- `--max_train_steps 10` means "stop after 10 optimizer updates"
+- `--max_train_steps 0` means run the normal requested epochs
+- `--max_train_steps 10` means stop after 10 optimizer updates
 
-This is useful for Milestone 3 because full training defaults can be large. A smoke run should prove that logging, validation, and saving behave correctly without accidentally starting a long experiment.
+This mattered because full training defaults can be large. A smoke run should prove that loading, logging, validation, and saving behave correctly without accidentally starting a long experiment.
 
 Milestone 3 training outputs should go under:
 
@@ -1561,354 +1559,74 @@ weights/lite-mono/
 
 is only the starting point. Fine-tuning loads those weights into memory and writes new checkpoints somewhere else.
 
-### If training stops, can we continue later?
+### Does a smoke run give reliable research results?
 
-We tested the basic version of this in the first Milestone 3 smoke.
+No. A smoke run gives engineering evidence, not research evidence.
 
-What happened:
+A smoke run can prove:
 
-1. A tiny run loaded the original Lite-Mono `encoder` and `depth` weights.
-2. It trained for 2 optimizer steps.
-3. It saved a new checkpoint under the Milestone 3 `runs/` folder.
-4. A second tiny run loaded that saved checkpoint.
-5. The second run trained for 1 more optimizer step.
+1. the original depth weights load
+2. Citrus temporal batches flow through the trainer
+3. validation does not crash
+4. the safety brake stops training
+5. checkpoints can be saved and loaded
 
-So the basic answer is:
-
-```text
-Yes, we can load a saved checkpoint and continue training in a basic way.
-```
-
-The saved checkpoint included:
-
-```text
-encoder.pth
-depth.pth
-pose_encoder.pth
-pose.pth
-adam.pth
-adam_pose.pth
-```
-
-Plain meaning:
-
-- `encoder.pth` and `depth.pth` are the RGB-to-depth model parts
-- `pose_encoder.pth` and `pose.pth` are training helper parts for camera motion
-- `adam.pth` and `adam_pose.pth` store optimizer memory, such as momentum-like values
-
-Important limitation:
-
-```text
-This is basic continuation, not perfect resume.
-```
-
-The current trainer still starts the epoch and step counters from zero when launched again. That means loading a checkpoint can continue learning from the saved weights, but it does not perfectly restore the exact training timeline for logging/scheduler bookkeeping.
-
-For short smoke runs, this is fine. Before a long serious experiment, we should decide whether basic continuation is enough or whether we want a more complete resume feature.
-
-### Does a 10-step smoke run give reliable research results?
-
-No. It gives more reliable **engineering evidence**, not research evidence yet.
-
-What the 10-step smoke proves:
-
-1. the original Lite-Mono depth weights can load
-2. Citrus temporal batches can keep flowing through the real trainer
-3. validation logging no longer crashes
-4. the safety brake can stop at exactly 10 optimizer steps
-5. a new checkpoint can be saved in the Milestone 3 folder
-
-What it does not prove:
+A smoke run does not prove:
 
 1. the model adapted well to Citrus
-2. validation/test depth metrics improved
+2. depth metrics improved
 3. the checkpoint is useful for the paper
 
-Plain meaning:
+Plain version:
 
 ```text
-10-step smoke = the machinery seems stable enough for the next controlled short run
-real Milestone 3 result = needs many more planned steps plus evaluation against the Milestone 1 baseline
+smoke run = the machine starts and the controls work
+research result = planned training plus evaluation against the baseline
 ```
 
-We also evaluated the 10-step checkpoint on 20 validation samples. It was worse than the untouched original baseline on the same 20 samples.
+### Why can photo loss improve while depth gets worse?
 
-That is not surprising:
-
-- 10 steps is extremely short
-- the pose network starts from scratch in this checkpoint setup
-- each step sees only one small batch
-- early self-supervised training can wiggle before it helps
-
-So the lesson is:
+Self-supervised Lite-Mono training optimizes an image-matching game:
 
 ```text
-The checkpoint/evaluation pipeline works.
-The 10-step checkpoint is not an improved model.
+Can I use predicted depth + predicted camera motion to warp a nearby RGB frame so it looks like the current RGB frame?
 ```
 
-### What did the 100-step pilot teach us?
-
-The 100-step pilot is the first small "direction check."
-
-It trained for 100 optimizer updates, then evaluated the checkpoint on the first 100 validation samples.
-
-The result was mixed:
-
-- raw-scale metrics got better in several places
-- median-scaled metrics got worse
-
-Plain meaning:
+Our research evaluation asks a different question:
 
 ```text
-The model may be moving its absolute depth scale toward Citrus.
-But after we remove the scale problem, its relative depth structure is not better yet.
+Does the predicted depth match the LiDAR-supported Citrus depth labels where the labels are valid?
 ```
 
-Why median-scaled metrics matter here:
+Those questions are related, but not identical. In vegetation scenes, repeated leaves, shadows, thin branches, occlusions, and exposure changes can let photo matching improve without producing better geometry.
 
-Median scaling asks, "If we correct the model's overall depth scale for this image, does the shape/layout of near-vs-far regions look right?"
-
-That is important because a monocular model can easily be wrong by a global scale factor. For example, it may predict the scene is 3 times farther than the LiDAR labels. Median scaling removes that one big scale mistake, then checks whether the depth pattern itself is good.
-
-For the 100-step pilot, the median-scaled `a1` dropped:
+Milestone 3 found exactly this risk:
 
 ```text
-untouched baseline: 0.4807
-100-step checkpoint: 0.3998
+training photo loss can go down
+while LiDAR-valid relative-depth quality gets worse
 ```
 
-So the 100-step checkpoint is not a useful adapted model yet. It only tells us the pilot path works and that the next run needs more thought.
-
-### Did the 500-step lower-learning-rate pilot help?
-
-No.
-
-We tried a smaller learning rate, which means the model changed more gently:
-
-```text
-old pilot learning rate: 0.0001
-new pilot learning rate: 0.00001
-```
-
-The idea was:
-
-```text
-Maybe the model got worse because we pushed it too hard.
-So try smaller steps for longer.
-```
-
-But the first 100 validation samples still got worse than the untouched original baseline.
-
-Plain meaning:
-
-```text
-The current self-supervised training setup is not automatically improving Citrus depth yet.
-More of the same training is not the best next move.
-```
-
-This does **not** mean the project failed. It means the pilot did its job: it warned us before a long run.
-
-The likely next step is to inspect the training setup itself, especially:
-
-- whether the pose network is learning useful camera motion
-- whether the photometric loss is being fooled by vegetation movement, repeated leaves, shadows, or occlusion
-- whether the model should adapt more slowly, freeze some depth layers, or warm up the pose network
-- whether the current dataset is too narrow for the final comparison
-
-### What did the training diagnostics find?
-
-The short answer:
-
-```text
-The training loss can get better while the actual depth gets worse.
-```
-
-That sounds strange, but it can happen in self-supervised depth.
-
-The model is trained by asking:
-
-```text
-Can I warp the previous/next RGB image so it looks like the current RGB image?
-```
-
-But our real research question is:
-
-```text
-Does the predicted depth match the LiDAR-supported Citrus depth labels?
-```
-
-Those are related, but not identical.
-
-The diagnostics found several likely trouble spots:
-
-1. The original Lite-Mono folder has depth weights, but no pose weights.
-   - depth starts from the original model
-   - pose starts from scratch
-
-2. The code path for ImageNet-pretrained pose currently crashes with the installed torchvision version.
-   - so we could not simply turn on normal pose pretraining yet
-
-3. Batch size 1 is risky.
-   - the depth encoder and pose encoder use BatchNorm
-   - BatchNorm estimates image statistics from the current batch
-   - with only one sample, those estimates can be noisy
-
-4. The depth encoder also uses DropPath during training.
-   - DropPath randomly skips some paths as regularization
-   - this can be helpful in big training
-   - it may be too noisy for small careful fine-tuning
-
-5. Batch size 4 fits on the GPU for a one-step update.
-   - so we are not forced to stay at batch size 1
-
-Plain meaning:
-
-```text
-The data loader is probably not the main problem.
-The current training recipe is probably too unstable or too easy to "cheat."
-```
-
-Good next experiment ideas are:
-
-- use batch size 4
-- set `--drop_path 0`
-- fix or replace pose pretraining
-- warm up pose before changing depth too much
-- freeze some depth layers early so the pretrained depth model is not damaged too quickly
-
-### Did batch size 4 and `drop_path 0` fix the training?
-
-No.
-
-This was a good test because it changed only training settings:
-
-```text
-batch size: 1 -> 4
-drop_path: 0.2 -> 0
-```
-
-Plain meaning:
-
-- batch size 4 gives BatchNorm more examples to estimate image statistics
-- `drop_path 0` turns off one source of random training noise
-
-The result:
-
-```text
-raw distance numbers got better
-relative depth pattern got much worse
-```
-
-So the model became better at broad "how far is the whole scene?" behavior, but worse at the important pattern inside the image:
-
-- which tree parts are closer
-- which gaps are farther
-- where ground/vegetation boundaries sit
-
-That means:
-
-```text
-Batch size and DropPath were not the whole problem.
-We probably need to control pose/depth training itself.
-```
-
-The next idea should focus more on:
-
-- pose pretraining or pose warmup
-- freezing depth first so the original depth model is not damaged too quickly
-- checking whether photometric loss is "winning" by changing scale instead of learning better geometry
-
-### What does "freeze depth while pose warms up" mean?
-
-In this repo, training has two main parts:
-
-- depth model: looks at one RGB image and predicts per-pixel closeness/depth
-- pose model: looks at neighboring frames and predicts how the camera moved between them
-
-Self-supervised training needs both. It asks:
-
-```text
-If I know the depth of the current image and the camera motion to the next image,
-can I warp the next image so it matches the current image?
-```
-
-The risky part is that our current Milestone 3 setup starts with good pretrained depth weights, but scratch pose weights. So at the beginning, pose may be wrong. If pose is wrong, the photo-matching loss can push the depth model in a bad direction.
-
-`--freeze_depth_steps N` means:
-
-```text
-For the first N training steps:
-  update pose
-  do not update the trainable depth weights
-```
-
-Example:
-
-```text
---freeze_depth_steps 2
-step 0: pose updates, depth weights protected
-step 1: pose updates, depth weights protected
-step 2 onward: both pose and depth can update
-```
-
-This is only a safety lever. It does not guarantee better results. It just lets us test whether the early training damage came from changing depth before pose learned reasonable camera motion.
-
-One subtle detail: BatchNorm running statistics can still change during training-mode forward passes even when trainable depth weights are frozen. That is not the same as optimizer-updating the depth weights, but it can still affect the saved encoder state.
-
-### Was the pose-pretraining problem a PyTorch problem?
-
-It was an old-code-versus-new-library problem.
-
-The pose encoder uses a ResNet from torchvision. Older code loaded pretrained ResNet weights through:
-
-```text
-torchvision.models.resnet.model_urls
-```
-
-The current local environment uses torchvision `0.15.2`, where that old `model_urls` attribute is gone. So PyTorch was not broken; the Lite-Mono compatibility code was old.
-
-The fix was to use torchvision's newer ResNet weights API while keeping the old path as fallback.
-
-Plain meaning:
-
-```text
-Before:
-  pose pretraining crashed before training could even start
-
-After:
-  pretrained pose ResNet can be built and can process fake input tensors
-```
-
-This does not prove training quality improves. It only means we can now fairly test a pose model that starts from ImageNet-pretrained ResNet weights instead of starting fully from scratch.
-
-For our Citrus setup:
-
-- frame `0` is the current RGB image
-- frame `-1` is the previous RGB image
-- frame `1` is the next RGB image
-- pose tries to estimate camera movement between these frames
-
-A pretrained pose encoder may help because it already knows basic visual features like edges and textures. It still does not already know Citrus camera motion; that part must be learned during self-supervised training.
+That is why we track both the training loss and depth metrics.
 
 ### Why can raw metrics improve while median-scaled metrics get worse?
 
-This happened in a Milestone 3 pilot:
+Raw metrics ask:
 
 ```text
-raw-scale got better
-median-scaled got worse
+Are the predicted meter distances close to the LiDAR-label meter distances?
 ```
 
-Plain meaning:
-
-- raw-scale asks: "Are the predicted meter distances close to the LiDAR-label meter distances?"
-- median-scaled asks: "If we ignore one big scale mistake, is the inside-image depth pattern good?"
-
-Example:
+Median-scaled metrics ask:
 
 ```text
-Image label:
+If we correct one global scale mistake for this image, is the near/far structure still right?
+```
+
+Small example:
+
+```text
+Label:
   nearby leaves: 2 m
   background gap: 8 m
 
@@ -1921,247 +1639,114 @@ Prediction B:
   background gap: 4 m
 ```
 
-Prediction A has the wrong absolute scale, but the pattern is right:
+Prediction A has the wrong scale, but the pattern is right: the background is much farther than the leaves.
+Prediction B may look closer in some raw meter values, but the pattern is worse: the background is only slightly farther than the leaves.
+
+Milestone 3 often showed this problem:
 
 ```text
-background is about 4x farther than leaves
+raw distance numbers sometimes improved
+relative depth structure got worse
 ```
 
-Prediction B may have some distances closer in meters, but the pattern is worse:
+For a robot, both matter eventually. For diagnosing Milestone 3, median-scaled metrics helped reveal that the model was damaging the image's internal depth layout.
+
+### What does it mean to freeze depth while pose warms up?
+
+In this repo, self-supervised training has two main parts:
+
+- depth model: predicts depth/disparity from the current RGB image
+- pose model: predicts camera movement between neighboring frames
+
+The training question is:
 
 ```text
-background is only slightly farther than leaves
+If I know the depth of the current image and the camera motion,
+can I warp a nearby image so it matches the current image?
 ```
 
-For a pest-killing robot, both matter eventually, but Milestone 3 is showing a specific risk:
+The risky part is that Milestone 3 starts with useful pretrained depth weights, while pose may start less adapted to Citrus. If pose is wrong early, the photo loss can push the depth model in a bad direction.
+
+`--freeze_depth_steps N` means:
 
 ```text
-self-supervised training can learn a better overall distance scale
-while damaging the relative shape of vegetation in the image
+For the first N training steps:
+  update pose
+  protect the depth weights from optimizer updates
 ```
 
-That is why we do not accept a pilot just because raw metrics improve. We need the median-scaled/relative-depth metrics to stay healthy too.
+This is only a safety lever. It does not guarantee improvement. Milestone 3 showed that pose-only training can lower photo loss, but it does not improve the final RGB-only depth model if the depth path remains unchanged.
 
-### What does "diagnosing training with a magnifying glass" mean?
-
-It means we do not only look at the final validation score. We inspect smaller internal signals on the same fixed batches.
-
-For Milestone 3, the useful internal signals are:
-
-- photo loss: how well warped neighboring images match the current image
-- pose translation: how large the predicted camera movement is
-- predicted depth median: whether the whole depth map becomes too near or too far
-- automask fraction: how many pixels the loss chooses from warped images instead of identity images
-- LiDAR-valid metrics: whether predictions match the LiDAR-derived depth labels where labels are valid
-
-In the recent diagnostics, photo loss improved even when LiDAR depth quality got worse.
-
-Plain meaning:
-
-```text
-The model can get better at the training game
-without getting better at the depth result we care about.
-```
-
-That is why the next setting change should protect depth structure more directly, not only chase a lower photo loss.
-
-### What is the difference between freezing the depth encoder and updating the depth decoder?
+### What is the difference between freezing the depth encoder and updating only the decoder?
 
 Lite-Mono's depth side has two main parts:
-
-- encoder: reads the RGB image and creates visual features
-- decoder: turns those features into disparity/depth predictions
-
-A simple mental picture:
 
 ```text
 RGB image -> encoder features -> decoder depth map
 ```
 
-The encoder is the large pretrained visual-understanding part. If it changes too quickly, the model may forget useful general image structure. It also has BatchNorm running statistics, which can drift during training even if the optimizer does not update weights.
+- encoder = the larger visual feature extractor
+- decoder = the smaller part that turns features into disparity/depth
 
-The decoder is smaller. Updating only the decoder is a cautious test:
+Updating only the decoder is a cautious test:
 
 ```text
 keep the visual feature extractor stable
 only adjust how features become depth
 ```
 
-In the 50-step decoder-only pilot, this protection worked mechanically:
+Milestone 3 verified that this protection worked mechanically, but the validation metrics still got worse. So the issue was not only encoder drift; the standard photo-loss adaptation signal itself was still pushing depth predictions in the wrong direction.
 
-```text
-encoder weights changed: 0
-encoder BatchNorm buffers changed: 0
-decoder updated: yes
-```
+### What did Milestone 3 conclude?
 
-But the validation metrics still got worse. That means the problem is not only "the encoder was drifting." The training loss or pose/mask behavior may still be pushing the decoder in a direction that does not improve Citrus depth.
+Milestone 3 concluded that standard self-supervised Citrus adaptation is weak/negative evidence under the tested recipe family.
 
-### Is inspecting the loss the same as inventing a new loss?
+Important first-100 validation reference:
 
-No.
-
-In Milestone 3, "inspect the loss" means:
-
-```text
-look inside the existing Lite-Mono training score
-and print the pieces separately
-```
-
-It does not mean:
-
-```text
-change what the model optimizes
-```
-
-Concrete example from this repo:
-
-The normal Lite-Mono self-supervised loss includes:
-
-- photo/reprojection loss: whether a neighboring frame can be warped to look like the current frame
-- automask: whether a pixel uses the warped image or ignores it because the unwarped neighbor already looks similar
-- smoothness loss: a small regularizer that discourages noisy disparity
-
-The diagnostic helper now reports those pieces separately. That is like reading a dashboard:
-
-```text
-speed, fuel, temperature
-```
-
-Reading the dashboard does not change how the car drives.
-
-Adding a new loss would be different. For example:
-
-```text
-new term: keep the adapted depth close to original Lite-Mono depth unless the image evidence is strong
-```
-
-That would change training behavior. If we need that kind of structure-preserving term, it likely belongs to the later proposed-method milestone, not the core Milestone 3 baseline.
-
-Plain Milestone 3 rule:
-
-```text
-Diagnostics are allowed.
-Changing the objective is a research-method decision.
-```
-
-### If pose training lowers photo loss, why does the depth result not improve?
-
-Because the pose network is only a training helper.
-
-During self-supervised training, Lite-Mono uses two jobs:
-
-```text
-depth network: predicts depth/disparity from the current RGB image
-pose network: predicts how the camera moved between neighboring frames
-```
-
-Together, they try to warp a nearby frame so it matches the current frame.
-
-But during final RGB-only depth inference, we only use:
-
-```text
-RGB image -> depth encoder/decoder -> depth prediction
-```
-
-The pose network is not used.
-
-So if we train only the pose network while keeping the whole depth path frozen, the training photo loss can improve, but the saved depth model is still the same model. That is exactly what the 50-step fully depth-frozen control showed:
-
-```text
-encoder changed: 0
-depth decoder changed: 0
-first-100 validation metrics: exactly the original baseline
-```
+| setting | median-scaled abs_rel | median-scaled a1 |
+|---|---:|---:|
+| original Lite-Mono, no Citrus training | 0.3680 | 0.4807 |
+| conservative adapted control after 1000 updates | 0.6615 | 0.1827 |
+| no-color-augmentation control after 250 updates | 0.4108 | 0.4568 |
+| no-color-augmentation control after 500 updates | 0.5300 | 0.3513 |
+| normal batch-size-12 one-epoch control | 3.0501 | 0.2473 |
 
 Plain meaning:
 
 ```text
-pose-only training can make the training reconstruction game look better,
-but it does not create a better depth model for deployment.
+Normal Citrus fine-tuning did not beat the original model.
+The model learned the photo-matching objective, but its LiDAR-valid depth structure got worse.
 ```
 
-If BatchNorm in the depth encoder is allowed to drift, the depth result can move a little even when optimizer updates are frozen. But the larger Milestone 3 failures happened when trainable depth parameters updated.
-
-### Could Milestone 3 be failing only because the runs are too short?
-
-It is possible that a longer run could behave differently, so we should not claim "long training can never recover."
-
-But the short trajectory gave an important warning.
-
-In the seeded warmup-then-depth test:
+This does not mean the project failed. It gives a clear target for Milestone 4:
 
 ```text
-25 steps: pose warmup only, depth updates = 0
-30 steps: 5 depth-update steps
-40 steps: 15 depth-update steps
-50 steps: 25 depth-update steps
+adapt to vegetation scenes while preserving or improving relative depth structure
 ```
 
-The pattern was:
+### Could Milestone 3 be failing only because the runs were too short?
 
-```text
-0 depth updates:
-  close to baseline
+A longer run could always behave differently, so we should not claim that all long training can never recover.
 
-5 depth updates:
-  raw distance looked better
-  relative depth structure already got worse
+But the controlled evidence gave a warning:
 
-15 depth updates:
-  relative depth got worse again
-
-25 depth updates:
-  both raw and relative depth were bad
-```
+1. depth-frozen pose warmup stayed close to the original baseline
+2. a few depth-update steps already started hurting relative depth
+3. longer standard controls got worse, not better
+4. the conservative 1000-step probe did not recover
+5. the no-color-augmentation 500-step continuation worsened after the better 250-step checkpoint
 
 Plain meaning:
 
 ```text
-The bad direction starts very soon after the depth network is allowed to update.
+A blind longer run of the same recipe is not justified right now.
 ```
 
-That does not mean we can never run longer. It means a longer run should not be a blind "let it train and hope" run. It would need monitoring, early stopping, or a safer depth-preservation control.
-
-For the paper, this is useful evidence:
-
-```text
-standard self-supervised adaptation is unstable on Citrus
-```
-
-If Milestone 3 cannot find a stable standard-control baseline, that becomes motivation for Milestone 4's proposed improvement.
-
-### Why not just train from scratch on Citrus?
-
-Training from scratch means the model starts with random weights instead of using the original Lite-Mono knowledge.
-
-Plain version:
-
-```text
-fine-tuning: starts from a model that already knows general depth cues
-from scratch: starts from almost nothing
-```
-
-From-scratch training is possible technically, but it is a much bigger research decision because:
-
-- the current Citrus training split has 4275 temporal samples, which is small compared with the large datasets normally used to train monocular depth models from scratch
-- self-supervised depth training can learn shortcuts from photo matching, especially in vegetation, shadows, repeated leaves, and moving exposure conditions
-- if the dataset is small, the model may memorize this sequence instead of learning robust orchard depth
-- if we later add more Citrus Farm sequences or other agricultural datasets, from-scratch or larger-scale retraining becomes more reasonable
-
-So the safer current logic is:
-
-```text
-Milestone 3: test whether standard fine-tuning/adaptation works
-Milestone 4: propose a controlled improvement if standard adaptation is weak
-Later: consider from-scratch or bigger-data training if dataset scale supports it
-```
-
-This does not mean from-scratch is wrong. It means it should be treated as a later experimental branch, not the first answer to the current Milestone 3 instability.
+A future longer run should require a new technical reason, monitoring, and explicit confirmation.
 
 ### Could the Milestone 3 failure be caused by loading the wrong weights?
 
-That was a good advisor question, so we checked it.
+That was an advisor question, so we checked it.
 
 The original Lite-Mono folder has:
 
@@ -2170,34 +1755,27 @@ encoder.pth
 depth.pth
 ```
 
-During Milestone 3 fine-tuning, we intentionally loaded:
+Milestone 3 intentionally loaded:
 
 ```text
 --load_weights_folder weights/lite-mono
 --models_to_load encoder depth
 ```
 
-Plain meaning:
-
-```text
-start depth from original Lite-Mono
-let pose be created for training
-```
-
 The audit found:
 
 - all actual encoder model tensors loaded
 - all actual depth-decoder model tensors loaded
-- the extra checkpoint tensors were profiling metadata, not needed model weights
+- extra checkpoint tensors were profiling metadata, not model weights needed for inference
 - a fully depth-frozen checkpoint stayed exactly identical to the original encoder/depth tensors
 
-So the current evidence says:
+Plain conclusion:
 
 ```text
-wrong depth-weight loading is probably not the reason Milestone 3 failed
+wrong depth-weight loading is probably not why Milestone 3 failed
 ```
 
-### If we evaluate on training images, should the adapted model be very accurate?
+### If we evaluate on training images, should the adapted model become very accurate?
 
 Not necessarily.
 
@@ -2209,7 +1787,7 @@ use predicted depth + pose to warp nearby RGB frames
 
 So even on training images, the model is not directly forced to match the LiDAR depth label.
 
-We checked first 100 training images. The adapted checkpoints still did not become clearly better than the original model. The same pattern appeared:
+We checked first-100 training images. Adapted checkpoints still did not become clearly better than the original model. The same pattern appeared:
 
 ```text
 raw scale sometimes moved
@@ -2219,7 +1797,7 @@ relative depth structure still got worse
 Plain meaning:
 
 ```text
-This is not just "bad validation generalization."
+This is not just bad validation generalization.
 The self-supervised training signal itself is not producing LiDAR-good Citrus depth.
 ```
 
@@ -2227,21 +1805,21 @@ The self-supervised training signal itself is not producing LiDAR-good Citrus de
 
 So far, no.
 
-The normal Citrus evaluation uses our prepared LiDAR labels:
+The normal Citrus evaluation uses prepared semi-dense labels:
 
 ```text
-raw LiDAR points -> projected into the camera -> locally filled by local_idw -> valid mask
+raw LiDAR points -> projected into camera -> local_idw fill -> valid mask
 ```
 
-The professor asked a fair question: maybe the filling step makes the evaluation strange. So we also tried a closer-to-KITTI sanity check:
+The advisor asked whether the fill step could be causing the negative result. So we also checked only raw projected sparse LiDAR pixels:
 
 ```text
-raw LiDAR points -> projected into the camera -> evaluate only those sparse pixels
+raw LiDAR points -> projected into camera -> evaluate only sparse pixels
 ```
 
-This check used no `local_idw` filling. It only used about 0.96% of image pixels, so the numbers are harsher and noisier than the normal evaluation.
+That check used no `local_idw` filling. It only used about 0.96% of image pixels, so it is harsher and noisier than the normal evaluation.
 
-First 100 validation images:
+First-100 validation result:
 
 | model/checkpoint | median-scaled abs_rel | median-scaled a1 |
 |---|---:|---:|
@@ -2252,105 +1830,50 @@ First 100 validation images:
 Plain meaning:
 
 ```text
-Even when we evaluate only on sparse raw LiDAR points, the adapted checkpoints are still worse than the original model.
+Even when evaluating only sparse raw LiDAR points, adapted checkpoints stayed worse than the original model.
 ```
 
-This does not prove our whole Citrus label pipeline is perfect. It only says the Milestone 3 failure is probably not caused only by the `local_idw` densification step.
+This does not prove the Citrus label pipeline is perfect. It only reduces the chance that Milestone 3 failed only because of `local_idw` densification.
 
-### What does batch size mean, and can our laptop use the original Lite-Mono batch size?
+### What does batch size mean, and did batch size 12 fix Milestone 3?
 
 Batch size means:
 
 ```text
-how many training examples the model sees before making one optimizer update
+how many training examples the model sees before one optimizer update
 ```
 
 Small example:
 
-- batch size 4 = look at 4 image triplets, average their training loss, then update
-- batch size 12 = look at 12 image triplets, average their training loss, then update
+- batch size 4 = average loss over 4 image triplets, then update
+- batch size 12 = average loss over 12 image triplets, then update
 
-Why it matters:
+The original Lite-Mono README training example uses `--batch_size 12`. Earlier Milestone 3 controlled runs used `--batch_size 4`.
 
-- smaller batch = noisier updates, but easier to fit in GPU memory
-- larger batch = steadier average signal, but uses more GPU memory
+The laptop RTX 4060 GPU can fit true batch sizes 8 and 12 for one-step CUDA training, with no gradient accumulation.
 
-The original Lite-Mono README training example uses:
-
-```text
---batch_size 12
-```
-
-Our earlier Milestone 3 controlled runs used:
+But batch size 12 did not fix the training problem. In a normal one-epoch batch-size-12 control:
 
 ```text
---batch_size 4
-```
-
-We tested true batch sizes on the laptop RTX 4060 GPU with no gradient accumulation:
-
-| true batch size | one-step CUDA training result |
-|---:|---|
-| 8 | passed |
-| 12 | passed |
-
-Plain meaning:
-
-```text
-The laptop can fit the original-example batch size for at least a one-step Citrus training pass.
-```
-
-Important caution:
-
-```text
-This only proves memory feasibility, not model quality.
-```
-
-Batch size might make training less noisy, but it does not automatically fix the Milestone 3 problem where depth structure got worse after depth updates.
-
-### Did batch size 12 fix the Milestone 3 training problem?
-
-No.
-
-We ran a normal one-epoch Citrus fine-tuning control with:
-
-```text
-batch size 12
-normal/default learning rate
-normal trainable depth network
-no freezing tricks
-```
-
-This is closer to the original Lite-Mono README training example than our earlier batch-size-4 controlled runs.
-
-The training photo loss went down:
-
-```text
-about 0.164 -> about 0.133
+photo loss decreased from about 0.164 to about 0.133
+but median-scaled depth metrics got worse
 ```
 
 Plain meaning:
 
 ```text
-the model got better at the photo-matching training game
+A larger true batch size is feasible, but it is not the main missing piece.
 ```
 
-But the depth evaluation got worse:
+### Where should I look for the detailed Milestone 3 evidence?
 
-| checkpoint | validation median-scaled abs_rel | validation median-scaled a1 |
-|---|---:|---:|
-| original Lite-Mono | 0.3680 | 0.4807 |
-| batch 12, step 100 | 0.6906 | 0.1465 |
-| batch 12, step 200 | 0.7540 | 0.1375 |
-| batch 12, step 300 | 1.0451 | 0.0932 |
-| batch 12, final one-epoch | 3.0501 | 0.2473 |
+Use these files instead of keeping every table inside this beginner note:
 
-Plain meaning:
-
-```text
-A larger true batch size did not solve the problem.
-The model learned the photo-loss objective, but its LiDAR-valid depth structure got worse.
-```
-
-So batch size may still matter for stability, but it is probably not the main reason Milestone 3 failed.
-
+| question | best file |
+|---|---|
+| What is the official Milestone 3 verdict? | `citrus_project/milestones/03_self_supervised_adaptation/README.md` |
+| Which run folders are evidence versus cleanup candidates? | `citrus_project/milestones/03_self_supervised_adaptation/artifact_inventory.md` |
+| What should we show the professor? | `citrus_project/milestones/03_self_supervised_adaptation/professor_loading_and_train_eval_check.md` |
+| What are the detailed model-behavior notes? | `citrus_project/research/baseline_notes.md` |
+| What questions did the advisor ask? | `citrus_project/research/advisor_notes.md` |
+| What might appear in the paper? | `citrus_project/research/paper_shortlist.md` |
