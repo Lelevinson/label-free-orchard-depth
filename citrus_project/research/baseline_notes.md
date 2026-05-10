@@ -1229,3 +1229,75 @@ Interpretation:
 
 The batch-size-12 normal one-epoch control did not rescue Milestone 3. The photo loss went down, and raw-scale `abs_rel` temporarily improved around steps 200-300, but median-scaled relative-depth quality became much worse than the original model on both train and validation images. This supports the conclusion that small batch size was not the main cause of the Milestone 3 failure pattern.
 
+## Milestone 4 Plain Lite-Mono Citrus Baseline From ImageNet Pretrain
+
+Date: 2026-05-10
+
+Paper relevance: plain Lite-Mono Citrus-training baseline for later comparison against a Milestone 4 improvement. This is different from Milestone 3 because it does not fine-tune the KITTI depth-trained Lite-Mono checkpoint.
+
+Run:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/
+```
+
+Recipe:
+
+- ImageNet-style Lite-Mono encoder pretrain loaded through `--mypretrain weights/lite-mono/lite-mono-pretrain.pth`
+- no `--load_weights_folder weights/lite-mono`
+- `lite-mono`, 640 x 192 input
+- true `--batch_size 12`
+- `--num_epochs 30`
+- LR args `0.0001 0.000005 31 0.0001 0.00001 31`
+- AdamW, `weight_decay=0.01`, `drop_path=0.2`
+- pose ResNet initialized with `--weights_init pretrained`
+- Citrus prepared dataset, monocular temporal frames `[0, -1, 1]`
+- checkpoints saved every epoch
+
+Status:
+
+- Training completed successfully.
+- Saved checkpoints: `weights_0` through `weights_29`.
+- Run folder size after completion: about 6.96 GB.
+- Final checkpoint evaluated: `models/weights_29`.
+
+Saved final evaluation outputs:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/results/plain_litemono_imagenet_b12_30ep_final_weights29/
+```
+
+Full validation/test comparison:
+
+| model | split | raw abs_rel | raw a1 | median-scaled abs_rel | median-scaled a1 |
+|---|---|---:|---:|---:|---:|
+| original Lite-Mono | val | 0.7128 | 0.0195 | 0.4176 | 0.4629 |
+| ImageNet-pretrained Citrus baseline, final epoch | val | 0.7736 | 0.0074 | 0.5100 | 0.6107 |
+| original Lite-Mono | test | 0.7273 | 0.0149 | 0.3836 | 0.4989 |
+| ImageNet-pretrained Citrus baseline, final epoch | test | 0.7787 | 0.0077 | 0.4889 | 0.6582 |
+
+Interpretation:
+
+The final epoch gives a mixed result. Median-scaled `a1` improves strongly on both validation and test, so more valid pixels become approximately correct after per-image scale correction. However, raw-scale metrics get worse and median-scaled `abs_rel` also gets worse, so the average relative error and metric scale are not solved.
+
+This is better evidence than Milestone 3 blind fine-tuning because it shows a real positive signal in threshold accuracy, but it is not yet a clean research improvement. After visual review, the committed Milestone 4 baseline evidence remains the final `weights_29` checkpoint rather than a metric-only checkpoint-sweep selection.
+
+Comparison visuals:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/results/plain_litemono_imagenet_b12_30ep_final_weights29/visual_compare_original_vs_final_val_full/
+```
+
+Generated panels:
+
+- `adapted_good_index_0094_comparison.png`
+- `adapted_typical_index_0277_comparison.png`
+- `adapted_bad_index_0445_comparison.png`
+- `largest_drop_vs_original_index_0394_comparison.png`
+
+Tracked inference-only checkpoint copy:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/baseline_checkpoint/plain_litemono_imagenet_b12_30ep_weights29_inference/
+```
+

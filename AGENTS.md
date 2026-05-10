@@ -256,14 +256,41 @@ Milestone 3 - Standard self-supervised Citrus adaptation:
 
 Milestone 4 - Lightweight vegetation improvement:
 
-1. Next active planning stage after the cleanup pass.
-2. Goal: choose one lightweight vegetation-focused improvement that targets the Milestone 3 failure pattern.
+1. Active stage after the cleanup pass.
+2. Goal: choose one lightweight vegetation-focused improvement that targets the Milestone 3 and plain-Citrus-baseline failure patterns.
 3. Compare against:
    - original Lite-Mono baseline
    - documented weak/negative Milestone 3 adapted baseline
+   - plain Lite-Mono trained on Citrus from ImageNet encoder pretrain
    - the Milestone 4 proposed variant
 4. Initial target: preserve or improve Citrus relative depth structure while adapting to vegetation scenes.
 5. Milestone folder: `citrus_project/milestones/04_lightweight_vegetation_improvement/`.
+
+Milestone 4 plain Lite-Mono Citrus baseline planning:
+
+1. User agreed that the fair plain Lite-Mono Citrus baseline should start from the Lite-Mono ImageNet encoder pretrain, not from KITTI depth-trained `encoder.pth`/`depth.pth`.
+2. This means "Citrus-only depth training from ImageNet visual features," not true random-weight scratch training.
+3. The run should use `--mypretrain weights/lite-mono/lite-mono-pretrain.pth` and should not use `--load_weights_folder weights/lite-mono` when the purpose is the plain Citrus training baseline.
+4. Confirmed paper/README-matching baseline recipe: `batch_size=12`, `num_epochs=30`, `lr=0.0001 5e-6 31 0.0001 1e-5 31`, AdamW, `weight_decay=1e-2`, `drop_path=0.2`, input size `640x192`, monocular temporal frames `[0,-1,1]`, and 50% flip/color augmentation.
+5. Use `--weights_init pretrained` for the pose ResNet encoder, consistent with the Lite-Mono paper's PoseNet setup.
+6. Use `--num_workers 0` for the first overnight run for Windows stability and because previous controlled Citrus runs used it; this is an engineering/data-loading setting, not a research hyperparameter.
+7. The RTX 4060 Laptop GPU already passed true batch-size-12 one-step smoke and completed a batch-size-12 one-epoch control in Milestone 3, so this recipe is technically feasible.
+8. Expected runtime for the 30-epoch run is roughly 10-15 hours, based on the previous batch-size-12 one-epoch timing.
+9. Confirmed output folder:
+   `citrus_project/milestones/04_lightweight_vegetation_improvement/runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/`.
+10. Run completed successfully on 2026-05-10; saved checkpoints `weights_0` through `weights_29`.
+11. Historical mid-run `weights_15` CPU first-100 validation probe: raw `abs_rel=0.7807`, raw `a1=0.0055`, median-scaled `abs_rel=0.4478`, median-scaled `a1=0.6720`. This was a mixed signal versus the original first-100 reference (`abs_rel=0.3680`, `a1=0.4807`): `a1` improved, `abs_rel` worsened.
+12. Final epoch `weights_29` full validation: raw `abs_rel=0.7736`, `a1=0.0074`; median-scaled `abs_rel=0.5100`, `a1=0.6107`.
+13. Final epoch `weights_29` full test: raw `abs_rel=0.7787`, `a1=0.0077`; median-scaled `abs_rel=0.4889`, `a1=0.6582`.
+14. Interpretation: final epoch improves median-scaled `a1` over original Lite-Mono on val/test, but worsens raw-scale metrics and median-scaled `abs_rel`. This is useful positive signal but not a clean improvement.
+15. Saved final evaluation:
+    `citrus_project/milestones/04_lightweight_vegetation_improvement/results/plain_litemono_imagenet_b12_30ep_final_weights29/`.
+16. Saved comparison panels:
+    `citrus_project/milestones/04_lightweight_vegetation_improvement/results/plain_litemono_imagenet_b12_30ep_final_weights29/visual_compare_original_vs_final_val_full/`.
+17. The full training run folder is local/ignored because it contains many checkpoints and optimizer states.
+18. Tracked inference-only final baseline weights:
+    `citrus_project/milestones/04_lightweight_vegetation_improvement/baseline_checkpoint/plain_litemono_imagenet_b12_30ep_weights29_inference/`.
+19. A checkpoint sweep was tried after final evaluation but discarded from committed evidence after visual review; do not use sweep-derived checkpoints as representative Milestone 4 baselines unless a later explicitly approved selection rule reintroduces them.
 
 Later milestones:
 
@@ -401,10 +428,10 @@ Milestone 3 status:
 
 Immediate:
 
-1. Review the 2026-05-09 cleanup changes if needed; no evidence artifacts were deleted.
+1. Treat the final-epoch plain Lite-Mono Citrus run as mixed evidence, not a clean improvement.
 2. Do not delete generated evidence or checkpoints unless the user explicitly approves a specific cleanup list.
 3. Keep professor-facing names descriptive and keep internal run-folder names in technical mappings.
-4. Start Milestone 4 planning around a structure-preserving or vegetation-aware lightweight improvement.
+4. Continue Milestone 4 planning around a structure-preserving or vegetation-aware lightweight improvement using the new plain-Citrus-baseline failure pattern.
 
 Milestone 4 planning questions:
 
@@ -422,6 +449,12 @@ Milestone 4 planning questions:
 5. 2026-05-07: Milestone 3 standard self-supervised adaptation closed as weak/negative evidence.
 6. 2026-05-08: Advisor checks completed for parameter loading, train-image evaluation, sparse LiDAR-only evaluation, and batch-size-12 control.
 7. 2026-05-09: Workspace cleanup pass compacted this file and moved Milestone 3 artifact classification into the milestone workspace.
+8. 2026-05-09: Milestone 4 baseline planning recorded ImageNet-encoder initialization for the plain Lite-Mono Citrus baseline.
+9. 2026-05-09: User confirmed the paper-style ImageNet-pretrained plain Lite-Mono Citrus baseline recipe and plans to run it manually from the terminal.
+10. 2026-05-10: Plain Lite-Mono Citrus ImageNet-pretrained baseline is running manually; early terminal loss is decreasing, final evaluation pending.
+11. 2026-05-10: Mid-run `weights_15` first-100 validation probe completed from a completed checkpoint while training continued; metrics recorded in the Milestone 4 README, JSON/CSV saving was blocked by local permission during the live run.
+12. 2026-05-10: Plain Lite-Mono Citrus ImageNet-pretrained 30-epoch run completed; final `weights_29` val/test evaluation and original-vs-final comparison panels saved under the Milestone 4 results folder.
+13. 2026-05-10: Checkpoint-sweep interpretation was reverted after visual review; final-epoch `weights_29` remains the current inspected plain Lite-Mono Citrus baseline evidence, with the full run ignored and an inference-only checkpoint copy tracked.
 
 ## Update Template
 

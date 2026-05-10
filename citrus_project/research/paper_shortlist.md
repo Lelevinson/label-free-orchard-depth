@@ -138,6 +138,34 @@ Current status:
 - A sparse LiDAR-only first-100 validation sanity check on 2026-05-08 also keeps the same direction: original median-scaled `abs_rel=0.6072`, `a1=0.3724`; conservative adapted final1000 `abs_rel=0.8445`, `a1=0.1441`; no-augmentation 250-step `abs_rel=0.6712`, `a1=0.3234`. This reduces concern that the negative result comes only from semi-dense `local_idw` evaluation labels.
 - A normal one-epoch true batch-size-12 control on 2026-05-08 also failed to recover: original first-100 validation median-scaled `abs_rel=0.3680`, `a1=0.4807`; batch12 step100 `abs_rel=0.6906`, `a1=0.1465`; final one-epoch `abs_rel=3.0501`, `a1=0.2473`, despite photo loss decreasing during training.
 
+### Plain Lite-Mono Citrus Training From ImageNet Pretrain
+
+Evidence notes:
+
+- `citrus_project/research/baseline_notes.md`
+- `citrus_project/milestones/04_lightweight_vegetation_improvement/README.md`
+- results under `citrus_project/milestones/04_lightweight_vegetation_improvement/results/plain_litemono_imagenet_b12_30ep_final_weights29/`
+
+Why it matters:
+
+- Gives a fairer plain Lite-Mono Citrus-training baseline for later comparison with a Milestone 4 method.
+- It starts from the Lite-Mono ImageNet encoder pretrain, not the KITTI depth-trained Lite-Mono checkpoint.
+- Final epoch shows a mixed but useful signal: median-scaled `a1` improves, while raw-scale metrics and median-scaled `abs_rel` worsen.
+
+Paper section fit:
+
+- Experimental baselines
+- Domain adaptation comparison
+- Motivation for a structure-preserving or vegetation-aware improvement
+
+Current status:
+
+- Training completed on 2026-05-10.
+- Final checkpoint `weights_29` validation: original median-scaled `abs_rel=0.4176`, `a1=0.4629`; trained baseline median-scaled `abs_rel=0.5100`, `a1=0.6107`.
+- Final checkpoint `weights_29` test: original median-scaled `abs_rel=0.3836`, `a1=0.4989`; trained baseline median-scaled `abs_rel=0.4889`, `a1=0.6582`.
+- Important caveat: the final checkpoint improves median-scaled `a1` but worsens raw-scale metrics and median-scaled `abs_rel`. Use this as baseline/motivation evidence, not a final proposed-method win.
+- A later checkpoint sweep was discarded after visual review and is not part of committed paper evidence.
+
 ### Original Lite-Mono Qualitative Citrus Prediction
 
 Evidence notes:

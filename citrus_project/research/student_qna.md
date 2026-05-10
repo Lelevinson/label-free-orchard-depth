@@ -1534,6 +1534,45 @@ C. improved Milestone 4 method trained with the same Citrus budget
 
 Training from scratch remains a possible later branch, but it is not the immediate answer to Milestone 3's standard-adaptation failure.
 
+### For a future Citrus baseline, what does ImageNet pretrain mean?
+
+ImageNet pretrain means the Lite-Mono encoder has already learned generic visual features from normal image classification, such as edges, textures, object parts, and broad shapes.
+
+It is not the same as loading the original KITTI-trained Lite-Mono depth checkpoint.
+
+In this repo:
+
+```text
+weights/lite-mono/lite-mono-pretrain.pth
+```
+
+is the ImageNet-style encoder pretrain.
+
+```text
+weights/lite-mono/encoder.pth
+weights/lite-mono/depth.pth
+```
+
+are the already depth-trained original Lite-Mono checkpoint weights.
+
+For a fair plain Lite-Mono Citrus training baseline before comparing a Milestone 4 improvement, the current plan is:
+
+```text
+start from ImageNet encoder features
+train depth on Citrus
+do not load the KITTI-trained depth checkpoint
+```
+
+Plain meaning:
+
+```text
+not true random scratch
+not KITTI depth fine-tuning
+yes Citrus-only depth training from generic visual features
+```
+
+This keeps the comparison fair if the improved method also starts from the same ImageNet encoder pretrain and uses the same Citrus training budget.
+
 ### What is `--max_train_steps`?
 
 `--max_train_steps` is a safety brake for training.
