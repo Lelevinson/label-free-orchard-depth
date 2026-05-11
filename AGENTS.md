@@ -246,7 +246,8 @@ Milestone 3 - Standard self-supervised Citrus adaptation:
    - median-scaled relative-depth structure gets worse
    - adapted outputs become smoother and less structurally specific
 5. Do not launch another longer/full Milestone 3 run without a new technical reason and explicit confirmation.
-6. Detailed evidence and artifact classification:
+6. On 2026-05-11, local ignored smoke/pilot/VRAM run folders were deleted after their results had been summarized; important evidence and diagnostic runs remain under `runs/`.
+7. Detailed evidence and artifact classification:
    - `citrus_project/milestones/03_self_supervised_adaptation/README.md`
    - `citrus_project/milestones/03_self_supervised_adaptation/professor_loading_and_train_eval_check.md`
    - `citrus_project/milestones/03_self_supervised_adaptation/artifact_inventory.md`
@@ -278,7 +279,7 @@ Milestone 4 plain Lite-Mono Citrus baseline planning:
 8. Expected runtime for the 30-epoch run is roughly 10-15 hours, based on the previous batch-size-12 one-epoch timing.
 9. Confirmed output folder:
    `citrus_project/milestones/04_lightweight_vegetation_improvement/runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/`.
-10. Run completed successfully on 2026-05-10; saved checkpoints `weights_0` through `weights_29`.
+10. Run completed successfully on 2026-05-10; originally saved checkpoints `weights_0` through `weights_29`.
 11. Historical mid-run `weights_15` CPU first-100 validation probe: raw `abs_rel=0.7807`, raw `a1=0.0055`, median-scaled `abs_rel=0.4478`, median-scaled `a1=0.6720`. This was a mixed signal versus the original first-100 reference (`abs_rel=0.3680`, `a1=0.4807`): `a1` improved, `abs_rel` worsened.
 12. Final epoch `weights_29` full validation: raw `abs_rel=0.7736`, `a1=0.0074`; median-scaled `abs_rel=0.5100`, `a1=0.6107`.
 13. Final epoch `weights_29` full test: raw `abs_rel=0.7787`, `a1=0.0077`; median-scaled `abs_rel=0.4889`, `a1=0.6582`.
@@ -287,7 +288,7 @@ Milestone 4 plain Lite-Mono Citrus baseline planning:
     `citrus_project/milestones/04_lightweight_vegetation_improvement/results/plain_litemono_imagenet_b12_30ep_final_weights29/`.
 16. Saved comparison panels:
     `citrus_project/milestones/04_lightweight_vegetation_improvement/results/plain_litemono_imagenet_b12_30ep_final_weights29/visual_compare_original_vs_final_val_full/`.
-17. The full training run folder is local/ignored because it contains many checkpoints and optimizer states.
+17. The full training run folder is local/ignored. On 2026-05-11, old epoch checkpoints `weights_0` through `weights_28` were deleted locally; full `weights_29` remains for unlikely exact-resume/debug needs.
 18. Tracked inference-only final baseline weights:
     `citrus_project/milestones/04_lightweight_vegetation_improvement/baseline_checkpoint/plain_litemono_imagenet_b12_30ep_weights29_inference/`.
 19. A checkpoint sweep was tried after final evaluation but discarded from committed evidence after visual review; do not use sweep-derived checkpoints as representative Milestone 4 baselines unless a later explicitly approved selection rule reintroduces them.
@@ -455,6 +456,7 @@ Milestone 4 planning questions:
 11. 2026-05-10: Mid-run `weights_15` first-100 validation probe completed from a completed checkpoint while training continued; metrics recorded in the Milestone 4 README, JSON/CSV saving was blocked by local permission during the live run.
 12. 2026-05-10: Plain Lite-Mono Citrus ImageNet-pretrained 30-epoch run completed; final `weights_29` val/test evaluation and original-vs-final comparison panels saved under the Milestone 4 results folder.
 13. 2026-05-10: Checkpoint-sweep interpretation was reverted after visual review; final-epoch `weights_29` remains the current inspected plain Lite-Mono Citrus baseline evidence, with the full run ignored and an inference-only checkpoint copy tracked.
+14. 2026-05-11: Local cleanup deleted Milestone 4 old epoch checkpoints `weights_0` through `weights_28` and Milestone 3 smoke/pilot/VRAM run folders; committed metrics, visuals, inference weights, final `weights_29`, and Milestone 3 evidence runs were preserved.
 
 ## Update Template
 

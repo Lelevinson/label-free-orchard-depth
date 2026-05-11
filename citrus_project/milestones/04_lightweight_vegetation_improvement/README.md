@@ -165,7 +165,13 @@ Temporary one-image panels under `citrus_project/research/generated/` were delet
 
 ## Checkpoint Storage
 
-The full training run folder is local/ignored because it contains all epoch checkpoints plus optimizer states.
+The full training run folder is local/ignored.
+
+Current local checkpoint state after the 2026-05-11 cleanup:
+
+- `weights_0` through `weights_28` were deleted locally.
+- full `weights_29` remains in the ignored run folder for unlikely exact-resume/debug needs.
+- committed metrics, visuals, and inference-only weights remain tracked separately.
 
 Tracked inference-only copy:
 

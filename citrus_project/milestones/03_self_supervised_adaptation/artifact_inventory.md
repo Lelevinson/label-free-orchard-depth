@@ -1,6 +1,7 @@
 # Milestone 3 Artifact Inventory
 
 Date: 2026-05-09
+Last updated: 2026-05-11
 
 Purpose: classify Milestone 3 notes, scripts, generated outputs, and run folders before any cleanup or deletion.
 
@@ -17,6 +18,12 @@ The artifact goal is now preservation and navigation, not more blind recipe scal
 
 Professor-facing names should describe experiment purpose.
 Internal `citrus_ss_*` folder names are kept only for reproducibility mapping.
+
+2026-05-11 cleanup:
+
+- deleted ignored smoke/pilot/VRAM run folders whose useful outcomes were already summarized in notes
+- kept important evidence runs, advisor checks, and diagnostics
+- kept source-of-truth notes, milestone handoff notes, and helper scripts
 
 ## Source-Of-Truth And Notes
 
@@ -41,7 +48,7 @@ Internal `citrus_ss_*` folder names are kept only for reproducibility mapping.
 
 ## Evidence Runs To Preserve
 
-These runs are evidence-bearing. Do not delete them in the first cleanup pass.
+These remaining runs are evidence-bearing. Keep them as Milestone 3's standard-adaptation evidence and diagnostics.
 
 | professor-facing name | internal artifact | why preserve |
 |---|---|---|
@@ -56,26 +63,29 @@ These runs are evidence-bearing. Do not delete them in the first cleanup pass.
 | Diagnostic: fixed-batch internal comparison | `runs/diagnostics_fixed_m3_internal_compare/` | supports internal loss/scale/mask analysis across checkpoints |
 | Diagnostic: seeded trajectory diagnostics | `runs/diagnostics_seed0_warmup25_trajectory_2026-05-06/` | diagnostic companion to seeded warmup/depth-update checkpoints |
 
-## Summarized Evidence, Cleanup Candidate After Approval
+## Summarized Evidence Deleted In 2026-05-11 Cleanup
 
-These artifacts have useful results captured in notes, but may be candidates for archiving or deletion only after user approval.
+These artifacts had useful results captured in notes and were deleted locally after user approval.
 
-| professor-facing name | internal artifact | current recommendation |
+| professor-facing name | internal artifact | status |
 |---|---|---|
-| Early smoke: 2-step training path | `runs/citrus_ss_finetune_smoke_2steps/` | candidate for deletion after confirming no unique output beyond notes |
-| Early smoke: 2-step retry with saved checkpoint | `runs/citrus_ss_finetune_smoke_2steps_retry/` | candidate for deletion after confirming checkpoint-resume evidence is summarized |
-| Early smoke: 1-step continuation | `runs/citrus_ss_finetune_smoke_resume_1step/` | candidate for deletion after confirming continuation evidence is summarized |
-| Early smoke: 10-step checkpoint/evaluation plumbing | `runs/citrus_ss_finetune_smoke_10steps/` | candidate for deletion after confirming evaluation-smoke evidence is summarized |
-| Early pilot: 100-step fine-tuning | `runs/citrus_ss_finetune_pilot_100steps/` | candidate for archive/delete after paper-relevant numbers are retained in notes |
-| Early pilot: 500-step low learning rate | `runs/citrus_ss_finetune_pilot_500steps_lr1e-5/` | candidate for archive/delete after paper-relevant numbers are retained in notes |
-| Early pilot: batch size 4 and drop path 0 | `runs/citrus_ss_finetune_pilot_bs4_dp0_125steps/` | candidate for archive/delete after paper-relevant numbers are retained in notes |
-| Early smoke: freeze-depth path | `runs/citrus_ss_freeze_depth_smoke_2steps/` | candidate for deletion after confirming it is superseded by stronger depth-frozen controls |
-| Early smoke: pretrained pose construction | `runs/citrus_ss_pretrained_pose_smoke_1step/` | candidate for deletion after confirming compatibility evidence is summarized |
-| Early pilot: pretrained-pose warmup only | `runs/citrus_ss_pretrained_pose_warmup_25steps/` | candidate for archive/delete after verifying seeded equivalent is enough |
-| Early pilot: warmup then depth update | `runs/citrus_ss_pretrained_pose_warmup25_depth25_50steps/` | candidate for archive/delete after verifying seeded equivalent is enough |
-| Early pilot: low-depth-LR warmup then update | `runs/citrus_ss_pretrained_pose_warmup25_depth25_50steps_depthlr1e-5/` | candidate for archive/delete after key numbers are retained |
-| Early pilot: decoder-only after warmup | `runs/citrus_ss_pretrained_pose_warmup25_decoder25_50steps/` | candidate for archive/delete after key numbers are retained |
-| Early pilot: previous-frame-only source | `runs/citrus_ss_prev_only_warmup25_depth25_50steps/` | candidate for archive/delete after key numbers are retained |
+| Early smoke: batch-4 one-step fit check | `runs/batch4_one_step_fit_check/` | deleted locally |
+| Early smoke: batch-size-8 VRAM check | `runs/citrus_ss_batchsize8_vram_smoke_1step/` | deleted locally |
+| Early smoke: batch-size-12 VRAM check | `runs/citrus_ss_batchsize12_vram_smoke_1step/` | deleted locally |
+| Early smoke: 2-step training path | `runs/citrus_ss_finetune_smoke_2steps/` | deleted locally |
+| Early smoke: 2-step retry with saved checkpoint | `runs/citrus_ss_finetune_smoke_2steps_retry/` | deleted locally |
+| Early smoke: 1-step continuation | `runs/citrus_ss_finetune_smoke_resume_1step/` | deleted locally |
+| Early smoke: 10-step checkpoint/evaluation plumbing | `runs/citrus_ss_finetune_smoke_10steps/` | deleted locally |
+| Early pilot: 100-step fine-tuning | `runs/citrus_ss_finetune_pilot_100steps/` | deleted locally |
+| Early pilot: 500-step low learning rate | `runs/citrus_ss_finetune_pilot_500steps_lr1e-5/` | deleted locally |
+| Early pilot: batch size 4 and drop path 0 | `runs/citrus_ss_finetune_pilot_bs4_dp0_125steps/` | deleted locally |
+| Early smoke: freeze-depth path | `runs/citrus_ss_freeze_depth_smoke_2steps/` | deleted locally |
+| Early smoke: pretrained pose construction | `runs/citrus_ss_pretrained_pose_smoke_1step/` | deleted locally |
+| Early pilot: pretrained-pose warmup only | `runs/citrus_ss_pretrained_pose_warmup_25steps/` | deleted locally |
+| Early pilot: warmup then depth update | `runs/citrus_ss_pretrained_pose_warmup25_depth25_50steps/` | deleted locally |
+| Early pilot: low-depth-LR warmup then update | `runs/citrus_ss_pretrained_pose_warmup25_depth25_50steps_depthlr1e-5/` | deleted locally |
+| Early pilot: decoder-only after warmup | `runs/citrus_ss_pretrained_pose_warmup25_decoder25_50steps/` | deleted locally |
+| Early pilot: previous-frame-only source | `runs/citrus_ss_prev_only_warmup25_depth25_50steps/` | deleted locally |
 
 ## Disposable-Looking Local Artifacts
 
@@ -114,16 +124,14 @@ These are not Milestone 3 research evidence, but still require approval before d
 
 ## Current Cleanup Recommendation
 
-First cleanup pass:
+Current state after 2026-05-11 cleanup:
 
-1. Keep all evidence runs and checkpoints.
-2. Compact source-of-truth notes.
-3. Add artifact classification and reproducibility mapping.
-4. Remove duplicated beginner-facing run tables from `student_qna.md`.
-5. Do not delete run folders yet.
+1. Keep remaining Milestone 3 evidence runs and diagnostics.
+2. Do not run more Milestone 3 training by default.
+3. Use notes and preserved evidence runs as the standard-adaptation comparison source for Milestone 4.
 
-Possible second cleanup pass, only after user approval:
+Possible future cleanup pass, only after user approval:
 
 1. Delete cache folders.
-2. Delete or archive disposable smoke checkpoints whose results are already summarized.
-3. Keep evidence runs until the paper comparison table and Milestone 4 baseline choice are stable.
+2. Delete empty diagnostic scratch folders if confirmed unused.
+3. Keep remaining evidence runs until the paper comparison table and Milestone 4 baseline choice are stable.
