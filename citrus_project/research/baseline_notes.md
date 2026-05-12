@@ -118,7 +118,7 @@ D:/Conda_Envs/lite-mono/python.exe citrus_project/milestones/01_original_lite_mo
 
 The aggregation logic now follows the original Lite-Mono evaluation style: compute metrics per image, then average the image metric rows. This prevents images with more valid LiDAR pixels from dominating the score.
 
-The full validation/test baseline is still pending. The next evaluator slice should save reproducible CSV/JSON outputs before the final full-run numbers are treated as results.
+This was an early implementation note. It is superseded by the later full validation/test baseline results saved under Milestone 1.
 
 ## Original Lite-Mono Citrus Evaluator Slice 5 Saved-Result Smoke Check
 

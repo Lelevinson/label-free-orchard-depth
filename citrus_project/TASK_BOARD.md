@@ -1,46 +1,35 @@
 # Task Board
 
-Date: 2026-05-07
+Date: 2026-05-12
 
 ## Current Project Position
 
-- Milestone 0 is complete through the full dataset build.
-- The original Lite-Mono baseline evaluation has now produced full validation/test result files on Citrus.
-- The Citrus evaluator entry point now supports Slice 1 data inspection, Slice 2 model inference, Slice 3 valid-mask-aware metrics, Slice 4 aggregate metric summaries, Slice 5 optional result-file saving, Slice 6 runtime/FPS metadata, and Slice 7 model parameter/checkpoint metadata.
-- Slice 8 result-interpretation support now selects good/typical/bad validation samples and renders visual panels.
-- The first written visual interpretation note now explains the good/typical/bad panels and the main baseline failure pattern.
-- Test good/typical/bad visual panels are now generated too.
-- Optional Milestone 1 polish is deferred for now: broader failure taxonomy and FLOPs/deployment benchmarking can wait unless the paper needs them sooner.
-- Milestone 2 has started with a milestone-local Citrus prepared Dataset/DataLoader smoke slice.
-- Milestone 2 temporal-neighbor diagnostics now show same-split/same-session safe triplets for 99.16% of train samples under a 200 ms neighbor-gap cap.
-- Milestone 2 temporal DataLoader mode now returns same-split `[-1, 0, 1]` RGB triplets with Lite-Mono-style tuple keys.
-- Milestone 2 trainer-compatibility dry runs pass metadata-free temporal Citrus batches through Lite-Mono depth, pose, projection, and reprojection-shape logic.
-- Milestone 2 now has a root trainer depth-metric guard: KITTI keeps the default Eigen crop, while Citrus/non-KITTI labels must use `--depth_metric_crop none` and can use `valid_mask`.
-- Milestone 2 root trainer wiring now exposes `--dataset citrus`; the root smoke resolves Citrus to `split=citrus_prepared`, `depth_metric_crop=none`, and loads 4275 train / 560 validation temporal samples.
-- Milestone 2 one-step Citrus training smoke passed: one CPU batch completed forward, backward, finite-gradient checks, and an AdamW parameter update.
-- Milestone 2 Citrus color augmentation now applies train-only `color_aug` jitter while validation stays unaugmented.
-- Milestone 2 CUDA one-step Citrus smoke passed on the NVIDIA GeForce RTX 4060 Laptop GPU.
-- Milestone 2 core integration is complete.
-- Milestone 3 standard self-supervised Citrus adaptation is documented as weak/negative baseline evidence: the training path works, but tested recipes do not beat the untouched baseline and can damage relative-depth structure.
-- Disabling Citrus color augmentation reduced the damage at 250 steps, but the 500-step no-augmentation continuation degraded again, so the current recipe family should not be scaled into a long run.
-- Milestone 4 planning is the next main research step.
-- A small curated sample pack is still needed for Friend B's deeper work.
+- Milestone 0 is complete through the full prepared Citrus dataset build.
+- Milestone 1 original Lite-Mono Citrus baseline is complete with full validation/test metrics, visuals, FPS, parameter count, and checkpoint metadata.
+- Milestone 2 Citrus Dataset/DataLoader and root trainer integration is complete, including CUDA one-step smoke on the RTX 4060 Laptop GPU.
+- Milestone 3 standard self-supervised Citrus adaptation is closed as weak/negative adapted-baseline evidence.
+- Milestone 3 cleanup is complete enough for handoff: important evidence/diagnostic runs remain, while summarized smoke/pilot/VRAM run folders were deleted locally.
+- Milestone 4 plain Lite-Mono Citrus baseline from ImageNet encoder pretrain is complete and committed.
+- The Milestone 4 plain baseline final checkpoint `weights_29` is mixed evidence: median-scaled `a1` improves, but raw-scale metrics and median-scaled `abs_rel` worsen.
+- Milestone 4 old epoch checkpoints `weights_0` through `weights_28` were deleted locally; full ignored `weights_29`, committed inference weights, metrics, and visuals remain.
+- Next main research step: choose one lightweight vegetation-focused improvement that targets the Milestone 3 and plain-Citrus-baseline failure pattern.
 
 ## Ownership
 
-### Main Integrator (User)
+### Main Integrator
 
 Current focus:
 
-1. maintain the core Citrus pipeline and repo-wide integration
-2. begin Milestone 4 planning from the documented Milestone 3 failure pattern
-3. keep optional Milestone 1 polish and further Milestone 3 recipe scaling deferred unless needed for the paper story
+1. choose the first Milestone 4 improvement target
+2. keep comparisons fair against original Lite-Mono, Milestone 3 weak adaptation, and the plain Citrus baseline
+3. use small first-100 validation gates before any full training run
+4. keep artifact cleanup conservative and documented
 
 Near-term outputs:
 
-- Milestone 4 method-selection plan with one lightweight vegetation-focused improvement candidate
-- final Milestone 3 closeout wording for the paper/results story
-- optional broader failure taxonomy or FLOPs notes later if needed
+- Milestone 4 method-selection note
+- first small implementation/evaluation slice for the chosen improvement
+- professor-friendly explanation of why the improvement targets vegetation-relative-depth structure
 
 ### Friend A
 
@@ -79,14 +68,14 @@ Expected near-term output:
 
 ## Blocked / Waiting
 
-1. Friend B’s deeper work depends on a small curated sample pack being prepared.
-2. Baseline evaluation no longer needs final validation/test runs, validation/test visual selection, or first written interpretation; remaining Milestone 1 extras are optional depth, FLOPs, or broader taxonomy.
-3. Full self-supervised Citrus training should not proceed under the current Milestone 3 recipe family without a new technical reason.
+1. Friend B’s deeper work still depends on a small curated sample pack being prepared.
+2. Milestone 4 method work is not blocked by more Milestone 3 training.
+3. Do not launch another long run without a specific method, settings, checkpoint plan, and explicit user confirmation.
 
 ## Next Review Point
 
-After:
+In the next Milestone 4 chat:
 
-1. the sample pack scaffold is ready for sharing
-2. the first Milestone 4 improvement candidate and evaluation plan are reviewed
-3. Friend A has an initial idea shortlist
+1. review the baseline failure signals in plain language
+2. choose the first improvement direction
+3. define the smallest safe implementation/evaluation slice

@@ -115,7 +115,7 @@ The evaluator printed the metrics successfully, but saving JSON/CSV from this as
 
 ## Final 30-Epoch Checkpoint Evaluation
 
-The run finished successfully and produced checkpoints `weights_0` through `weights_29`.
+The run finished successfully and originally produced checkpoints `weights_0` through `weights_29`.
 
 Final checkpoint:
 
