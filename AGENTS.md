@@ -38,6 +38,8 @@ All new chats should read this file first.
 6. `citrus_project/research/advisor_notes.md` tracks professor/advisor questions, recommendations, and follow-up directions.
 7. `citrus_project/milestones/*/README.md` files are teammate-facing handoffs for each milestone.
 8. `citrus_project/milestones/03_self_supervised_adaptation/artifact_inventory.md` classifies Milestone 3 run artifacts, helper scripts, generated outputs, and cleanup candidates.
+9. Folder-level `README.md` files are doorway maps. Use them to decide which deeper notes are relevant instead of reading every `.md` file in a folder.
+10. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/00_plain_citrus_baseline/README.md` is the compact B0 plain Citrus baseline snapshot for Levinson's Milestone 4 workstream. It contains inference weights plus copied final result files, visual panels, and `config/opt.json`.
 
 Update policy:
 
@@ -266,6 +268,15 @@ Milestone 4 - Lightweight vegetation improvement:
    - the Milestone 4 proposed variant
 4. Initial target: preserve or improve Citrus relative depth structure while adapting to vegetation scenes.
 5. Milestone folder: `citrus_project/milestones/04_lightweight_vegetation_improvement/`.
+6. Milestone 4 workstream folders:
+   - `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/` for Levinson's current Milestone 4 results/progress.
+   - `citrus_project/milestones/04_lightweight_vegetation_improvement/Marvel/` as an empty placeholder for Marvel's later Milestone 4 work.
+7. The current B0 plain Citrus baseline snapshot is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/00_plain_citrus_baseline/`; it contains inference weights, a no-code-changes marker, command scripts, copied val/test result CSV/JSON files, copied visual comparison panels, and copied `config/opt.json`.
+8. Future Levinson improvement code snapshots should live under `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/` once an improvement is implemented and tested.
+9. Use descriptive numeric future snapshot names such as `01_photometric_confidence_masking/` and `02_confidence_masking_plus_structure_loss/`; record paper-style labels such as `A` or `A+B` inside the stage README only if useful.
+10. Each completed improvement-stage snapshot should include one compact `README.md`, copies of changed code files when the stage is tested, optional small command/config/patch notes, and pointers to checkpoints, results, visuals, metric summary, and continue/stop/uncertain conclusion.
+11. Whenever a Milestone 4 improvement changes `.py` files such as `trainer.py`, `options.py`, `layers.py`, `networks/*.py`, or helper scripts, duplicate the tested versions into the relevant stage snapshot under `code/`, preserving clear relative paths when useful. If a completed stage has no code changes, keep a simple marker such as `code/NO_CODE_CHANGES.txt`.
+12. Milestone 4 collaborators should keep work inside their own workstream folder, update the shared Milestone 4 README when paths or collaboration rules change, and avoid editing another person's snapshots without explicit coordination.
 
 Milestone 4 plain Lite-Mono Citrus baseline planning:
 
@@ -278,20 +289,21 @@ Milestone 4 plain Lite-Mono Citrus baseline planning:
 7. The RTX 4060 Laptop GPU already passed true batch-size-12 one-step smoke and completed a batch-size-12 one-epoch control in Milestone 3, so this recipe is technically feasible.
 8. Expected runtime for the 30-epoch run is roughly 10-15 hours, based on the previous batch-size-12 one-epoch timing.
 9. Confirmed output folder:
-   `citrus_project/milestones/04_lightweight_vegetation_improvement/runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/`.
+   `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/`.
 10. Run completed successfully on 2026-05-10; originally saved checkpoints `weights_0` through `weights_29`.
 11. Historical mid-run `weights_15` CPU first-100 validation probe: raw `abs_rel=0.7807`, raw `a1=0.0055`, median-scaled `abs_rel=0.4478`, median-scaled `a1=0.6720`. This was a mixed signal versus the original first-100 reference (`abs_rel=0.3680`, `a1=0.4807`): `a1` improved, `abs_rel` worsened.
 12. Final epoch `weights_29` full validation: raw `abs_rel=0.7736`, `a1=0.0074`; median-scaled `abs_rel=0.5100`, `a1=0.6107`.
 13. Final epoch `weights_29` full test: raw `abs_rel=0.7787`, `a1=0.0077`; median-scaled `abs_rel=0.4889`, `a1=0.6582`.
 14. Interpretation: final epoch improves median-scaled `a1` over original Lite-Mono on val/test, but worsens raw-scale metrics and median-scaled `abs_rel`. This is useful positive signal but not a clean improvement.
 15. Saved final evaluation:
-    `citrus_project/milestones/04_lightweight_vegetation_improvement/results/plain_litemono_imagenet_b12_30ep_final_weights29/`.
+    `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/`.
 16. Saved comparison panels:
-    `citrus_project/milestones/04_lightweight_vegetation_improvement/results/plain_litemono_imagenet_b12_30ep_final_weights29/visual_compare_original_vs_final_val_full/`.
+    `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/visual_compare_original_vs_final_val_full/`.
 17. The full training run folder is local/ignored. On 2026-05-11, old epoch checkpoints `weights_0` through `weights_28` were deleted locally; full `weights_29` remains for unlikely exact-resume/debug needs.
-18. Tracked inference-only final baseline weights:
-    `citrus_project/milestones/04_lightweight_vegetation_improvement/baseline_checkpoint/plain_litemono_imagenet_b12_30ep_weights29_inference/`.
-19. A checkpoint sweep was tried after final evaluation but discarded from committed evidence after visual review; do not use sweep-derived checkpoints as representative Milestone 4 baselines unless a later explicitly approved selection rule reintroduces them.
+18. Final B0 baseline package:
+    `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/00_plain_citrus_baseline/`.
+19. The old `baseline_checkpoint/` inference-only copy was removed after B0 was migrated into the agreed snapshot structure.
+20. A checkpoint sweep was tried after final evaluation but discarded from committed evidence after visual review; do not use sweep-derived checkpoints as representative Milestone 4 baselines unless a later explicitly approved selection rule reintroduces them.
 
 Later milestones:
 
@@ -455,6 +467,8 @@ Milestone 4 planning questions:
 10. 2026-05-10: Checkpoint-sweep interpretation was reverted after visual review; final-epoch `weights_29` remains the current inspected plain Lite-Mono Citrus baseline evidence, with the full run ignored and an inference-only checkpoint copy tracked.
 11. 2026-05-11: Local cleanup deleted Milestone 4 old epoch checkpoints `weights_0` through `weights_28` and Milestone 3 smoke/pilot/VRAM run folders; committed metrics, visuals, inference weights, final `weights_29`, and Milestone 3 evidence runs were preserved.
 12. 2026-05-12: Task board refreshed for Milestone 4 handoff readiness.
+13. 2026-05-13: Added folder-level README maps and migrated B0 inference weights, command scripts, no-code-changes marker, result files, visual panels, and `opt.json` into Levinson's agreed Milestone 4 snapshot structure under `levinson/snapshots/00_plain_citrus_baseline/`; removed the old `baseline_checkpoint/` copy.
+14. 2026-05-13: Added Milestone 4 workstream folders for `levinson/` and `Marvel/`, moved the Milestone 4 `results/` and local ignored `runs/` folders under `levinson/`, and recorded the rule that tested `.py` improvements must be duplicated into the matching stage snapshot.
 
 ## Update Template
 

@@ -1,6 +1,6 @@
 # Task Board
 
-Date: 2026-05-12
+Date: 2026-05-13
 
 ## Current Project Position
 
@@ -12,6 +12,8 @@ Date: 2026-05-12
 - Milestone 4 plain Lite-Mono Citrus baseline from ImageNet encoder pretrain is complete and committed.
 - The Milestone 4 plain baseline final checkpoint `weights_29` is mixed evidence: median-scaled `a1` improves, but raw-scale metrics and median-scaled `abs_rel` worsen.
 - Milestone 4 old epoch checkpoints `weights_0` through `weights_28` were deleted locally; full ignored `weights_29`, committed inference weights, metrics, and visuals remain.
+- Folder-level README maps are initialized so future chats can find the right notes without reading every Markdown file.
+- The Milestone 4 B0 plain Citrus baseline is packaged under `levinson/snapshots/00_plain_citrus_baseline/` with copied inference weights, command scripts, no-code-changes marker, result files, visual panels, and `opt.json`.
 - Next main research step: choose one lightweight vegetation-focused improvement that targets the Milestone 3 and plain-Citrus-baseline failure pattern.
 
 ## Ownership

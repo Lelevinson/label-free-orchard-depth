@@ -144,7 +144,7 @@ Evidence notes:
 
 - `citrus_project/research/baseline_notes.md`
 - `citrus_project/milestones/04_lightweight_vegetation_improvement/README.md`
-- results under `citrus_project/milestones/04_lightweight_vegetation_improvement/results/plain_litemono_imagenet_b12_30ep_final_weights29/`
+- results under `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/`
 
 Why it matters:
 

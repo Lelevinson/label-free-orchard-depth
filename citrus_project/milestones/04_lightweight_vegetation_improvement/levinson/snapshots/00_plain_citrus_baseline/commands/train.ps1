@@ -1,0 +1,20 @@
+D:/Conda_Envs/lite-mono/python.exe train.py `
+  --dataset citrus `
+  --split citrus_prepared `
+  --data_path citrus_project/dataset_workspace `
+  --model lite-mono `
+  --model_name plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4 `
+  --log_dir citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs `
+  --mypretrain weights/lite-mono/lite-mono-pretrain.pth `
+  --weights_init pretrained `
+  --batch_size 12 `
+  --num_epochs 30 `
+  --lr 0.0001 0.000005 31 0.0001 0.00001 31 `
+  --weight_decay 0.01 `
+  --drop_path 0.2 `
+  --height 192 `
+  --width 640 `
+  --num_workers 0 `
+  --log_frequency 100 `
+  --save_frequency 1 `
+  --seed 0

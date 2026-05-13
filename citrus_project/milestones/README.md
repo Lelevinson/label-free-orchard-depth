@@ -14,6 +14,31 @@ Use them to keep new code, experiment helpers, notes, plots, and milestone-scope
 - `05_optional_supervised_or_hybrid/` - optional supervised or hybrid training additions
 - `06_paper_package/` - paper tables, figures, writing support, and final packaging
 
+## Read Map
+
+Do not open every milestone note by default. Use this order:
+
+1. Read repo-root `AGENTS.md` for current milestone status.
+2. Read this file to choose the milestone folder.
+3. Read only the matching milestone `README.md`.
+4. Open deeper milestone notes only when that README says they are relevant.
+
+Active Milestone 4 work should start at:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/README.md
+```
+
+Milestone 4 current B0 snapshot is at:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/00_plain_citrus_baseline/README.md
+```
+
+That folder contains the B0 inference weights plus copied final result files, visuals, and `opt.json`.
+
+Future Milestone 4 code snapshots are described in the Milestone 4 README and should only be created once an improvement stage actually changes code.
+
 Current milestone state:
 
 - Milestone 0 is complete through the full dataset build.

@@ -1,0 +1,9 @@
+B0 is the plain Lite-Mono Citrus baseline.
+
+No Milestone 4 method code was changed for this stage.
+
+This snapshot therefore does not copy trainer.py, options.py, layers.py, networks/, or helper scripts as stage-specific changed code.
+
+The baseline used the already-integrated Citrus trainer/data pipeline and the saved training options in:
+
+../config/opt.json

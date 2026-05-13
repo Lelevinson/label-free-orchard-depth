@@ -1238,7 +1238,7 @@ Paper relevance: plain Lite-Mono Citrus-training baseline for later comparison a
 Run:
 
 ```text
-citrus_project/milestones/04_lightweight_vegetation_improvement/runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/
 ```
 
 Recipe:
@@ -1264,7 +1264,7 @@ Status:
 Saved final evaluation outputs:
 
 ```text
-citrus_project/milestones/04_lightweight_vegetation_improvement/results/plain_litemono_imagenet_b12_30ep_final_weights29/
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/
 ```
 
 Full validation/test comparison:
@@ -1285,7 +1285,7 @@ This is better evidence than Milestone 3 blind fine-tuning because it shows a re
 Comparison visuals:
 
 ```text
-citrus_project/milestones/04_lightweight_vegetation_improvement/results/plain_litemono_imagenet_b12_30ep_final_weights29/visual_compare_original_vs_final_val_full/
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/visual_compare_original_vs_final_val_full/
 ```
 
 Generated panels:
@@ -1295,9 +1295,9 @@ Generated panels:
 - `adapted_bad_index_0445_comparison.png`
 - `largest_drop_vs_original_index_0394_comparison.png`
 
-Tracked inference-only checkpoint copy:
+Final B0 baseline snapshot:
 
 ```text
-citrus_project/milestones/04_lightweight_vegetation_improvement/baseline_checkpoint/plain_litemono_imagenet_b12_30ep_weights29_inference/
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/00_plain_citrus_baseline/
 ```
 

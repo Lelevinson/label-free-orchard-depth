@@ -10,6 +10,17 @@ This folder contains the Citrus-specific dataset pipeline and the local Citrus d
 - densification/build scripts
 - local dataset folders such as extracted RGB, extracted LiDAR, calibration, ground truth, and audit outputs
 
+## Read Map
+
+For dataset work, read this file first, then open only the script or research note matching the task.
+
+- Build or rebuild the prepared dataset: `build_training_dataset.py`
+- Audit RGB/LiDAR projection alignment: `audit_projection_alignment.py`
+- Understand label-route decisions and quality evidence: `citrus_project/research/dataset_notes.md`
+- Check current dataset status and canonical artifact paths: repo-root `AGENTS.md`
+
+The local extracted data folders can be large. Do not inspect generated outputs unless the task needs a specific artifact.
+
 ## Path Behavior
 
 The main pipeline scripts in this folder are meant to work relative to this workspace.

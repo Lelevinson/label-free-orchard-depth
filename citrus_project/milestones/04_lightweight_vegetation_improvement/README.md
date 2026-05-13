@@ -6,6 +6,46 @@ Use this folder for milestone-specific helpers, notes, or experiment files relat
 - vegetation-focused loss or feature ideas
 - ablations and efficiency checks
 
+## Read Map
+
+For Milestone 4 work, use this README as the main handoff. Do not inspect every result or snapshot folder by default.
+
+- Baseline recipe, final metrics, checkpoint paths, and visual paths: this README.
+- Levinson's Milestone 4 workstream, including the B0 plain Citrus baseline snapshot with inference weights, command scripts, no-code-changes marker, copied result CSV/JSON files, copied visuals, and copied `opt.json`: `levinson/README.md`.
+- Original full baseline metric JSON/CSV result folder, preserved for existing references: `levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/`.
+
+Future Levinson improvement code snapshots should use descriptive numeric folders such as `levinson/snapshots/01_photometric_confidence_masking/` once an improvement is actually implemented and tested. Paper-style labels such as `A` or `A+B` can still be written inside stage READMEs later if useful.
+
+## Workstream Folders
+
+Milestone 4 uses small person/workstream folders so each contributor can keep their progress tidy without mixing snapshot evidence:
+
+```text
+levinson/
+Marvel/
+```
+
+- `levinson/` contains the current completed B0 baseline snapshot and will hold Levinson's later staged improvement snapshots.
+- `Marvel/` is currently an empty placeholder for Marvel's future Milestone 4 work.
+
+Collaboration rule:
+
+- Keep each person's Milestone 4 runs, results, snapshots, and helper notes inside their own workstream folder.
+- Use the shared Milestone 4 README for rules that affect both workstreams.
+- Do not edit another person's snapshots or results unless that person explicitly approves it.
+- Before changing shared root training/model files, confirm the change and then copy the tested `.py` files into the relevant stage snapshot.
+
+When a tested Milestone 4 stage changes Python files, duplicate the tested versions into that stage snapshot under `code/`. Use clear relative paths, for example:
+
+```text
+levinson/snapshots/01_method_name/code/trainer.py
+levinson/snapshots/01_method_name/code/options.py
+levinson/snapshots/01_method_name/code/layers.py
+levinson/snapshots/01_method_name/code/networks/depth_decoder.py
+```
+
+If a completed stage has no code changes, use a simple marker such as `code/NO_CODE_CHANGES.txt`.
+
 ## Plain Lite-Mono Citrus Baseline
 
 Before testing a Milestone 4 improvement, run a plain Lite-Mono baseline trained on Citrus using the same data budget that the improved method will later use.
@@ -45,7 +85,7 @@ D:/Conda_Envs/lite-mono/python.exe train.py `
   --data_path citrus_project/dataset_workspace `
   --model lite-mono `
   --model_name plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4 `
-  --log_dir citrus_project/milestones/04_lightweight_vegetation_improvement/runs `
+  --log_dir citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs `
   --mypretrain weights/lite-mono/lite-mono-pretrain.pth `
   --weights_init pretrained `
   --batch_size 12 `
@@ -64,7 +104,7 @@ D:/Conda_Envs/lite-mono/python.exe train.py `
 Expected output folder:
 
 ```text
-citrus_project/milestones/04_lightweight_vegetation_improvement/runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/
 ```
 
 Expected runtime:
@@ -90,7 +130,7 @@ D:/Conda_Envs/lite-mono/python.exe citrus_project/milestones/01_original_lite_mo
   --run_model `
   --summary_only `
   --progress_interval 25 `
-  --weights_folder citrus_project/milestones/04_lightweight_vegetation_improvement/runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/models/weights_15 `
+  --weights_folder citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/models/weights_15 `
   --model lite-mono `
   --no_cuda
 ```
@@ -120,13 +160,13 @@ The run finished successfully and originally produced checkpoints `weights_0` th
 Final checkpoint:
 
 ```text
-citrus_project/milestones/04_lightweight_vegetation_improvement/runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/models/weights_29/
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/models/weights_29/
 ```
 
 Saved evaluation outputs:
 
 ```text
-citrus_project/milestones/04_lightweight_vegetation_improvement/results/plain_litemono_imagenet_b12_30ep_final_weights29/
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/
 ```
 
 Full validation/test comparison against the original Lite-Mono checkpoint:
@@ -149,7 +189,7 @@ Interpretation:
 Comparison visuals:
 
 ```text
-citrus_project/milestones/04_lightweight_vegetation_improvement/results/plain_litemono_imagenet_b12_30ep_final_weights29/visual_compare_original_vs_final_val_full/
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/visual_compare_original_vs_final_val_full/
 ```
 
 Generated panels:
@@ -173,13 +213,15 @@ Current local checkpoint state after the 2026-05-11 cleanup:
 - full `weights_29` remains in the ignored run folder for unlikely exact-resume/debug needs.
 - committed metrics, visuals, and inference-only weights remain tracked separately.
 
-Tracked inference-only copy:
+Final B0 baseline snapshot:
 
 ```text
-citrus_project/milestones/04_lightweight_vegetation_improvement/baseline_checkpoint/plain_litemono_imagenet_b12_30ep_weights29_inference/
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/00_plain_citrus_baseline/
 ```
 
-This tracked copy contains only the final `encoder.pth` and `depth.pth` needed for RGB-only depth inference/evaluation. It does not include pose-network weights or optimizer states.
+This snapshot contains the final inference weights, copied result CSV/JSON files, copied visual panels, and copied `config/opt.json`. It does not include pose-network weights or optimizer states.
+
+The old `baseline_checkpoint/` inference-only copy was removed after this migration.
 
 Note:
 

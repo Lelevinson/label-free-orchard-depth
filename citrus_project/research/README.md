@@ -13,6 +13,23 @@ Use this folder for material that may later support the paper:
 
 Do not store large generated outputs here directly. Put generated images, NumPy files, and other bulky local artifacts under `citrus_project/research/generated/`, which is ignored by git.
 
+## Read Map
+
+Do not read every research note by default. Use this map to pick the smallest relevant file:
+
+- current project status and decisions: repo-root `AGENTS.md`
+- dataset-building, label route, calibration, or split evidence: `dataset_notes.md`
+- model behavior, baseline metrics, adaptation evidence, or Milestone 4 baseline details: `baseline_notes.md`
+- paper-candidate results and likely table/figure material: `paper_shortlist.md`
+- advisor questions, recommendations, and follow-up interpretations: `advisor_notes.md`
+- beginner explanations and stable definitions: `student_qna.md`
+- literature scouting and improvement ideas: `literature_tracker.md`
+- scene categories, hard examples, and qualitative support: `scene_taxonomy.md`
+
+Open a deeper note only when its role matches the task. `paper_shortlist.md` is an index of paper-useful evidence, not the full archive.
+
+## Tracked Notes
+
 Current tracked notes include:
 
 - `student_qna.md` for recurring plain-language questions and answers

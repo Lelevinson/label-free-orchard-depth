@@ -41,7 +41,7 @@
   "split_samples": 564,
   "max_samples_arg": 0,
   "model": "lite-mono",
-  "weights_folder": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\runs\\plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4\\models\\weights_29",
+  "weights_folder": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\runs\\plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4\\models\\weights_29",
   "device": "cuda",
   "model_info": {
     "encoder_parameters": 2848120,
