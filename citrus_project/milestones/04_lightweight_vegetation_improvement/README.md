@@ -11,10 +11,11 @@ Use this folder for milestone-specific helpers, notes, or experiment files relat
 For Milestone 4 work, use this README as the main handoff. Do not inspect every result or snapshot folder by default.
 
 - Baseline recipe, final metrics, checkpoint paths, and visual paths: this README.
-- Levinson's Milestone 4 workstream, including the B0 plain Citrus baseline snapshot with inference weights, command scripts, no-code-changes marker, copied result CSV/JSON files, copied visuals, and copied `opt.json`: `levinson/README.md`.
+- Levinson's Milestone 4 workstream, including the B0 plain Citrus baseline snapshot and tested 01/02/03 method-gate snapshots: `levinson/README.md`.
+- Marvel's supervised/hybrid Milestone 4 workstream: `Marvel/README.md`.
 - Original full baseline metric JSON/CSV result folder, preserved for existing references: `levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/`.
 
-Future Levinson improvement code snapshots should use descriptive numeric folders such as `levinson/snapshots/01_photometric_confidence_masking/` once an improvement is actually implemented and tested. Paper-style labels such as `A` or `A+B` can still be written inside stage READMEs later if useful.
+Levinson improvement code snapshots use descriptive numeric folders such as `levinson/snapshots/01_photometric_confidence_masking/` once an improvement is implemented and tested. Paper-style labels such as `A` or `A+B` can still be written inside stage READMEs later if useful.
 
 ## Workstream Folders
 
@@ -25,8 +26,8 @@ levinson/
 Marvel/
 ```
 
-- `levinson/` contains the current completed B0 baseline snapshot and will hold Levinson's later staged improvement snapshots.
-- `Marvel/` is currently an empty placeholder for Marvel's future Milestone 4 work.
+- `levinson/` contains the current completed B0 baseline snapshot and Levinson's self-supervised RGB-only Milestone 4 method gates.
+- `Marvel/` is Marvel's supervised or hybrid Milestone 4 workstream. It may explore valid-depth, valid-mask, or LiDAR-guided training ideas.
 
 Collaboration rule:
 
@@ -34,6 +35,9 @@ Collaboration rule:
 - Use the shared Milestone 4 README for rules that affect both workstreams.
 - Do not edit another person's snapshots or results unless that person explicitly approves it.
 - Before changing shared root training/model files, confirm the change and then copy the tested `.py` files into the relevant stage snapshot.
+- Levinson's workstream should prioritize self-supervised RGB-only training methods and should not use `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, or ZED depth as a training loss unless a separate hybrid branch is explicitly approved.
+- Marvel's workstream may use valid depth labels, valid masks, or LiDAR-guided training losses, but those runs must be labeled supervised or hybrid.
+- Both workstreams may keep inference RGB-only, but training supervision differs. Do not present supervised/hybrid results as directly fair wins over self-supervised results without clear labeling and matched comparison context.
 
 When a tested Milestone 4 stage changes Python files, duplicate the tested versions into that stage snapshot under `code/`. Use clear relative paths, for example:
 
@@ -45,6 +49,10 @@ levinson/snapshots/01_method_name/code/networks/depth_decoder.py
 ```
 
 If a completed stage has no code changes, use a simple marker such as `code/NO_CODE_CHANGES.txt`.
+
+Current collaboration note:
+
+After the 01/02/03 self-supervised gates were tested and packaged, the live root `options.py` and `trainer.py` were restored to the shared baseline state. The experimental method code is preserved in each tested snapshot under `code/`; it is not currently active in the global trainer.
 
 ## Plain Lite-Mono Citrus Baseline
 
@@ -226,3 +234,133 @@ The old `baseline_checkpoint/` inference-only copy was removed after this migrat
 Note:
 
 A checkpoint sweep was briefly tried after the final evaluation, but it was removed from the committed milestone evidence after visual review. The current recorded result is the final `weights_29` baseline above.
+
+## Photometric-Confidence Masking Gate
+
+Snapshot:
+
+```text
+levinson/snapshots/01_photometric_confidence_masking/
+```
+
+Purpose:
+
+- keep Milestone 4 self-supervised for now
+- keep inference unchanged
+- add a training-only confidence weight on top of existing automasking
+- downweight pixels where warped RGB reconstruction only barely beats identity/no-warp reconstruction
+- avoid any `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, or ZED-depth training loss
+
+Snapshot-tested options:
+
+```text
+--photometric_confidence_masking
+--photometric_confidence_threshold 0.01
+--photometric_confidence_ramp 0.05
+--photometric_confidence_min_weight 0.25
+```
+
+These options are preserved in the snapshot code copy. They are not currently active in the restored root trainer unless that snapshot code is intentionally reapplied.
+
+First 250-step gate from ImageNet encoder pretrain:
+
+| model | raw abs_rel | raw a1 | median-scaled abs_rel | median-scaled a1 |
+|---|---:|---:|---:|---:|
+| Original Lite-Mono first-100 reference | 0.7289 | 0.0131 | 0.3680 | 0.4807 |
+| Same-budget no-mask ImageNet-pretrain control, step 250 | 0.9099 | 0.0000 | 0.5634 | 0.3577 |
+| Photometric-confidence masking, step 250 | 0.8985 | 0.0000 | 0.5582 | 0.3018 |
+
+Conclusion:
+
+```text
+uncertain / do not scale yet
+```
+
+The method is technically stable and the confidence signal is not near zero everywhere, but the 250-step metric signal is mixed: slightly better median-scaled `abs_rel` than the same-budget no-mask control, worse median-scaled `a1`, and still much weaker than the original first-100 reference. Do not launch a longer photometric-confidence run without a follow-up reason such as tuning the confidence schedule or inspecting confidence masks directly.
+
+## RGB-Edge Structure-Preserving Loss Gate
+
+Snapshot:
+
+```text
+levinson/snapshots/02_rgb_edge_structure_preserving_loss/
+```
+
+Purpose:
+
+- keep Milestone 4 self-supervised
+- keep inference unchanged
+- test whether a conservative RGB-edge disparity-gradient loss can reduce over-smoothing
+- avoid any `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, or ZED-depth training loss
+- do not combine with confidence masking or vegetation weighting
+
+Snapshot-tested options:
+
+```text
+--rgb_edge_structure_loss
+--rgb_edge_structure_weight 0.01
+--rgb_edge_structure_threshold 0.08
+--rgb_edge_structure_blur_kernel 5
+--rgb_edge_structure_target_grad 0.02
+```
+
+These options are preserved in the snapshot code copy. They are not currently active in the restored root trainer unless that snapshot code is intentionally reapplied.
+
+First 250-step gate from ImageNet encoder pretrain:
+
+| model | raw abs_rel | raw a1 | median-scaled abs_rel | median-scaled a1 |
+|---|---:|---:|---:|---:|
+| Same-budget no-mask ImageNet-pretrain control, step 250 | 0.9099 | 0.0000 | 0.5634 | 0.3577 |
+| RGB-edge structure loss, step 250 | 0.8993 | 0.0000 | 0.5822 | 0.3280 |
+
+Conclusion:
+
+```text
+stop
+```
+
+The run was stable and self-supervised, but it worsened both median-scaled `abs_rel` and median-scaled `a1` versus the same-budget no-mask control. Do not scale this exact configuration.
+
+## Soft Confidence Multiplier Gate
+
+Snapshot:
+
+```text
+levinson/snapshots/03_soft_confidence_multiplier/
+```
+
+Purpose:
+
+- keep Milestone 4 self-supervised
+- keep inference unchanged
+- test whether a mild confidence multiplier avoids the normalized-weighting problem from 01
+- avoid any `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, or ZED-depth training loss
+- do not combine with RGB-edge structure loss
+
+Snapshot-tested options:
+
+```text
+--soft_confidence_multiplier
+--soft_confidence_threshold 0.01
+--soft_confidence_ramp 0.05
+--soft_confidence_strength 0.5
+--soft_confidence_min_multiplier 0.75
+```
+
+These options are preserved in the snapshot code copy. They are not currently active in the restored root trainer unless that snapshot code is intentionally reapplied.
+
+First 250-step gate from ImageNet encoder pretrain:
+
+| model | raw abs_rel | raw a1 | median-scaled abs_rel | median-scaled a1 |
+|---|---:|---:|---:|---:|
+| Same-budget no-mask ImageNet-pretrain control, step 250 | 0.9099 | 0.0000 | 0.5634 | 0.3577 |
+| Photometric-confidence masking 01, step 250 | 0.8985 | 0.0000 | 0.5582 | 0.3018 |
+| Soft confidence multiplier, step 250 | 0.8978 | 0.0000 | 0.5676 | 0.3068 |
+
+Conclusion:
+
+```text
+stop
+```
+
+The softer confidence multiplier did not rescue the confidence direction. It improved raw `abs_rel` slightly but worsened the relative-depth threshold metric, so do not scale this exact configuration.

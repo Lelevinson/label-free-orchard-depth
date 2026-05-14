@@ -269,14 +269,66 @@ Milestone 4 - Lightweight vegetation improvement:
 4. Initial target: preserve or improve Citrus relative depth structure while adapting to vegetation scenes.
 5. Milestone folder: `citrus_project/milestones/04_lightweight_vegetation_improvement/`.
 6. Milestone 4 workstream folders:
-   - `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/` for Levinson's current Milestone 4 results/progress.
-   - `citrus_project/milestones/04_lightweight_vegetation_improvement/Marvel/` as an empty placeholder for Marvel's later Milestone 4 work.
+   - `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/` for Levinson's self-supervised Milestone 4 improvement path.
+   - `citrus_project/milestones/04_lightweight_vegetation_improvement/Marvel/` for Marvel's supervised or hybrid Milestone 4 path using valid depth labels, valid masks, or LiDAR-guided training.
 7. The current B0 plain Citrus baseline snapshot is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/00_plain_citrus_baseline/`; it contains inference weights, a no-code-changes marker, command scripts, copied val/test result CSV/JSON files, copied visual comparison panels, and copied `config/opt.json`.
-8. Future Levinson improvement code snapshots should live under `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/` once an improvement is implemented and tested.
-9. Use descriptive numeric future snapshot names such as `01_photometric_confidence_masking/` and `02_confidence_masking_plus_structure_loss/`; record paper-style labels such as `A` or `A+B` inside the stage README only if useful.
-10. Each completed improvement-stage snapshot should include one compact `README.md`, copies of changed code files when the stage is tested, optional small command/config/patch notes, and pointers to checkpoints, results, visuals, metric summary, and continue/stop/uncertain conclusion.
-11. Whenever a Milestone 4 improvement changes `.py` files such as `trainer.py`, `options.py`, `layers.py`, `networks/*.py`, or helper scripts, duplicate the tested versions into the relevant stage snapshot under `code/`, preserving clear relative paths when useful. If a completed stage has no code changes, keep a simple marker such as `code/NO_CODE_CHANGES.txt`.
-12. Milestone 4 collaborators should keep work inside their own workstream folder, update the shared Milestone 4 README when paths or collaboration rules change, and avoid editing another person's snapshots without explicit coordination.
+8. The photometric-confidence masking gate snapshot is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/01_photometric_confidence_masking/`; it contains copied tested `trainer.py` and `options.py`, command scripts, metric/diagnostic summaries, and an `uncertain / do not scale yet` conclusion.
+9. The RGB-edge structure-preserving loss gate snapshot is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/02_rgb_edge_structure_preserving_loss/`; it contains copied tested `trainer.py` and `options.py`, command scripts, metric/diagnostic summaries, and a `stop` conclusion.
+10. The soft confidence multiplier backup gate snapshot is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/03_soft_confidence_multiplier/`; it contains copied tested `trainer.py` and `options.py`, command scripts, metric/diagnostic summaries, and a `stop` conclusion.
+11. Future Levinson improvement code snapshots should live under `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/` once an improvement is implemented and tested.
+12. Use descriptive numeric future snapshot names such as `04_vegetation_aware_photometric_weighting/`; record paper-style labels such as `A` or `A+B` inside the stage README only if useful.
+13. Each completed improvement-stage snapshot should include one compact `README.md`, copies of changed code files when the stage is tested, optional small command/config/patch notes, and pointers to checkpoints, results, visuals, metric summary, and continue/stop/uncertain conclusion.
+14. Whenever a Milestone 4 improvement changes `.py` files such as `trainer.py`, `options.py`, `layers.py`, `networks/*.py`, or helper scripts, duplicate the tested versions into the relevant stage snapshot under `code/`, preserving clear relative paths when useful. If a completed stage has no code changes, keep a simple marker such as `code/NO_CODE_CHANGES.txt`.
+15. Milestone 4 collaborators should keep work inside their own workstream folder, update the shared Milestone 4 README when paths or collaboration rules change, and avoid editing another person's snapshots without explicit coordination.
+16. After the 01/02/03 Milestone 4 gates were packaged, the live root `options.py` and `trainer.py` were restored to the shared baseline state for collaboration. The tested experimental code for those gates is preserved in each snapshot's `code/` folder, not kept active in the global trainer.
+17. Workstream separation decision:
+   - Levinson's path should prioritize self-supervised RGB-only training methods.
+   - Levinson should not use `depth_gt`, `valid_mask`, LiDAR labels, dense labels, sparse labels, or ZED depth as a training loss unless the team explicitly creates a separate hybrid branch.
+   - Marvel's path can explore supervised or hybrid methods that use valid depth labels, valid masks, or LiDAR-guided training.
+   - Both paths should keep inference RGB-only unless explicitly stated otherwise, but their training supervision differs and must be labeled honestly.
+   - Do not directly claim supervised/hybrid results are fair wins over self-supervised results without clear labeling and matched comparison context.
+
+Milestone 4 photometric-confidence masking gate:
+
+1. Tested in its snapshot as a disabled-by-default training-loss option:
+   - `--photometric_confidence_masking`
+   - `--photometric_confidence_threshold`
+   - `--photometric_confidence_ramp`
+   - `--photometric_confidence_min_weight`
+2. It adds on top of existing automasking and remains self-supervised: it uses only RGB reconstruction-vs-identity losses, not `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, or ZED depth as a training loss.
+3. Inference is unchanged: one RGB image goes through the same Lite-Mono encoder/depth decoder.
+4. Moderate gate defaults: threshold `0.01`, ramp `0.05`, min weight `0.25`.
+5. CUDA smoke passed, and the 250-step gate completed from ImageNet encoder pretrain with batch size 12, seed 0, and no `--load_weights_folder weights/lite-mono`.
+6. First-100 validation at step 250:
+   - same-budget no-mask ImageNet-pretrain control: raw `abs_rel=0.9099`, raw `a1=0.0000`, median-scaled `abs_rel=0.5634`, median-scaled `a1=0.3577`
+   - photometric-confidence masking: raw `abs_rel=0.8985`, raw `a1=0.0000`, median-scaled `abs_rel=0.5582`, median-scaled `a1=0.3018`
+7. Interpretation: stable but mixed. It slightly improves median-scaled `abs_rel` over the same-budget control but worsens median-scaled `a1`, and both 250-step ImageNet-pretrain runs are much weaker than the original first-100 reference. Do not scale this method yet without a follow-up technical reason.
+
+Milestone 4 overnight self-supervised gates after photometric confidence:
+
+1. RGB-edge structure-preserving loss was tested in its snapshot as a disabled-by-default training-loss option:
+   - `--rgb_edge_structure_loss`
+   - `--rgb_edge_structure_weight`
+   - `--rgb_edge_structure_threshold`
+   - `--rgb_edge_structure_blur_kernel`
+   - `--rgb_edge_structure_target_grad`
+2. It remains self-supervised: it uses only the target RGB image and predicted normalized disparity, not `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, or ZED depth as a training loss. Inference is unchanged.
+3. First-100 validation at step 250:
+   - same-budget no-mask ImageNet-pretrain control: raw `abs_rel=0.9099`, raw `a1=0.0000`, median-scaled `abs_rel=0.5634`, median-scaled `a1=0.3577`
+   - RGB-edge structure loss: raw `abs_rel=0.8993`, raw `a1=0.0000`, median-scaled `abs_rel=0.5822`, median-scaled `a1=0.3280`
+4. Interpretation: stable but negative. It worsened both median-scaled `abs_rel` and `a1` versus the same-budget control, so stop this exact configuration.
+5. Soft confidence multiplier was tested in its snapshot as a disabled-by-default independent backup option:
+   - `--soft_confidence_multiplier`
+   - `--soft_confidence_threshold`
+   - `--soft_confidence_ramp`
+   - `--soft_confidence_strength`
+   - `--soft_confidence_min_multiplier`
+6. It remains self-supervised: it uses only RGB reconstruction and identity/no-warp losses, not depth labels. Inference is unchanged.
+7. First-100 validation at step 250:
+   - same-budget no-mask ImageNet-pretrain control: raw `abs_rel=0.9099`, raw `a1=0.0000`, median-scaled `abs_rel=0.5634`, median-scaled `a1=0.3577`
+   - soft confidence multiplier: raw `abs_rel=0.8978`, raw `a1=0.0000`, median-scaled `abs_rel=0.5676`, median-scaled `a1=0.3068`
+8. Interpretation: stable but negative. It did not rescue the confidence direction and clearly worsened median-scaled `a1`, so stop this exact configuration.
+9. Do not scale the exact 01, 02, or 03 configurations by default. Keep future Milestone 4 self-supervised changes isolated and first test with 250-step gates.
 
 Milestone 4 plain Lite-Mono Citrus baseline planning:
 
@@ -307,7 +359,7 @@ Milestone 4 plain Lite-Mono Citrus baseline planning:
 
 Later milestones:
 
-1. Milestone 5: optional supervised or hybrid training with dense LiDAR labels.
+1. Milestone 5: optional broader supervised/hybrid expansion or paper-facing follow-up beyond the current Marvel Milestone 4 supervised/hybrid workstream.
 2. Milestone 6: paper package, tables, figures, and writing support.
 
 ## Milestone 3 Evidence Snapshot
@@ -444,7 +496,10 @@ Immediate:
 1. Treat the final-epoch plain Lite-Mono Citrus run as mixed evidence, not a clean improvement.
 2. Do not delete generated evidence or checkpoints unless the user explicitly approves a specific cleanup list.
 3. Keep professor-facing names descriptive and keep internal run-folder names in technical mappings.
-4. Continue Milestone 4 planning around a structure-preserving or vegetation-aware lightweight improvement using the new plain-Citrus-baseline failure pattern.
+4. Treat Milestone 4 gates `01_photometric_confidence_masking`, `02_rgb_edge_structure_preserving_loss`, and `03_soft_confidence_multiplier` as completed non-scaling gates.
+5. Keep Levinson's next work self-supervised unless a separate hybrid branch is explicitly approved.
+6. Let Marvel explore supervised/hybrid depth-label or valid-mask-guided ideas in the separate Marvel workstream.
+7. Do not launch longer 01/02/03 runs by default; redesign the self-supervised objective or prepare design-only vegetation-aware notes before any new training.
 
 Milestone 4 planning questions:
 
@@ -469,6 +524,10 @@ Milestone 4 planning questions:
 12. 2026-05-12: Task board refreshed for Milestone 4 handoff readiness.
 13. 2026-05-13: Added folder-level README maps and migrated B0 inference weights, command scripts, no-code-changes marker, result files, visual panels, and `opt.json` into Levinson's agreed Milestone 4 snapshot structure under `levinson/snapshots/00_plain_citrus_baseline/`; removed the old `baseline_checkpoint/` copy.
 14. 2026-05-13: Added Milestone 4 workstream folders for `levinson/` and `Marvel/`, moved the Milestone 4 `results/` and local ignored `runs/` folders under `levinson/`, and recorded the rule that tested `.py` improvements must be duplicated into the matching stage snapshot.
+15. 2026-05-14: Implemented disabled-by-default photometric-confidence masking in `options.py` and `trainer.py`, ran CUDA smoke plus a 250-step self-supervised gate and same-budget no-mask control, saved visual comparison panels, and packaged Levinson snapshot `01_photometric_confidence_masking/` with an `uncertain / do not scale yet` conclusion.
+16. 2026-05-14: Ran the approved overnight Milestone 4 self-supervised queue: `02_rgb_edge_structure_preserving_loss` first, then independent backup `03_soft_confidence_multiplier` because 02 was negative. Both were stable 250-step gates but worsened median-scaled validation metrics versus the same-budget no-mask control, so both snapshots were packaged with `stop` conclusions and no 04 vegetation-aware training was run.
+17. 2026-05-14: Restored the live root `options.py` and `trainer.py` to the shared baseline state after packaging the 01/02/03 snapshot code copies, reducing collaboration friction while preserving reproducibility evidence in Levinson's snapshots.
+18. 2026-05-14: Recorded Milestone 4 workstream separation: Levinson owns the self-supervised RGB-only training path, while Marvel can explore supervised/hybrid valid-depth, valid-mask, or LiDAR-guided training in a separate workstream with honest labeling.
 
 ## Update Template
 
