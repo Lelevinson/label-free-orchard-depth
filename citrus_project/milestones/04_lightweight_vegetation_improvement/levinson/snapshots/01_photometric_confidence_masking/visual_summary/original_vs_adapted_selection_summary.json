@@ -1,0 +1,50 @@
+[
+  {
+    "role": "adapted_good",
+    "index": 35,
+    "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-03_13_bag_1689715987040650648.png",
+    "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\runs\\photometric_confidence_masking_b12_250steps_seed0\\visual_compare_control_vs_confidence_val100_step_250\\adapted_good_index_0035_comparison.png",
+    "valid_fraction": 0.35632703993055553,
+    "original_median_scaled_abs_rel": 0.5781864658578114,
+    "original_median_scaled_a1": 0.5017220325770194,
+    "adapted_median_scaled_abs_rel": 0.5872070355666837,
+    "adapted_median_scaled_a1": 0.44757316735233305,
+    "adapted_selection_metric_value": 0.44757316735233305
+  },
+  {
+    "role": "adapted_typical",
+    "index": 45,
+    "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-03_13_bag_1689715988041790936.png",
+    "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\runs\\photometric_confidence_masking_b12_250steps_seed0\\visual_compare_control_vs_confidence_val100_step_250\\adapted_typical_index_0045_comparison.png",
+    "valid_fraction": 0.36829318576388886,
+    "original_median_scaled_abs_rel": 0.4509745612268603,
+    "original_median_scaled_a1": 0.44217913552276095,
+    "adapted_median_scaled_abs_rel": 0.4734162330588336,
+    "adapted_median_scaled_a1": 0.31047761026931314,
+    "adapted_selection_metric_value": 0.31047761026931314
+  },
+  {
+    "role": "adapted_bad",
+    "index": 23,
+    "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-03_13_bag_1689715985839007864.png",
+    "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\runs\\photometric_confidence_masking_b12_250steps_seed0\\visual_compare_control_vs_confidence_val100_step_250\\adapted_bad_index_0023_comparison.png",
+    "valid_fraction": 0.3294357638888889,
+    "original_median_scaled_abs_rel": 0.8960624465643026,
+    "original_median_scaled_a1": 0.058868672762246055,
+    "adapted_median_scaled_abs_rel": 0.824190759562121,
+    "adapted_median_scaled_a1": 0.047946694421754366,
+    "adapted_selection_metric_value": 0.047946694421754366
+  },
+  {
+    "role": "largest_drop_vs_original",
+    "index": 96,
+    "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-03_13_bag_1689715993137863672.png",
+    "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\runs\\photometric_confidence_masking_b12_250steps_seed0\\visual_compare_control_vs_confidence_val100_step_250\\largest_drop_vs_original_index_0096_comparison.png",
+    "valid_fraction": 0.37420247395833334,
+    "original_median_scaled_abs_rel": 0.504097124160591,
+    "original_median_scaled_a1": 0.3974830730865701,
+    "adapted_median_scaled_abs_rel": 0.5388313282158277,
+    "adapted_median_scaled_a1": 0.2408942629724675,
+    "adapted_selection_metric_value": 0.1565888101141026
+  }
+]

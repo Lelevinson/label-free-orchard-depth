@@ -1,0 +1,158 @@
+{
+  "train": {
+    "rgb_edge_structure/loss/0": {
+      "step": 200,
+      "value": 0.00042880355613306165
+    },
+    "rgb_edge_structure/edge_fraction/0": {
+      "step": 200,
+      "value": 0.012149489484727383
+    },
+    "rgb_edge_structure/disp_grad_on_edges/0": {
+      "step": 200,
+      "value": 0.002383610000833869
+    },
+    "rgb_edge_structure/hinge_active_fraction/0": {
+      "step": 200,
+      "value": 1.0
+    },
+    "rgb_edge_structure/rgb_grad_mean/0": {
+      "step": 200,
+      "value": 0.009636984206736088
+    },
+    "rgb_edge_structure/weighted_loss_contribution/0": {
+      "step": 200,
+      "value": 4.2880355977104045e-06
+    },
+    "rgb_edge_structure/loss/1": {
+      "step": 200,
+      "value": 0.0005833006580360234
+    },
+    "rgb_edge_structure/edge_fraction/1": {
+      "step": 200,
+      "value": 0.022186627611517906
+    },
+    "rgb_edge_structure/disp_grad_on_edges/1": {
+      "step": 200,
+      "value": 0.0069683510810136795
+    },
+    "rgb_edge_structure/hinge_active_fraction/1": {
+      "step": 200,
+      "value": 0.9758724570274353
+    },
+    "rgb_edge_structure/rgb_grad_mean/1": {
+      "step": 200,
+      "value": 0.011607824824750423
+    },
+    "rgb_edge_structure/weighted_loss_contribution/1": {
+      "step": 200,
+      "value": 2.916503262895276e-06
+    },
+    "rgb_edge_structure/loss/2": {
+      "step": 200,
+      "value": 0.0005669440142810345
+    },
+    "rgb_edge_structure/edge_fraction/2": {
+      "step": 200,
+      "value": 0.0449390634894371
+    },
+    "rgb_edge_structure/disp_grad_on_edges/2": {
+      "step": 200,
+      "value": 0.019230900332331657
+    },
+    "rgb_edge_structure/hinge_active_fraction/2": {
+      "step": 200,
+      "value": 0.5974788665771484
+    },
+    "rgb_edge_structure/rgb_grad_mean/2": {
+      "step": 200,
+      "value": 0.01601540483534336
+    },
+    "rgb_edge_structure/weighted_loss_contribution/2": {
+      "step": 200,
+      "value": 1.417359953848063e-06
+    },
+    "loss": {
+      "step": 200,
+      "value": 0.13482996821403503
+    }
+  },
+  "val": {
+    "rgb_edge_structure/loss/0": {
+      "step": 200,
+      "value": 0.0004833066195715219
+    },
+    "rgb_edge_structure/edge_fraction/0": {
+      "step": 200,
+      "value": 0.013387608341872692
+    },
+    "rgb_edge_structure/disp_grad_on_edges/0": {
+      "step": 200,
+      "value": 0.0019795657135546207
+    },
+    "rgb_edge_structure/hinge_active_fraction/0": {
+      "step": 200,
+      "value": 1.0
+    },
+    "rgb_edge_structure/rgb_grad_mean/0": {
+      "step": 200,
+      "value": 0.010527137666940689
+    },
+    "rgb_edge_structure/weighted_loss_contribution/0": {
+      "step": 200,
+      "value": 4.833066213905113e-06
+    },
+    "rgb_edge_structure/loss/1": {
+      "step": 200,
+      "value": 0.0006081363535486162
+    },
+    "rgb_edge_structure/edge_fraction/1": {
+      "step": 200,
+      "value": 0.022756075486540794
+    },
+    "rgb_edge_structure/disp_grad_on_edges/1": {
+      "step": 200,
+      "value": 0.006731328554451466
+    },
+    "rgb_edge_structure/hinge_active_fraction/1": {
+      "step": 200,
+      "value": 0.9824171662330627
+    },
+    "rgb_edge_structure/rgb_grad_mean/1": {
+      "step": 200,
+      "value": 0.012363472953438759
+    },
+    "rgb_edge_structure/weighted_loss_contribution/1": {
+      "step": 200,
+      "value": 3.040681804122869e-06
+    },
+    "rgb_edge_structure/loss/2": {
+      "step": 200,
+      "value": 0.0006166225066408515
+    },
+    "rgb_edge_structure/edge_fraction/2": {
+      "step": 200,
+      "value": 0.04190316051244736
+    },
+    "rgb_edge_structure/disp_grad_on_edges/2": {
+      "step": 200,
+      "value": 0.01610652729868889
+    },
+    "rgb_edge_structure/hinge_active_fraction/2": {
+      "step": 200,
+      "value": 0.6840792894363403
+    },
+    "rgb_edge_structure/rgb_grad_mean/2": {
+      "step": 200,
+      "value": 0.016773641109466553
+    },
+    "rgb_edge_structure/weighted_loss_contribution/2": {
+      "step": 200,
+      "value": 1.5415562302223407e-06
+    },
+    "loss": {
+      "step": 200,
+      "value": 0.13571660220623016
+    }
+  }
+}

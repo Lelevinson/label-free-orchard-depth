@@ -1,0 +1,7 @@
+D:/Conda_Envs/lite-mono/python.exe citrus_project/milestones/03_self_supervised_adaptation/compare_original_vs_adapted_visuals.py `
+  --baseline_results citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/plain_litemono_citrus_imagenet_pretrain_b12_250steps_seed0_control/eval_val100_step_250/val_lite-mono_max100_per_sample.csv `
+  --adapted_results citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/rgb_edge_structure_b12_250steps_seed0/eval_val100_step_250/val_lite-mono_max100_per_sample.csv `
+  --baseline_weights_folder citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/plain_litemono_citrus_imagenet_pretrain_b12_250steps_seed0_control/models/step_250 `
+  --adapted_weights_folder citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/rgb_edge_structure_b12_250steps_seed0/models/step_250 `
+  --output_dir citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/rgb_edge_structure_b12_250steps_seed0/visual_compare_control_vs_rgb_edge_val100_step_250 `
+  --model lite-mono

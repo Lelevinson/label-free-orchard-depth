@@ -1301,3 +1301,155 @@ Final B0 baseline snapshot:
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/00_plain_citrus_baseline/
 ```
 
+## Milestone 4 Photometric-Confidence Masking Gate
+
+Date: 2026-05-14
+
+Paper relevance: early Milestone 4 method gate. This is not positive method evidence yet.
+
+Snapshot:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/01_photometric_confidence_masking/
+```
+
+Purpose: test a self-supervised training-loss change that downweights pixels where warped RGB reconstruction only barely improves over identity/no-warp reconstruction.
+
+Method constraints:
+
+- training-only change
+- inference unchanged
+- uses RGB reconstruction and identity losses only
+- no `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, or ZED-depth training loss
+- no structure loss or vegetation-aware weighting
+
+Implemented options:
+
+```text
+--photometric_confidence_masking
+--photometric_confidence_threshold 0.01
+--photometric_confidence_ramp 0.05
+--photometric_confidence_min_weight 0.25
+```
+
+Smoke status:
+
+- `py_compile` passed for `options.py` and `trainer.py`
+- `train.py --help` exposes the new options
+- CUDA 2-step smoke completed with finite losses
+- TensorBoard event data includes `photometric_confidence/*` diagnostics
+
+First-100 validation after 250 training steps from ImageNet encoder pretrain:
+
+| model | raw abs_rel | raw a1 | median-scaled abs_rel | median-scaled a1 |
+|---|---:|---:|---:|---:|
+| Original Lite-Mono first-100 reference | 0.7289 | 0.0131 | 0.3680 | 0.4807 |
+| Same-budget no-mask ImageNet-pretrain control, step 250 | 0.9099 | 0.0000 | 0.5634 | 0.3577 |
+| Photometric-confidence masking, step 250 | 0.8985 | 0.0000 | 0.5582 | 0.3018 |
+
+Diagnostics at train step 200 showed confidence was not near zero everywhere: confidence mean among warped winners was about `0.699` across scales, confident pixel fraction was about `0.365`, and effective weight mean was about `0.343`.
+
+Visual comparison against the same-budget no-mask control:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/photometric_confidence_masking_b12_250steps_seed0/visual_compare_control_vs_confidence_val100_step_250/
+```
+
+Interpretation:
+
+The gate is technically stable but mixed. Photometric-confidence masking slightly improves median-scaled `abs_rel` over the same-budget no-mask control, but worsens median-scaled `a1`. Both 250-step ImageNet-pretrain runs are much weaker than the original first-100 reference, so this is not a definitive negative result about all longer training. However, it is also not enough evidence to scale the method. Current conclusion: uncertain / do not scale yet without a follow-up technical reason.
+
+Code status after packaging: the tested photometric-confidence code is preserved in the snapshot `code/` folder, but the live root `options.py` and `trainer.py` were later restored to the shared baseline state for collaboration.
+
+## Milestone 4 Overnight Self-Supervised Gates: RGB-Edge Structure and Soft Confidence
+
+Date: 2026-05-14
+
+Paper relevance: negative method-gate evidence. These are useful for narrowing the Milestone 4 direction, but they are not positive method results.
+
+Shared constraints:
+
+- 250-step gates only
+- ImageNet encoder pretrain via `--mypretrain weights/lite-mono/lite-mono-pretrain.pth`
+- no `--load_weights_folder weights/lite-mono`
+- no `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, or ZED-depth training loss
+- inference unchanged
+- methods tested independently, not combined
+
+Same-budget no-mask control reference:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/plain_litemono_citrus_imagenet_pretrain_b12_250steps_seed0_control/
+```
+
+Control first-100 validation at step 250: raw `abs_rel=0.9099`, raw `a1=0.0000`, median-scaled `abs_rel=0.5634`, median-scaled `a1=0.3577`.
+
+### 02 RGB-Edge Structure-Preserving Loss
+
+Snapshot:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/02_rgb_edge_structure_preserving_loss/
+```
+
+Run:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/rgb_edge_structure_b12_250steps_seed0/
+```
+
+Purpose: test whether a conservative RGB-edge disparity-gradient loss can reduce over-smoothing without labels.
+
+First-100 validation after 250 training steps:
+
+| model | raw abs_rel | raw a1 | median-scaled abs_rel | median-scaled a1 |
+|---|---:|---:|---:|---:|
+| Same-budget no-mask control | 0.9099 | 0.0000 | 0.5634 | 0.3577 |
+| RGB-edge structure loss | 0.8993 | 0.0000 | 0.5822 | 0.3280 |
+
+Diagnostics at train step 200 showed the loss was active but sparse/small: scale-0 edge fraction about `0.0121`, scale-0 disparity gradient on edges about `0.0024`, and scale-0 weighted contribution about `0.00000429`.
+
+Visual comparison:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/rgb_edge_structure_b12_250steps_seed0/visual_compare_control_vs_rgb_edge_val100_step_250/
+```
+
+Interpretation: stable but negative. The structure loss worsened both median-scaled `abs_rel` and median-scaled `a1` versus the same-budget no-mask control. Current conclusion: stop this exact configuration.
+
+### 03 Soft Confidence Multiplier
+
+Snapshot:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/03_soft_confidence_multiplier/
+```
+
+Run:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/soft_confidence_multiplier_b12_250steps_seed0/
+```
+
+Purpose: test whether confidence can be used as a mild multiplier without the normalized weighted-average behavior from 01.
+
+First-100 validation after 250 training steps:
+
+| model | raw abs_rel | raw a1 | median-scaled abs_rel | median-scaled a1 |
+|---|---:|---:|---:|---:|
+| Same-budget no-mask control | 0.9099 | 0.0000 | 0.5634 | 0.3577 |
+| Photometric-confidence masking 01 | 0.8985 | 0.0000 | 0.5582 | 0.3018 |
+| Soft confidence multiplier | 0.8978 | 0.0000 | 0.5676 | 0.3068 |
+
+Diagnostics at train step 200 showed the multiplier was mild: mean multiplier about `0.974`, mean multiplier on warped winners about `0.949`, warped-winner fraction about `0.50`, and photo-loss delta about `0.0023`.
+
+Visual comparison:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/soft_confidence_multiplier_b12_250steps_seed0/visual_compare_control_vs_soft_confidence_val100_step_250/
+```
+
+Interpretation: stable but negative. The softer multiplier did not rescue the confidence direction and still clearly worsened median-scaled `a1` versus the no-mask control. Current conclusion: stop this exact configuration.
+
+Code status after packaging: the tested 02 and 03 code is preserved in each snapshot's `code/` folder, but the live root `options.py` and `trainer.py` were restored to the shared baseline state for collaboration.
+

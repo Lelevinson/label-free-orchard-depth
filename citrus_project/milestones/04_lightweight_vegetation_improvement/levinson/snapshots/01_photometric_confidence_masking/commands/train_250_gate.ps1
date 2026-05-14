@@ -1,0 +1,20 @@
+D:/Conda_Envs/lite-mono/python.exe train.py `
+  --dataset citrus `
+  --split citrus_prepared `
+  --data_path citrus_project/dataset_workspace `
+  --model lite-mono `
+  --model_name photometric_confidence_masking_b12_250steps_seed0 `
+  --log_dir citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs `
+  --mypretrain weights/lite-mono/lite-mono-pretrain.pth `
+  --weights_init pretrained `
+  --batch_size 12 `
+  --num_epochs 1 `
+  --max_train_steps 250 `
+  --save_step_frequency 250 `
+  --height 192 `
+  --width 640 `
+  --num_workers 0 `
+  --log_frequency 50 `
+  --save_frequency 1 `
+  --seed 0 `
+  --photometric_confidence_masking

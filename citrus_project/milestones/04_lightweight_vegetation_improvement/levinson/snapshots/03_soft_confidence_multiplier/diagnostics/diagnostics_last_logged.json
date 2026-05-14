@@ -1,0 +1,206 @@
+{
+  "train": {
+    "soft_confidence/multiplier_mean/0": {
+      "step": 200,
+      "value": 0.9742361307144165
+    },
+    "soft_confidence/multiplier_mean_warped/0": {
+      "step": 200,
+      "value": 0.9485266804695129
+    },
+    "soft_confidence/warped_winner_fraction/0": {
+      "step": 200,
+      "value": 0.5005269646644592
+    },
+    "soft_confidence/weak_pixel_fraction/0": {
+      "step": 200,
+      "value": 0.5298926830291748
+    },
+    "soft_confidence/margin_mean/0": {
+      "step": 200,
+      "value": 0.0037960526533424854
+    },
+    "soft_confidence/photo_loss_before/0": {
+      "step": 200,
+      "value": 0.1349533051252365
+    },
+    "soft_confidence/photo_loss_after/0": {
+      "step": 200,
+      "value": 0.13265439867973328
+    },
+    "soft_confidence/effective_loss_delta/0": {
+      "step": 200,
+      "value": 0.002298906445503235
+    },
+    "soft_confidence/multiplier_mean/1": {
+      "step": 200,
+      "value": 0.974280595779419
+    },
+    "soft_confidence/multiplier_mean_warped/1": {
+      "step": 200,
+      "value": 0.9486122131347656
+    },
+    "soft_confidence/warped_winner_fraction/1": {
+      "step": 200,
+      "value": 0.5004957318305969
+    },
+    "soft_confidence/weak_pixel_fraction/1": {
+      "step": 200,
+      "value": 0.52916419506073
+    },
+    "soft_confidence/margin_mean/1": {
+      "step": 200,
+      "value": 0.0039374371990561485
+    },
+    "soft_confidence/photo_loss_before/1": {
+      "step": 200,
+      "value": 0.13489723205566406
+    },
+    "soft_confidence/photo_loss_after/1": {
+      "step": 200,
+      "value": 0.13259702920913696
+    },
+    "soft_confidence/effective_loss_delta/1": {
+      "step": 200,
+      "value": 0.0023002028465270996
+    },
+    "soft_confidence/multiplier_mean/2": {
+      "step": 200,
+      "value": 0.9746390581130981
+    },
+    "soft_confidence/multiplier_mean_warped/2": {
+      "step": 200,
+      "value": 0.9490042328834534
+    },
+    "soft_confidence/warped_winner_fraction/2": {
+      "step": 200,
+      "value": 0.49731311202049255
+    },
+    "soft_confidence/weak_pixel_fraction/2": {
+      "step": 200,
+      "value": 0.5268082618713379
+    },
+    "soft_confidence/margin_mean/2": {
+      "step": 200,
+      "value": 0.0037789810448884964
+    },
+    "soft_confidence/photo_loss_before/2": {
+      "step": 200,
+      "value": 0.13495464622974396
+    },
+    "soft_confidence/photo_loss_after/2": {
+      "step": 200,
+      "value": 0.13266001641750336
+    },
+    "soft_confidence/effective_loss_delta/2": {
+      "step": 200,
+      "value": 0.0022946298122406006
+    },
+    "loss": {
+      "step": 200,
+      "value": 0.13264194130897522
+    }
+  },
+  "val": {
+    "soft_confidence/multiplier_mean/0": {
+      "step": 200,
+      "value": 0.9686009287834167
+    },
+    "soft_confidence/multiplier_mean_warped/0": {
+      "step": 200,
+      "value": 0.9456322193145752
+    },
+    "soft_confidence/warped_winner_fraction/0": {
+      "step": 200,
+      "value": 0.577531635761261
+    },
+    "soft_confidence/weak_pixel_fraction/0": {
+      "step": 200,
+      "value": 0.5336124300956726
+    },
+    "soft_confidence/margin_mean/0": {
+      "step": 200,
+      "value": 0.01807556301355362
+    },
+    "soft_confidence/photo_loss_before/0": {
+      "step": 200,
+      "value": 0.1339266151189804
+    },
+    "soft_confidence/photo_loss_after/0": {
+      "step": 200,
+      "value": 0.1317095011472702
+    },
+    "soft_confidence/effective_loss_delta/0": {
+      "step": 200,
+      "value": 0.002217113971710205
+    },
+    "soft_confidence/multiplier_mean/1": {
+      "step": 200,
+      "value": 0.9686346650123596
+    },
+    "soft_confidence/multiplier_mean_warped/1": {
+      "step": 200,
+      "value": 0.9456501007080078
+    },
+    "soft_confidence/warped_winner_fraction/1": {
+      "step": 200,
+      "value": 0.577099621295929
+    },
+    "soft_confidence/weak_pixel_fraction/1": {
+      "step": 200,
+      "value": 0.5337368845939636
+    },
+    "soft_confidence/margin_mean/1": {
+      "step": 200,
+      "value": 0.017997460439801216
+    },
+    "soft_confidence/photo_loss_before/1": {
+      "step": 200,
+      "value": 0.13406610488891602
+    },
+    "soft_confidence/photo_loss_after/1": {
+      "step": 200,
+      "value": 0.13184529542922974
+    },
+    "soft_confidence/effective_loss_delta/1": {
+      "step": 200,
+      "value": 0.0022208094596862793
+    },
+    "soft_confidence/multiplier_mean/2": {
+      "step": 200,
+      "value": 0.9689373970031738
+    },
+    "soft_confidence/multiplier_mean_warped/2": {
+      "step": 200,
+      "value": 0.9458625316619873
+    },
+    "soft_confidence/warped_winner_fraction/2": {
+      "step": 200,
+      "value": 0.573773205280304
+    },
+    "soft_confidence/weak_pixel_fraction/2": {
+      "step": 200,
+      "value": 0.5329284071922302
+    },
+    "soft_confidence/margin_mean/2": {
+      "step": 200,
+      "value": 0.0177818201482296
+    },
+    "soft_confidence/photo_loss_before/2": {
+      "step": 200,
+      "value": 0.13428595662117004
+    },
+    "soft_confidence/photo_loss_after/2": {
+      "step": 200,
+      "value": 0.13205985724925995
+    },
+    "soft_confidence/effective_loss_delta/2": {
+      "step": 200,
+      "value": 0.002226099371910095
+    },
+    "loss": {
+      "step": 200,
+      "value": 0.1318761110305786
+    }
+  }
+}
