@@ -8,6 +8,14 @@ Levinson's workstream is the self-supervised Milestone 4 path. Prioritize RGB-on
 
 Inference should remain RGB-only unless a future note explicitly says otherwise. Training-supervision claims must be labeled honestly when comparing against Marvel's supervised/hybrid workstream.
 
+Before editing root training code or starting any future Snapshot 07 work, read:
+
+```text
+ACTIVE_ROOT_CODE_STATE.md
+```
+
+Root `trainer.py` and `options.py` are currently the active Snapshot 05/06 teacher-anchor workbench used by `train.py`. Snapshot `code/` folders are frozen archival copies, not automatically imported runtime code.
+
 ## Contents
 
 ```text

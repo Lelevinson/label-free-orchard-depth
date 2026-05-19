@@ -111,6 +111,14 @@ No unignored accidental junk appeared in `git ls-files --others --exclude-standa
 
 Root code remains active as Snapshot 05/06 branch.
 
+The explicit root-code policy note is:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/ACTIVE_ROOT_CODE_STATE.md
+```
+
+That note clarifies that repo-root `trainer.py` and `options.py` are the active implementation workbench used by `train.py`, while snapshot `code/` folders are frozen archival copies and are not automatically imported by the training entrypoint.
+
 Specifically:
 
 - `options.py` and `trainer.py` are not restored to the shared baseline; they contain disabled-by-default method flags and trainer support for Snapshot 04 plus Snapshot 05/06 teacher-anchor work.
