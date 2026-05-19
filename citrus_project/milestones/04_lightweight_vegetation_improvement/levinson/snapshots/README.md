@@ -12,6 +12,39 @@ Read this file first, then open only the stage folder needed for the task.
 | `01_photometric_confidence_masking/` | first self-supervised confidence-mask gate; stable but mixed, conclusion `uncertain / do not scale yet` |
 | `02_rgb_edge_structure_preserving_loss/` | independent RGB-edge structure-loss gate; stable but negative, conclusion `stop` |
 | `03_soft_confidence_multiplier/` | independent soft confidence backup gate; stable but negative, conclusion `stop` |
+| `04_vegetation_general_temporal_cross_view_consistency/` | temporal geometry, visibility, texture ambiguity, and feature cross-view method-family gate; stable weak negative evidence, conclusion `do not scale` |
+| `05_teacher_anchored_relative_structure_regularization/` | full teacher-anchored label-free self-supervised adaptation run; selected checkpoint `weights_19` is the current best Levinson label-free teacher-anchor candidate |
+| `06_teacher_anchor_stabilization/` | reduced-ranking/no-texture stabilization of Snapshot 05; promising mixed marginal ablation, not a clean replacement |
+
+## Latest Stage
+
+Snapshot 06 is now implemented and full-run tested:
+
+```text
+06_teacher_anchor_stabilization/
+```
+
+It reuses Snapshot 05's training-only frozen RGB teacher implementation, but reduces ranking pressure from `0.02` to `0.005` and removes texture-ambiguity emphasis. It remains label-free for Citrus training: no `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, ZED depth, or LiDAR-derived label is used as a training loss or mask.
+
+The full 30-epoch run slightly improves Snapshot 05 on validation but slightly worsens test, so it is a useful stabilization ablation rather than a clean replacement. Open:
+
+```text
+06_teacher_anchor_stabilization/README.md
+```
+
+Latest checkpoint-selection decision:
+
+```text
+05_teacher_anchored_relative_structure_regularization/ weights_19
+```
+
+Snapshot 05 `weights_19` was selected by the validation-only teacher-anchor checkpoint sweep and visually packaged on 2026-05-19 without new training. It is the current main Snapshot 05 paper-table candidate. Visual and plain inference outputs are saved under:
+
+```text
+05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_visuals/
+```
+
+`local_evidence/` folders are local generated evidence folders and are ignored by the shared `.gitignore`; this checkout also keeps matching `.git/info/exclude` rules as a personal safety net.
 
 ## Naming Rule
 
@@ -22,6 +55,9 @@ Use numeric, readable names:
 01_<first_method_name>/
 02_<second_independent_method_name>/
 03_<third_independent_method_name>/
+04_<fourth_method_name>/
+05_<fifth_method_name>/
+06_<sixth_method_name>/
 ```
 
 Do not combine methods unless a future note explicitly approves a combined branch. Paper-style labels can be recorded inside a stage README later if useful, but folder names should stay descriptive and should not imply combined training unless the experiment actually combined methods.
@@ -43,4 +79,4 @@ Avoid extra nested README files unless a subfolder becomes complicated enough to
 
 When a stage changes Python code, duplicate the tested `.py` files into that stage's `code/` folder. Preserve clear relative paths when useful, for example `code/trainer.py`, `code/options.py`, `code/layers.py`, or `code/networks/depth_decoder.py`.
 
-The live root `trainer.py` and `options.py` were restored to the shared baseline state after the 01/02/03 gates were packaged. Experimental code lives in the snapshot `code/` folders for reproducibility; use the command scripts and README for each stage to see which single method was actually enabled.
+The live root `trainer.py` and `options.py` were restored to the shared baseline state after the 01/02/03 gates were packaged. Snapshot 04 later left the live root trainer/options as the active temporal-cross-view method branch. Snapshot 05 superseded that branch, and Snapshot 06 reuses the same teacher-anchored implementation with different flags. Root `trainer.py`, `options.py`, `render_teacher_structure_diagnostics.py`, and the visual comparison helper remain active for teacher-anchored regularization. Tested copies and patch artifacts live in `05_teacher_anchored_relative_structure_regularization/` and `06_teacher_anchor_stabilization/`. Use each stage README and command scripts to see which method was actually enabled.

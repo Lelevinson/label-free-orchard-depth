@@ -1,0 +1,8 @@
+variant,run_name,step_budget,train_batch,raw_abs_rel,raw_a1,median_scaled_abs_rel,median_scaled_a1,conclusion
+same_budget_control,plain_litemono_citrus_imagenet_pretrain_b12_250steps_seed0_control,250,12,0.909865,0.000000,0.563429,0.357720,reference
+temporal_geo,vg_tcv_geo_teacher_b12_250steps_seed0_w015,250,12,0.903271,0.000000,0.566564,0.359725,mixed_tiny_a1_gain
+temporal_geo_visibility_default,vg_tcv_geo_visibility_teacher_b12_250steps_seed0_w015,250,12,0.902976,0.000000,0.568795,0.358077,negative_default_mask_nearly_noop
+temporal_geo_visibility_strict,vg_tcv_geo_visibility_teacher_b12_250steps_seed0_w015_vthr003,250,12,0.902723,0.000000,0.588438,0.310695,negative_mask_too_sparse
+temporal_geo_texture,vg_tcv_geo_texture_teacher_b12_250steps_seed0_w015_tw035,250,12,0.902772,0.000000,0.565090,0.360479,best_tiny_a1_gain
+temporal_geo_feature,vg_tcv_geo_feature_teacher_b12_250steps_seed0_w015_fw005,250,12,0.912881,0.000000,0.558089,0.337346,mixed_abs_rel_gain_a1_drop
+full_reduced_feature,vg_tcv_full_teacher_b12_250steps_seed0_w015_tw035_fw002,250,12,0.936633,0.000000,0.575513,0.350296,negative_stacking

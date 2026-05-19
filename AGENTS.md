@@ -275,13 +275,19 @@ Milestone 4 - Lightweight vegetation improvement:
 8. The photometric-confidence masking gate snapshot is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/01_photometric_confidence_masking/`; it contains copied tested `trainer.py` and `options.py`, command scripts, metric/diagnostic summaries, and an `uncertain / do not scale yet` conclusion.
 9. The RGB-edge structure-preserving loss gate snapshot is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/02_rgb_edge_structure_preserving_loss/`; it contains copied tested `trainer.py` and `options.py`, command scripts, metric/diagnostic summaries, and a `stop` conclusion.
 10. The soft confidence multiplier backup gate snapshot is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/03_soft_confidence_multiplier/`; it contains copied tested `trainer.py` and `options.py`, command scripts, metric/diagnostic summaries, and a `stop` conclusion.
-11. Future Levinson improvement code snapshots should live under `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/` once an improvement is implemented and tested.
-12. Use descriptive numeric future snapshot names such as `04_vegetation_aware_photometric_weighting/`; record paper-style labels such as `A` or `A+B` inside the stage README only if useful.
-13. Each completed improvement-stage snapshot should include one compact `README.md`, copies of changed code files when the stage is tested, optional small command/config/patch notes, and pointers to checkpoints, results, visuals, metric summary, and continue/stop/uncertain conclusion.
-14. Whenever a Milestone 4 improvement changes `.py` files such as `trainer.py`, `options.py`, `layers.py`, `networks/*.py`, or helper scripts, duplicate the tested versions into the relevant stage snapshot under `code/`, preserving clear relative paths when useful. If a completed stage has no code changes, keep a simple marker such as `code/NO_CODE_CHANGES.txt`.
-15. Milestone 4 collaborators should keep work inside their own workstream folder, update the shared Milestone 4 README when paths or collaboration rules change, and avoid editing another person's snapshots without explicit coordination.
-16. After the 01/02/03 Milestone 4 gates were packaged, the live root `options.py` and `trainer.py` were restored to the shared baseline state for collaboration. The tested experimental code for those gates is preserved in each snapshot's `code/` folder, not kept active in the global trainer.
-17. Workstream separation decision:
+11. The Vegetation-General Temporal Cross-View Consistency gate snapshot is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/04_vegetation_general_temporal_cross_view_consistency/`; it contains copied tested `trainer.py`, `options.py`, the diagnostic renderer script, command scripts, result/diagnostic summaries, qualitative diagnostic maps, a final diff, `diagnostic_report_and_snapshot05_proposal.md`, and a `stable weak negative; do not scale` conclusion.
+12. The Teacher-Anchored Relative-Structure Regularization snapshot is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/`; it contains copied tested `trainer.py`, `options.py`, helper scripts, command files, `config/opt.json`, result CSV/JSON/Markdown summaries, diagnostic reports/maps, visual comparison folders, a final diff, and a `continue / promising mixed` conclusion.
+13. The Teacher Anchor Stabilization snapshot is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/06_teacher_anchor_stabilization/`; it reuses the Snapshot 05 teacher implementation with reduced ranking weight and no texture-ambiguity emphasis, contains copied tested code, command files, `config/opt.json`, result CSV/JSON/Markdown summaries, visual/diagnostic maps, patch artifacts, and a `promising mixed / marginal stabilization` conclusion.
+14. The teacher-anchor checkpoint-selection note is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/teacher_anchor_snapshot05_06/`; it evaluated Snapshot 05 and Snapshot 06 `weights_0` through `weights_29` on full validation, selected checkpoints without test access, then tested only the selected checkpoints. Its large local sweep outputs are under `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/teacher_anchor_snapshot05_06/local_results/`, which is ignored by this checkout's `.git/info/exclude`.
+15. The selected Snapshot 05 `weights_19` visual/inference package is snapshot-local generated evidence at `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_visuals/`, also ignored by the local personal exclude file. The clearer professor-facing `weights_19` diagnosis package is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_professor_visual_diagnostics/`.
+16. Future Levinson improvement code snapshots should live under `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/` once an improvement is implemented and tested.
+17. Use descriptive numeric future snapshot names such as `07_method_name/`; record paper-style labels such as `A` or `A+B` inside the stage README only if useful.
+18. Each completed improvement-stage snapshot should include one compact `README.md`, copies of changed code files when the stage is tested, optional small command/config/patch notes, and pointers to checkpoints, results, visuals, metric summary, and continue/stop/uncertain conclusion.
+19. Large local generated evidence should stay under the relevant snapshot's ignored `local_evidence/` folder or the relevant checkpoint-selection note's ignored `local_results/` folder. The shared `.gitignore` ignores Levinson `runs/`, future `results/`, snapshot `local_evidence/`, and checkpoint-selection `local_results/`; this checkout also keeps matching `.git/info/exclude` rules as a personal safety net.
+20. Whenever a Milestone 4 improvement changes `.py` files such as `trainer.py`, `options.py`, `layers.py`, `networks/*.py`, or helper scripts, duplicate the tested versions into the relevant stage snapshot under `code/`, preserving clear relative paths when useful. If a completed stage has no code changes, keep a simple marker such as `code/NO_CODE_CHANGES.txt`.
+21. Milestone 4 collaborators should keep work inside their own workstream folder, update the shared Milestone 4 README when paths or collaboration rules change, and avoid editing another person's snapshots without explicit coordination.
+22. After the 01/02/03 Milestone 4 gates were packaged, the live root `options.py` and `trainer.py` were restored to the shared baseline state for collaboration. Snapshot 04 then left the live root on the temporal-cross-view method branch. Snapshot 05 superseded that active branch; Snapshot 06 is a config-only stabilization of the same active teacher-anchored branch. Live root `options.py`, `trainer.py`, `render_teacher_structure_diagnostics.py`, and the visual comparison helper remain active for teacher-anchored regularization, with tested copies preserved in Snapshot 05 and Snapshot 06 `code/` folders.
+23. Workstream separation decision:
    - Levinson's path should prioritize self-supervised RGB-only training methods.
    - Levinson should not use `depth_gt`, `valid_mask`, LiDAR labels, dense labels, sparse labels, or ZED depth as a training loss unless the team explicitly creates a separate hybrid branch.
    - Marvel's path can explore supervised or hybrid methods that use valid depth labels, valid masks, or LiDAR-guided training.
@@ -329,6 +335,111 @@ Milestone 4 overnight self-supervised gates after photometric confidence:
    - soft confidence multiplier: raw `abs_rel=0.8978`, raw `a1=0.0000`, median-scaled `abs_rel=0.5676`, median-scaled `a1=0.3068`
 8. Interpretation: stable but negative. It did not rescue the confidence direction and clearly worsened median-scaled `a1`, so stop this exact configuration.
 9. Do not scale the exact 01, 02, or 03 configurations by default. Keep future Milestone 4 self-supervised changes isolated and first test with 250-step gates.
+
+Milestone 4 vegetation-general temporal cross-view consistency gate:
+
+1. Snapshot 04 implemented a coherent self-supervised method family with disabled-by-default flags for:
+   - `--temporal_geo_consistency`
+   - `--temporal_geo_weight`
+   - `--temporal_geo_warmup_steps`
+   - `--temporal_consistency_scales`
+   - `--visibility_aware_geo`
+   - `--visibility_cycle_threshold`
+   - `--texture_ambiguity_weighting`
+   - `--texture_ambiguity_weight`
+   - `--feature_cross_view_consistency`
+   - `--feature_consistency_weight`
+   - `--feature_consistency_warmup_steps`
+   - `--feature_consistency_scale`
+2. It remains self-supervised and RGB-only at inference: source-frame depth/features, PoseNet geometry, visibility masks, texture ambiguity maps, and feature consistency are training-only and use only RGB frames plus intrinsics.
+3. The source-frame branch was revised to a stop-gradient teacher after a batch-size-12 gate attempt was too slow when source depths participated in the backward graph.
+4. First-100 validation at step 250:
+   - same-budget no-mask control: median-scaled `abs_rel=0.5634`, `a1=0.3577`
+   - temporal geometry: median-scaled `abs_rel=0.5666`, `a1=0.3597`
+   - geometry + default visibility: median-scaled `abs_rel=0.5688`, `a1=0.3581`
+   - geometry + strict visibility threshold `0.003`: median-scaled `abs_rel=0.5884`, `a1=0.3107`
+   - geometry + texture ambiguity: median-scaled `abs_rel=0.5651`, `a1=0.3605`
+   - geometry + feature consistency: median-scaled `abs_rel=0.5581`, `a1=0.3373`
+   - full reduced-feature method: median-scaled `abs_rel=0.5755`, `a1=0.3503`
+5. Interpretation: technically stable but weak negative evidence. The best branch, geometry + texture ambiguity, gives only a tiny `a1` gain over the no-mask control and still worsens median-scaled `abs_rel`; feature consistency improves `abs_rel` but hurts `a1`; strict visibility becomes too sparse; full stacking is negative.
+6. Do not launch a longer Snapshot 04 run. The diagnostic report concludes that temporal geometry compared the model mostly against itself, default visibility was mostly projection validity, feature consistency was too coarse for thin vegetation, and texture ambiguity is the only component worth reusing as a weak prior/diagnostic.
+7. The Snapshot 04 design-only follow-up proposal was superseded by the completed Snapshot 05 run described below.
+
+Milestone 4 teacher-anchored relative-structure regularization:
+
+1. Snapshot 05 folder: `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/`.
+2. Method framing: Teacher-Anchored Relative-Structure Regularization for Label-Free Self-Supervised Vegetation Adaptation.
+3. Training uses the standard Citrus self-supervised monocular video objective plus a frozen RGB-only Lite-Mono teacher from `weights/lite-mono/`.
+4. The teacher is training-only and supplies pseudo-structure from RGB predictions, not ground truth. The student is not forced to copy teacher metric scale.
+5. Enabled full-run flags:
+   - `--teacher_structure_regularization`
+   - `--teacher_structure_weight 0.03`
+   - `--teacher_structure_warmup_steps 500`
+   - `--teacher_structure_decay 0.5`
+   - `--teacher_gradient_loss`
+   - `--teacher_gradient_weight 0.01`
+   - `--teacher_ranking_loss`
+   - `--teacher_ranking_weight 0.02`
+   - `--teacher_rank_samples 512`
+   - `--teacher_texture_ambiguity_emphasis`
+   - `--texture_ambiguity_weight 0.25`
+   - `--teacher_path weights/lite-mono`
+6. Teacher confidence flags were implemented but left off for the full run.
+7. The method remains label-free for Citrus training: it does not use `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, ZED depth, or LiDAR-derived labels as training losses or training masks. Citrus labels/masks are evaluation-only.
+8. Inference remains unchanged and lightweight: one RGB image goes through the Lite-Mono student encoder/depth decoder.
+9. Full run:
+   `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/teacher_structure_regularization_b12_30ep_full/`.
+10. Final checkpoint:
+    `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/teacher_structure_regularization_b12_30ep_full/models/weights_29/`.
+11. Evaluation:
+    `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/final_weights29_evaluation_full/`.
+12. Full validation result: raw `abs_rel=0.7372`, raw `a1=0.0169`, median-scaled `abs_rel=0.4611`, median-scaled `a1=0.5954`.
+13. Full test result: raw `abs_rel=0.7359`, raw `a1=0.0147`, median-scaled `abs_rel=0.4132`, median-scaled `a1=0.6463`.
+14. Comparison: Snapshot 05 improves B0's raw and median-scaled `abs_rel` on val/test while keeping most of B0's median-scaled `a1` gain; against original Lite-Mono it improves median-scaled `a1` but still worsens median-scaled `abs_rel`.
+15. Conclusion: promising mixed evidence and the strongest Levinson label-free direction so far, but not a clean win over original Lite-Mono. Continue with one deliberate revision, not random variant stacking.
+
+Milestone 4 teacher anchor stabilization:
+
+1. Snapshot 06 folder: `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/06_teacher_anchor_stabilization/`.
+2. Method framing: Teacher Anchor Stabilization, still label-free teacher-anchored self-supervised adaptation.
+3. Snapshot 06 reused the active Snapshot 05 teacher implementation and changed only the full-run configuration:
+   - reduced `--teacher_ranking_weight` from `0.02` to `0.005`
+   - removed `--teacher_texture_ambiguity_emphasis`
+   - kept `--teacher_structure_weight 0.03`
+   - kept `--teacher_gradient_weight 0.01`
+   - kept `--teacher_structure_warmup_steps 500`
+   - kept `--teacher_structure_decay 0.5`
+   - kept `--teacher_rank_samples 512`
+   - kept `--teacher_path weights/lite-mono`
+4. The motivation was Snapshot 05's per-sample tradeoff: it improved many average errors but trailed B0 on median-scaled `a1`, with ranking as the largest final teacher-loss term and texture emphasis potentially focusing teacher pressure in ambiguous vegetation regions.
+5. The method remains label-free for Citrus training: it does not use `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, ZED depth, or LiDAR-derived labels as training losses or training masks. Citrus labels/masks are evaluation-only.
+6. Inference remains unchanged and lightweight: one RGB image goes through the Lite-Mono student encoder/depth decoder.
+7. Full run:
+   `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/teacher_anchor_stabilization_b12_30ep_rank005_no_texture/`.
+8. Final checkpoint:
+   `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/teacher_anchor_stabilization_b12_30ep_rank005_no_texture/models/weights_29/`.
+9. Evaluation:
+   `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/06_teacher_anchor_stabilization/local_evidence/final_weights29_evaluation_full/`.
+10. Full validation result: raw `abs_rel=0.7375`, raw `a1=0.0165`, median-scaled `abs_rel=0.4578`, median-scaled `a1=0.5993`.
+11. Full test result: raw `abs_rel=0.7348`, raw `a1=0.0150`, median-scaled `abs_rel=0.4168`, median-scaled `a1=0.6418`.
+12. Comparison: Snapshot 06 slightly improves Snapshot 05 on validation median-scaled `abs_rel` and `a1`, but slightly worsens Snapshot 05 on test median-scaled `abs_rel` and `a1`. It still improves B0 on median-scaled `abs_rel`, still trails B0 on median-scaled `a1`, and still trails original Lite-Mono on median-scaled `abs_rel`.
+13. Conclusion: promising mixed / marginal stabilization. Keep as a deliberate ablation; do not declare it a clean replacement for Snapshot 05.
+
+Milestone 4 teacher-anchor checkpoint selection:
+
+1. Checkpoint-selection note: `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/teacher_anchor_snapshot05_06/README.md`.
+2. Sweep output folder: `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/teacher_anchor_snapshot05_06/local_results/`.
+3. Selection rule: evaluate all Snapshot 05 and Snapshot 06 `weights_0` through `weights_29` on full validation; select the checkpoint with lowest validation median-scaled `abs_rel` among checkpoints whose validation median-scaled `a1` is within `0.02` absolute of B0 validation `a1=0.6107`; if none qualify, fall back to lowest validation `abs_rel`. Test is not used for selection.
+4. Validation-selected Snapshot 05 checkpoint: `weights_19`, with validation raw `abs_rel=0.7389`, raw `a1=0.0177`, median-scaled `abs_rel=0.4447`, median-scaled `a1=0.5915`.
+5. Validation-selected Snapshot 06 checkpoint: `weights_25`, with validation raw `abs_rel=0.7347`, raw `a1=0.0166`, median-scaled `abs_rel=0.4493`, median-scaled `a1=0.5925`.
+6. Selected Snapshot 05 `weights_19` test result: raw `abs_rel=0.7391`, raw `a1=0.0144`, median-scaled `abs_rel=0.3947`, median-scaled `a1=0.6476`.
+7. Selected Snapshot 06 `weights_25` test result: raw `abs_rel=0.7310`, raw `a1=0.0148`, median-scaled `abs_rel=0.4076`, median-scaled `a1=0.6359`.
+8. Interpretation: Snapshot 05 `weights_19` is the best current Levinson label-free teacher-anchor checkpoint. It clearly improves B0 median-scaled `abs_rel` (`0.4889` to `0.3947`) while keeping most of B0 median-scaled `a1` (`0.6582` to `0.6476`). It gets close to original Lite-Mono test median-scaled `abs_rel=0.3836` but does not beat it.
+9. Validation-only caveat: very early `weights_7` checkpoints had lower validation median-scaled `abs_rel` (`0.3716` for Snapshot 05 and `0.3882` for Snapshot 06) but failed the B0-close `a1` threshold (`0.5110` and `0.5007`), so they were not selected or tested.
+10. Visual/inference packaging completed on 2026-05-19 without new training. Output folder: `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_visuals/`.
+11. The package includes original-vs-`weights_19`, B0-vs-`weights_19`, and `weights_29`-vs-`weights_19` panels for full validation and test representatives, plus plain `weights_19` RGB/raw-depth/median-scaled-depth/disparity PNGs, NPZ arrays, and a manifest for representative validation/test samples.
+12. Professor-facing visual diagnosis package generated without new training: `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_professor_visual_diagnostics/`. It contains full-image qualitative panels, valid-mask-only error panels, cropped/masked evaluated-region panels, `weights_29` versus `weights_19` panels, plain inference panels, `sample_selection.csv/json`, and `visual_diagnosis.md`. A tracked compact summary is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/diagnostics/weights19_professor_visual_diagnosis_summary.md`.
+13. Visual read: mixed but useful. Good/typical cases show broad relative-structure behavior consistent with aggregate gains; failure/largest-drop cases still show smooth maps and over-correction around vegetation/occlusion regions. The professor-facing diagnosis explicitly notes that full-image sky/far-canopy and dark-blob artifacts remain and that `weights_19` is numerically promising but not visually paper-polished. Use `weights_19` as the main Snapshot 05 paper-table checkpoint, while keeping the caveat that it is not a clean win over original Lite-Mono on median-scaled `abs_rel`.
 
 Milestone 4 plain Lite-Mono Citrus baseline planning:
 
@@ -497,16 +608,21 @@ Immediate:
 2. Do not delete generated evidence or checkpoints unless the user explicitly approves a specific cleanup list.
 3. Keep professor-facing names descriptive and keep internal run-folder names in technical mappings.
 4. Treat Milestone 4 gates `01_photometric_confidence_masking`, `02_rgb_edge_structure_preserving_loss`, and `03_soft_confidence_multiplier` as completed non-scaling gates.
-5. Keep Levinson's next work self-supervised unless a separate hybrid branch is explicitly approved.
-6. Let Marvel explore supervised/hybrid depth-label or valid-mask-guided ideas in the separate Marvel workstream.
-7. Do not launch longer 01/02/03 runs by default; redesign the self-supervised objective or prepare design-only vegetation-aware notes before any new training.
+5. Treat Snapshot 04 temporal cross-view consistency as stable weak negative evidence; do not scale it.
+6. Treat Snapshot 05 teacher-anchored relative-structure regularization as promising mixed label-free evidence; after validation-only checkpoint selection and visual packaging, Snapshot 05 `weights_19` is the best current Levinson teacher-anchor checkpoint and the main Snapshot 05 paper-table candidate.
+7. Treat Snapshot 06 teacher anchor stabilization as a completed deliberate ablation: reducing ranking weight and removing texture emphasis slightly improved validation versus Snapshot 05 final weights but did not beat Snapshot 05 `weights_19`.
+8. The active root code remains the teacher-anchored branch shared by Snapshot 05 and Snapshot 06; use the Snapshot 06 `code/` folder plus Snapshot 05/06 patch artifacts if the shared baseline state needs to be restored later. The pre-Snapshot07 repository audit is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/pre_snapshot07_repo_audit.md`.
+9. Future Levinson follow-up should not start new training until the team reviews the Snapshot 05 `weights_19` visual packages, especially `selected_weights19_professor_visual_diagnostics/visual_diagnosis.md`, and decides whether it is strong enough as the current label-free result, or whether a genuinely different teacher schedule/checkpoint strategy is needed.
+10. Keep Levinson's next work label-free/self-supervised unless a separate hybrid branch is explicitly approved.
+11. Let Marvel explore supervised/hybrid depth-label or valid-mask-guided ideas in the separate Marvel workstream.
+12. Do not launch longer 01/02/03/04 runs by default and do not randomly stack more Snapshot 05/06 variants.
 
 Milestone 4 planning questions:
 
-1. Which failure signal should the first method target: relative-depth drift, over-smoothing, vegetation boundary loss, or scale instability?
-2. Should the first method be an objective change, a lightweight architecture addition, or a constrained adaptation rule?
+1. Is Snapshot 05 `weights_19` sufficient as the current label-free teacher-anchor result, given that it nearly closes original Lite-Mono's median-scaled `abs_rel` gap while preserving B0-like `a1`?
+2. Should the next label-free revision use teacher confidence, earlier stopping, or a different anchor target rather than another small ranking/texture tweak?
 3. Which Milestone 3 weak baseline checkpoint should represent standard adaptation in comparison tables?
-4. Should Milestone 4 use first-100 validation gates first, then full val/test runs only after a clear improvement?
+4. Which Snapshot 05/06 qualitative cases best explain the improved `abs_rel` and the remaining `a1` gap?
 
 ## Recent Change Log
 
@@ -528,6 +644,14 @@ Milestone 4 planning questions:
 16. 2026-05-14: Ran the approved overnight Milestone 4 self-supervised queue: `02_rgb_edge_structure_preserving_loss` first, then independent backup `03_soft_confidence_multiplier` because 02 was negative. Both were stable 250-step gates but worsened median-scaled validation metrics versus the same-budget no-mask control, so both snapshots were packaged with `stop` conclusions and no 04 vegetation-aware training was run.
 17. 2026-05-14: Restored the live root `options.py` and `trainer.py` to the shared baseline state after packaging the 01/02/03 snapshot code copies, reducing collaboration friction while preserving reproducibility evidence in Levinson's snapshots.
 18. 2026-05-14: Recorded Milestone 4 workstream separation: Levinson owns the self-supervised RGB-only training path, while Marvel can explore supervised/hybrid valid-depth, valid-mask, or LiDAR-guided training in a separate workstream with honest labeling.
+19. 2026-05-17: Implemented and tested Levinson snapshot `04_vegetation_general_temporal_cross_view_consistency/` with temporal geometry, visibility, texture ambiguity, feature consistency, and full ablations. The source-frame branch was revised to a stop-gradient teacher for practical batch-size-12 gates. Results are stable weak negative evidence; do not scale Snapshot 04. Root `options.py`, `trainer.py`, and the new diagnostic renderer remain as the active method branch, with tested copies and `patches/final_method.diff` saved in the snapshot.
+20. 2026-05-17: Added the Snapshot 04 diagnostic report, then superseded its design-only Snapshot 05 proposal with the completed `05_teacher_anchored_relative_structure_regularization/` full 30-epoch run. Snapshot 05 uses a frozen RGB-only Lite-Mono teacher for scale-invariant structure, gradient, and ranking regularization with no Citrus labels or valid masks as training losses. Final val/test metrics are promising mixed evidence: better than B0 on raw and median-scaled `abs_rel`, close to B0 on median-scaled `a1`, better than original on median-scaled `a1`, but still worse than original on median-scaled `abs_rel`. Root code remains active as the Snapshot 05 branch, with tested copies and `patches/final_method.diff` saved in the snapshot.
+21. 2026-05-18: Completed Levinson snapshot `06_teacher_anchor_stabilization/`, a config-only stabilization of Snapshot 05 with reduced ranking weight (`0.005`) and no texture-ambiguity emphasis. The full 30-epoch run is stable and packaged; validation is slightly better than Snapshot 05 but test is slightly worse, so Snapshot 06 is a promising mixed/marginal ablation rather than a clean replacement. Root code remains the active teacher-anchored branch.
+22. 2026-05-18: Ran validation-first checkpoint selection for Snapshot 05 and Snapshot 06 without new training. The selected checkpoints are Snapshot 05 `weights_19` and Snapshot 06 `weights_25`; test evaluation after selection shows Snapshot 05 `weights_19` is strongest so far, with test median-scaled `abs_rel=0.3947` and `a1=0.6476`.
+23. 2026-05-19: Packaged Snapshot 05 selected `weights_19` as the current best Levinson label-free teacher-anchor candidate without new training. Generated validation/test comparison panels versus original Lite-Mono, B0, and Snapshot 05 `weights_29`, plus plain selected-checkpoint RGB/depth/disparity outputs under `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_visuals/`. Visuals are mixed but support using `weights_19` as the main Snapshot 05 paper-table result with the caveat that it still does not beat original Lite-Mono on median-scaled `abs_rel`.
+24. 2026-05-19: Tidied large Levinson generated evidence into snapshot-local `local_evidence/` folders and the checkpoint-selection note's `local_results/` folder. Added local-only `.git/info/exclude` rules for those bulky generated folders and for future `levinson/results/` outputs, and set this repository's local `core.excludesfile` to `.git/info/exclude`, so the user's checkout can keep evidence without flooding `git status`.
+25. 2026-05-19: Generated a professor-facing Snapshot 05 `weights_19` visual diagnosis package without new training at `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_professor_visual_diagnostics/`. The package separates full-image qualitative issues from valid-LiDAR evaluation behavior and concludes that `weights_19` is numerically promising and professor-discussion-ready, but not visually solved or paper-polished.
+26. 2026-05-19: Added the pre-Snapshot07 repository audit at `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/pre_snapshot07_repo_audit.md`, documented that root `options.py` and `trainer.py` remain active as the Snapshot 05/06 teacher-anchor branch, and promoted the local-evidence ignore policy into shared `.gitignore` while keeping `.git/info/exclude` as a personal safety net.
 
 ## Update Template
 

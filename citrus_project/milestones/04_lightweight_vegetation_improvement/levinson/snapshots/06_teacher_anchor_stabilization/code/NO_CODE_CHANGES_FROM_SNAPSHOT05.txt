@@ -1,0 +1,7 @@
+Snapshot 06 uses the active Snapshot 05 teacher-anchored implementation without Python code changes.
+
+The tested active code should be copied here after full training/evaluation if the stage is promoted as a self-contained code snapshot. The planned experiment is a configuration-level stabilization:
+
+- reduce `--teacher_ranking_weight` from `0.02` to `0.005`
+- omit `--teacher_texture_ambiguity_emphasis`
+- keep structure and gradient teacher losses enabled

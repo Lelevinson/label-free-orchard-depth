@@ -1453,3 +1453,40 @@ Interpretation: stable but negative. The softer multiplier did not rescue the co
 
 Code status after packaging: the tested 02 and 03 code is preserved in each snapshot's `code/` folder, but the live root `options.py` and `trainer.py` were restored to the shared baseline state for collaboration.
 
+### Teacher-Anchor Checkpoint Selection
+
+Checkpoint-selection note:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/teacher_anchor_snapshot05_06/README.md
+```
+
+Sweep outputs:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/teacher_anchor_snapshot05_06/local_results/
+```
+
+Purpose: decide whether Snapshot 05 or Snapshot 06 has an earlier checkpoint with a better publishable tradeoff than final `weights_29`, without using the test set for checkpoint selection.
+
+Validation selection rule: choose the lowest full-validation median-scaled `abs_rel` checkpoint whose full-validation median-scaled `a1` is within `0.02` absolute of B0 validation `a1=0.6107`; evaluate test only after this selection.
+
+Selected checkpoints:
+
+| run | checkpoint | val median abs_rel | val median a1 | test median abs_rel | test median a1 |
+|---|---|---:|---:|---:|---:|
+| Snapshot 05 | `weights_19` | 0.4447 | 0.5915 | 0.3947 | 0.6476 |
+| Snapshot 06 | `weights_25` | 0.4493 | 0.5925 | 0.4076 | 0.6359 |
+
+Interpretation: Snapshot 05 `weights_19` is the strongest current label-free teacher-anchor result. It improves B0 test median-scaled `abs_rel` from `0.4889` to `0.3947` while keeping most of B0 test median-scaled `a1` (`0.6476` vs `0.6582`). It gets close to original Lite-Mono test median-scaled `abs_rel=0.3836`, but still does not beat it.
+
+Selected-checkpoint visual package:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_visuals/
+```
+
+Packaging date: 2026-05-19. No new training was run.
+
+The package contains validation/test comparison panels against original Lite-Mono, B0 plain Citrus, and Snapshot 05 `weights_29`, plus plain `weights_19` RGB/depth/disparity outputs for representative validation/test samples. Visual read: mixed but useful. Good/typical cases show broad relative-structure behavior consistent with the metric gains; failure/largest-drop cases still show smooth predictions and over-correction around vegetation or occlusion regions. Use `weights_19` as the main Snapshot 05 paper-table checkpoint with the caveat that it does not cleanly beat original Lite-Mono on median-scaled `abs_rel`.
+

@@ -1,0 +1,961 @@
+diff --git a/options.py b/options.py
+index ea10cf9..071805b 100644
+--- a/options.py
++++ b/options.py
+@@ -170,6 +170,87 @@ class LiteMonoOptions:
+         self.parser.add_argument("--predictive_mask",
+                                  help="if set, uses a predictive masking scheme as in Zhou et al",
+                                  action="store_true")
++        self.parser.add_argument("--temporal_geo_consistency",
++                                 help="if set, adds a training-only temporal depth consistency "
++                                      "loss between target and source-frame predictions",
++                                 action="store_true")
++        self.parser.add_argument("--temporal_geo_weight",
++                                 type=float,
++                                 help="weight for temporal geometric consistency",
++                                 default=0.03)
++        self.parser.add_argument("--temporal_geo_warmup_steps",
++                                 type=int,
++                                 help="linearly ramps temporal geometry weight over this many "
++                                      "optimizer steps; 0 disables warmup",
++                                 default=100)
++        self.parser.add_argument("--temporal_consistency_scales",
++                                 nargs="+",
++                                 type=int,
++                                 help="disparity scales where temporal geometry is applied",
++                                 default=[0])
++        self.parser.add_argument("--visibility_aware_geo",
++                                 help="if set, masks temporal geometry pixels with large "
++                                      "cross-view depth disagreement as likely occlusions or "
++                                      "non-rigid/out-of-view cases",
++                                 action="store_true")
++        self.parser.add_argument("--visibility_cycle_threshold",
++                                 type=float,
++                                 help="maximum detached log-depth disagreement kept by the "
++                                      "visibility-aware temporal geometry mask",
++                                 default=0.35)
++        self.parser.add_argument("--texture_ambiguity_weighting",
++                                 help="if set, detects RGB-only repeated/ambiguous texture "
++                                      "regions and downweights raw photometric loss while "
++                                      "boosting temporal consistency losses there",
++                                 action="store_true")
++        self.parser.add_argument("--texture_ambiguity_weight",
++                                 type=float,
++                                 help="strength of texture ambiguity weighting and temporal "
++                                      "consistency boost",
++                                 default=0.5)
++        self.parser.add_argument("--texture_ambiguity_patch_size",
++                                 type=int,
++                                 help="odd local smoothing window used for RGB self-similarity "
++                                      "ambiguity estimates",
++                                 default=5)
++        self.parser.add_argument("--texture_ambiguity_shift",
++                                 type=int,
++                                 help="pixel offset used when comparing nearby RGB patches for "
++                                      "self-similarity",
++                                 default=5)
++        self.parser.add_argument("--texture_ambiguity_color_delta",
++                                 type=float,
++                                 help="RGB patch-difference scale where self-similarity stops "
++                                      "being treated as ambiguous",
++                                 default=0.08)
++        self.parser.add_argument("--texture_ambiguity_photo_gap",
++                                 type=float,
++                                 help="photometric loss gap/margin scale used to identify "
++                                      "ambiguous source-frame matches",
++                                 default=0.02)
++        self.parser.add_argument("--texture_ambiguity_min_photo_multiplier",
++                                 type=float,
++                                 help="lowest multiplier applied to raw photometric loss in "
++                                      "high-ambiguity pixels",
++                                 default=0.5)
++        self.parser.add_argument("--feature_cross_view_consistency",
++                                 help="if set, adds low-resolution encoder-feature consistency "
++                                      "across temporal views using predicted depth and PoseNet",
++                                 action="store_true")
++        self.parser.add_argument("--feature_consistency_weight",
++                                 type=float,
++                                 help="weight for feature-level cross-view consistency",
++                                 default=0.01)
++        self.parser.add_argument("--feature_consistency_warmup_steps",
++                                 type=int,
++                                 help="linearly ramps feature consistency weight over this many "
++                                      "optimizer steps; 0 disables warmup",
++                                 default=100)
++        self.parser.add_argument("--feature_consistency_scale",
++                                 type=int,
++                                 help="image-pyramid scale used for encoder feature warping; "
++                                      "Lite-Mono's first encoder feature is scale 2",
++                                 default=2)
+         self.parser.add_argument("--no_ssim",
+                                  help="if set, disables ssim in the loss",
+                                  action="store_true")
+diff --git a/trainer.py b/trainer.py
+index 6cd10a7..777c4ef 100644
+--- a/trainer.py
++++ b/trainer.py
+@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function
+ import time
+ import sys
+ import random
++import csv
+ import torch.optim as optim
+ from torch.utils.data import DataLoader
+ from tensorboardX import SummaryWriter
+@@ -210,6 +211,40 @@ class Trainer:
+             self.opt.freeze_depth_encoder = False
+         if not hasattr(self.opt, "save_step_frequency"):
+             self.opt.save_step_frequency = 0
++        if not hasattr(self.opt, "temporal_geo_consistency"):
++            self.opt.temporal_geo_consistency = False
++        if not hasattr(self.opt, "temporal_geo_weight"):
++            self.opt.temporal_geo_weight = 0.03
++        if not hasattr(self.opt, "temporal_geo_warmup_steps"):
++            self.opt.temporal_geo_warmup_steps = 100
++        if not hasattr(self.opt, "temporal_consistency_scales"):
++            self.opt.temporal_consistency_scales = [0]
++        if not hasattr(self.opt, "visibility_aware_geo"):
++            self.opt.visibility_aware_geo = False
++        if not hasattr(self.opt, "visibility_cycle_threshold"):
++            self.opt.visibility_cycle_threshold = 0.35
++        if not hasattr(self.opt, "texture_ambiguity_weighting"):
++            self.opt.texture_ambiguity_weighting = False
++        if not hasattr(self.opt, "texture_ambiguity_weight"):
++            self.opt.texture_ambiguity_weight = 0.5
++        if not hasattr(self.opt, "texture_ambiguity_patch_size"):
++            self.opt.texture_ambiguity_patch_size = 5
++        if not hasattr(self.opt, "texture_ambiguity_shift"):
++            self.opt.texture_ambiguity_shift = 5
++        if not hasattr(self.opt, "texture_ambiguity_color_delta"):
++            self.opt.texture_ambiguity_color_delta = 0.08
++        if not hasattr(self.opt, "texture_ambiguity_photo_gap"):
++            self.opt.texture_ambiguity_photo_gap = 0.02
++        if not hasattr(self.opt, "texture_ambiguity_min_photo_multiplier"):
++            self.opt.texture_ambiguity_min_photo_multiplier = 0.5
++        if not hasattr(self.opt, "feature_cross_view_consistency"):
++            self.opt.feature_cross_view_consistency = False
++        if not hasattr(self.opt, "feature_consistency_weight"):
++            self.opt.feature_consistency_weight = 0.01
++        if not hasattr(self.opt, "feature_consistency_warmup_steps"):
++            self.opt.feature_consistency_warmup_steps = 100
++        if not hasattr(self.opt, "feature_consistency_scale"):
++            self.opt.feature_consistency_scale = 2
+         if self.opt.max_train_steps < 0:
+             raise ValueError(
+                 "--max_train_steps must be non-negative; "
+@@ -227,6 +262,52 @@ class Trainer:
+                 "--freeze_depth_encoder is not supported with "
+                 "--pose_model_type shared because the depth encoder is also "
+                 "used as the pose encoder")
++        if (
++            self.temporal_consistency_enabled()
++            and (self.opt.use_stereo or len(self.opt.frame_ids) <= 1)
++        ):
++            raise ValueError(
++                "Temporal cross-view consistency requires monocular source frames "
++                "and PoseNet; check --frame_ids and --use_stereo")
++        if self.opt.temporal_geo_weight < 0.0:
++            raise ValueError("--temporal_geo_weight must be non-negative")
++        if self.opt.temporal_geo_warmup_steps < 0:
++            raise ValueError("--temporal_geo_warmup_steps must be non-negative")
++        if self.opt.feature_consistency_weight < 0.0:
++            raise ValueError("--feature_consistency_weight must be non-negative")
++        if self.opt.feature_consistency_warmup_steps < 0:
++            raise ValueError("--feature_consistency_warmup_steps must be non-negative")
++        if self.opt.visibility_cycle_threshold <= 0.0:
++            raise ValueError("--visibility_cycle_threshold must be greater than 0")
++        if not 0.0 <= self.opt.texture_ambiguity_weight <= 1.0:
++            raise ValueError("--texture_ambiguity_weight must be between 0 and 1")
++        if self.opt.texture_ambiguity_patch_size < 1:
++            raise ValueError("--texture_ambiguity_patch_size must be at least 1")
++        if self.opt.texture_ambiguity_patch_size % 2 == 0:
++            raise ValueError("--texture_ambiguity_patch_size must be odd")
++        if self.opt.texture_ambiguity_shift < 1:
++            raise ValueError("--texture_ambiguity_shift must be at least 1")
++        if self.opt.texture_ambiguity_color_delta <= 0.0:
++            raise ValueError("--texture_ambiguity_color_delta must be greater than 0")
++        if self.opt.texture_ambiguity_photo_gap <= 0.0:
++            raise ValueError("--texture_ambiguity_photo_gap must be greater than 0")
++        if not 0.0 <= self.opt.texture_ambiguity_min_photo_multiplier <= 1.0:
++            raise ValueError(
++                "--texture_ambiguity_min_photo_multiplier must be between 0 and 1")
++        for scale in self.opt.temporal_consistency_scales:
++            if scale not in self.opt.scales:
++                raise ValueError(
++                    "--temporal_consistency_scales contains {}, but --scales is {}".format(
++                        scale, self.opt.scales))
++        if self.opt.feature_cross_view_consistency:
++            if self.opt.feature_consistency_scale not in self.opt.scales:
++                raise ValueError(
++                    "--feature_consistency_scale={} must also be present in --scales {}".format(
++                        self.opt.feature_consistency_scale, self.opt.scales))
++            if self.opt.feature_consistency_scale < 2:
++                raise ValueError(
++                    "--feature_consistency_scale must be at least 2 for Lite-Mono "
++                    "encoder-feature warping")
+         if not 0.0 <= self.opt.citrus_color_aug_probability <= 1.0:
+             raise ValueError(
+                 "--citrus_color_aug_probability must be between 0 and 1, "
+@@ -413,6 +494,97 @@ class Trainer:
+             parameter.requires_grad = False
+         module.eval()
+
++    def temporal_consistency_enabled(self):
++        return (
++            self.opt.temporal_geo_consistency
++            or self.opt.feature_cross_view_consistency
++        )
++
++    def ramped_weight(self, base_weight, warmup_steps):
++        if base_weight <= 0.0:
++            return 0.0
++        if warmup_steps <= 0:
++            return base_weight
++        progress = min(1.0, float(self.step + 1) / float(warmup_steps))
++        return base_weight * progress
++
++    def feature_level_from_scale(self, scale):
++        return scale - 2
++
++    def select_encoder_feature(self, feature_list, scale):
++        feature_level = self.feature_level_from_scale(scale)
++        if feature_level < 0 or feature_level >= len(feature_list):
++            raise ValueError(
++                "Lite-Mono feature scale {} maps to unavailable encoder "
++                "feature level {} from {} features".format(
++                    scale, feature_level, len(feature_list)))
++        return feature_list[feature_level]
++
++    def predict_source_depths_and_features(
++            self, inputs, outputs, pose_features, target_features):
++        """Predict training-only source depths/features for cross-view losses."""
++        requested_scales = set(self.opt.temporal_consistency_scales)
++        if self.opt.feature_cross_view_consistency:
++            requested_scales.add(self.opt.feature_consistency_scale)
++            outputs[("target_feature", self.opt.feature_consistency_scale)] = (
++                self.select_encoder_feature(
++                    target_features, self.opt.feature_consistency_scale))
++
++        for frame_id in self.opt.frame_ids[1:]:
++            if frame_id == "s":
++                continue
++
++            if self.opt.pose_model_type == "shared":
++                source_features = [feature.detach() for feature in pose_features[frame_id]]
++                source_outputs = self.models["depth"](source_features)
++            else:
++                source_features, source_outputs = self.predict_source_teacher(
++                    inputs[("color_aug", frame_id, 0)])
++
++            if self.opt.feature_cross_view_consistency:
++                outputs[("source_feature", frame_id, self.opt.feature_consistency_scale)] = (
++                    self.select_encoder_feature(
++                        source_features, self.opt.feature_consistency_scale).detach())
++
++            for scale in requested_scales:
++                if ("disp", scale) not in source_outputs:
++                    continue
++                outputs[("source_disp", frame_id, scale)] = (
++                    source_outputs[("disp", scale)].detach())
++                source_depth, _ = self.depth_from_disp_for_projection(
++                    source_outputs[("disp", scale)], scale)
++                outputs[("source_depth", frame_id, scale)] = source_depth.detach()
++
++    def predict_source_teacher(self, source_image):
++        """Run source-frame depth as a stop-gradient teacher for speed/stability."""
++        encoder_was_training = self.models["encoder"].training
++        depth_was_training = self.models["depth"].training
++        self.models["encoder"].eval()
++        self.models["depth"].eval()
++        with torch.no_grad():
++            source_features = self.models["encoder"](source_image)
++            source_outputs = self.models["depth"](source_features)
++        self.models["encoder"].train(encoder_was_training)
++        self.models["depth"].train(depth_was_training)
++        if self.opt.freeze_depth_encoder:
++            self.models["encoder"].eval()
++        return source_features, source_outputs
++
++    def depth_from_disp_for_projection(self, disp, scale):
++        """Match Lite-Mono's projection depth resolution for a disparity scale."""
++        if self.opt.v1_multiscale:
++            projection_scale = scale
++            projection_disp = disp
++        else:
++            projection_scale = 0
++            projection_disp = F.interpolate(
++                disp, [self.opt.height, self.opt.width],
++                mode="bilinear", align_corners=False)
++
++        _, depth = disp_to_depth(
++            projection_disp, self.opt.min_depth, self.opt.max_depth)
++        return depth, projection_scale
++
+     def process_batch(self, inputs):
+         """Pass a minibatch through the network and generate images and losses
+         """
+@@ -430,20 +602,26 @@ class Trainer:
+             for i, k in enumerate(self.opt.frame_ids):
+                 features[k] = [f[i] for f in all_features]
+
+-            outputs = self.models["depth"](features[0])
++            target_features = features[0]
++            outputs = self.models["depth"](target_features)
+         else:
+             # Otherwise, we only feed the image with frame_id 0 through the depth encoder
+
+             features = self.models["encoder"](inputs["color_aug", 0, 0])
++            target_features = features
+
+-            outputs = self.models["depth"](features)
++            outputs = self.models["depth"](target_features)
+
+         if self.opt.predictive_mask:
+-            outputs["predictive_mask"] = self.models["predictive_mask"](features)
++            outputs["predictive_mask"] = self.models["predictive_mask"](target_features)
+
+         if self.use_pose_net:
+             outputs.update(self.predict_poses(inputs, features))
+
++        if self.temporal_consistency_enabled():
++            self.predict_source_depths_and_features(
++                inputs, outputs, features, target_features)
++
+         self.generate_images_pred(inputs, outputs)
+         losses = self.compute_losses(inputs, outputs)
+
+@@ -654,6 +832,14 @@ class Trainer:
+             else:
+                 reprojection_loss = reprojection_losses
+
++            ambiguity_map = None
++            if self.opt.texture_ambiguity_weighting:
++                identity_for_ambiguity = (
++                    identity_reprojection_loss if not self.opt.disable_automasking else None)
++                ambiguity_map = self.compute_texture_ambiguity_map(
++                    target, reprojection_loss, identity_for_ambiguity,
++                    outputs, losses, scale)
++
+             if not self.opt.disable_automasking:
+                 # add random numbers to break ties
+                 identity_reprojection_loss += torch.randn(
+@@ -672,13 +858,58 @@ class Trainer:
+                 outputs["identity_selection/{}".format(scale)] = (
+                     idxs > identity_reprojection_loss.shape[1] - 1).float()
+
+-            loss += to_optimise.mean()
++            photo_error_map = to_optimise
++            if photo_error_map.dim() == 3:
++                photo_error_map = photo_error_map.unsqueeze(1)
++            outputs[("photo_error", scale)] = photo_error_map.detach()
++
++            if self.opt.texture_ambiguity_weighting:
++                photo_loss = self.compute_texture_weighted_photo_loss(
++                    to_optimise, ambiguity_map, losses, scale)
++            else:
++                photo_loss = to_optimise.mean()
++
++            loss += photo_loss
++            losses["photo_loss/{}".format(scale)] = photo_loss.detach()
+
+             mean_disp = disp.mean(2, True).mean(3, True)
+             norm_disp = disp / (mean_disp + 1e-7)
+             smooth_loss = get_smooth_loss(norm_disp, color)
+
+-            loss += self.opt.disparity_smoothness * smooth_loss / (2 ** scale)
++            smooth_weighted = self.opt.disparity_smoothness * smooth_loss / (2 ** scale)
++            loss += smooth_weighted
++            losses["smooth_loss/{}".format(scale)] = smooth_loss.detach()
++            losses["smooth_loss_weighted/{}".format(scale)] = smooth_weighted.detach()
++
++            if self.opt.temporal_geo_consistency and scale in self.opt.temporal_consistency_scales:
++                geo_loss = self.compute_temporal_geo_consistency_loss(
++                    inputs, outputs, losses, scale, ambiguity_map)
++                geo_weight = self.ramped_weight(
++                    self.opt.temporal_geo_weight,
++                    self.opt.temporal_geo_warmup_steps)
++                geo_weighted = geo_weight * geo_loss / (2 ** scale)
++                loss += geo_weighted
++                losses["temporal_geo/weight/{}".format(scale)] = torch.tensor(
++                    geo_weight, device=self.device)
++                losses["temporal_geo/weighted_loss/{}".format(scale)] = (
++                    geo_weighted.detach())
++
++            if (
++                self.opt.feature_cross_view_consistency
++                and scale == self.opt.feature_consistency_scale
++            ):
++                feature_loss = self.compute_feature_cross_view_consistency_loss(
++                    inputs, outputs, losses, scale, ambiguity_map)
++                feature_weight = self.ramped_weight(
++                    self.opt.feature_consistency_weight,
++                    self.opt.feature_consistency_warmup_steps)
++                feature_weighted = feature_weight * feature_loss
++                loss += feature_weighted
++                losses["feature_consistency/weight/{}".format(scale)] = torch.tensor(
++                    feature_weight, device=self.device)
++                losses["feature_consistency/weighted_loss/{}".format(scale)] = (
++                    feature_weighted.detach())
++
+             total_loss += loss
+             losses["loss/{}".format(scale)] = loss
+
+@@ -686,6 +917,318 @@ class Trainer:
+         losses["loss"] = total_loss
+         return losses
+
++    def shifted_image(self, image, dy, dx):
++        """Reflect-shift an image tensor without introducing wraparound seams."""
++        height, width = image.shape[-2:]
++        pad_left = max(dx, 0)
++        pad_right = max(-dx, 0)
++        pad_top = max(dy, 0)
++        pad_bottom = max(-dy, 0)
++        padded = F.pad(
++            image, (pad_left, pad_right, pad_top, pad_bottom), mode="reflect")
++        y0 = max(-dy, 0)
++        x0 = max(-dx, 0)
++        return padded[:, :, y0:y0 + height, x0:x0 + width]
++
++    def resize_like(self, tensor, reference):
++        if tensor.shape[-2:] == reference.shape[-2:]:
++            return tensor
++        return F.interpolate(
++            tensor, reference.shape[-2:], mode="bilinear", align_corners=False)
++
++    def compute_texture_ambiguity_map(
++            self, target, reprojection_loss, identity_reprojection_loss,
++            outputs, losses, scale):
++        """Estimate RGB-only texture/matching ambiguity without vegetation labels."""
++        eps = 1e-7
++        shift = self.opt.texture_ambiguity_shift
++        diffs = []
++        for dy, dx in [(0, shift), (0, -shift), (shift, 0), (-shift, 0)]:
++            shifted = self.shifted_image(target, dy, dx)
++            diff = torch.abs(target - shifted).mean(1, keepdim=True)
++            diffs.append(diff)
++        min_shift_diff = torch.min(torch.cat(diffs, dim=1), dim=1, keepdim=True)[0]
++
++        kernel = self.opt.texture_ambiguity_patch_size
++        if kernel > 1:
++            pad = kernel // 2
++            min_shift_diff = F.avg_pool2d(
++                F.pad(min_shift_diff, (pad, pad, pad, pad), mode="reflect"),
++                kernel_size=kernel,
++                stride=1)
++
++        self_similarity = 1.0 - torch.clamp(
++            min_shift_diff / (self.opt.texture_ambiguity_color_delta + eps),
++            min=0.0,
++            max=1.0)
++
++        if reprojection_loss.shape[1] > 1:
++            sorted_reprojection = torch.sort(reprojection_loss.detach(), dim=1)[0]
++            source_gap = sorted_reprojection[:, 1:2] - sorted_reprojection[:, 0:1]
++            source_ambiguity = 1.0 - torch.clamp(
++                source_gap / (self.opt.texture_ambiguity_photo_gap + eps),
++                min=0.0,
++                max=1.0)
++        else:
++            source_gap = torch.zeros_like(self_similarity)
++            source_ambiguity = torch.zeros_like(self_similarity)
++
++        if identity_reprojection_loss is not None:
++            reproj_min = reprojection_loss.detach().min(1, keepdim=True)[0]
++            identity_min = identity_reprojection_loss.detach().min(1, keepdim=True)[0]
++            margin = identity_min - reproj_min
++            margin_ambiguity = 1.0 - torch.clamp(
++                torch.abs(margin) / (self.opt.texture_ambiguity_photo_gap + eps),
++                min=0.0,
++                max=1.0)
++        else:
++            margin = torch.zeros_like(self_similarity)
++            margin_ambiguity = torch.zeros_like(self_similarity)
++
++        ambiguity = torch.clamp(
++            0.50 * self_similarity
++            + 0.25 * source_ambiguity
++            + 0.25 * margin_ambiguity,
++            min=0.0,
++            max=1.0).detach()
++
++        outputs[("texture_ambiguity", scale)] = ambiguity
++        losses["texture_ambiguity/mean/{}".format(scale)] = ambiguity.mean()
++        losses["texture_ambiguity/ratio/{}".format(scale)] = (
++            (ambiguity > 0.5).float().mean())
++        losses["texture_ambiguity/self_similarity_mean/{}".format(scale)] = (
++            self_similarity.detach().mean())
++        losses["texture_ambiguity/source_gap_mean/{}".format(scale)] = (
++            source_gap.detach().mean())
++        losses["texture_ambiguity/photo_margin_mean/{}".format(scale)] = (
++            margin.detach().mean())
++        return ambiguity
++
++    def compute_texture_weighted_photo_loss(
++            self, photo_loss_map, ambiguity_map, losses, scale):
++        """Reduce raw photometric reliance where RGB matching is ambiguous."""
++        if photo_loss_map.dim() == 3:
++            photo_loss_map = photo_loss_map.unsqueeze(1)
++        ambiguity = self.resize_like(ambiguity_map, photo_loss_map)
++        max_suppression = 1.0 - self.opt.texture_ambiguity_min_photo_multiplier
++        multiplier = 1.0 - (
++            max_suppression
++            * self.opt.texture_ambiguity_weight
++            * ambiguity)
++        multiplier = torch.clamp(
++            multiplier,
++            min=self.opt.texture_ambiguity_min_photo_multiplier,
++            max=1.0).detach()
++
++        weighted_photo_loss = (photo_loss_map * multiplier).mean()
++        losses["texture_ambiguity/photo_multiplier_mean/{}".format(scale)] = (
++            multiplier.mean())
++        losses["texture_ambiguity/photo_loss_before/{}".format(scale)] = (
++            photo_loss_map.mean().detach())
++        losses["texture_ambiguity/photo_loss_after/{}".format(scale)] = (
++            weighted_photo_loss.detach())
++        return weighted_photo_loss
++
++    def ambiguity_boost_for(self, ambiguity_map, reference):
++        if ambiguity_map is None:
++            return torch.ones_like(reference)
++        ambiguity = self.resize_like(ambiguity_map, reference)
++        return (1.0 + self.opt.texture_ambiguity_weight * ambiguity).detach()
++
++    def project_target_depth_to_source(
++            self, inputs, outputs, frame_id, target_depth, projection_scale):
++        """Project target-camera depth into a source frame using PoseNet pose."""
++        T = outputs[("cam_T_cam", 0, frame_id)]
++        cam_points = self.backproject_depth[projection_scale](
++            target_depth, inputs[("inv_K", projection_scale)])
++        source_points = torch.matmul(T, cam_points)
++        projected_z = source_points[:, 2:3, :].view_as(target_depth)
++        pix_coords = self.project_3d[projection_scale](
++            cam_points, inputs[("K", projection_scale)], T)
++
++        x_valid = (pix_coords[..., 0] > -1.0) & (pix_coords[..., 0] < 1.0)
++        y_valid = (pix_coords[..., 1] > -1.0) & (pix_coords[..., 1] < 1.0)
++        in_bounds = (x_valid & y_valid).unsqueeze(1)
++        positive_depth = projected_z > self.opt.min_depth
++        projection_valid = in_bounds & positive_depth & torch.isfinite(projected_z)
++        return pix_coords, projected_z, projection_valid
++
++    def compute_temporal_geo_consistency_loss(
++            self, inputs, outputs, losses, scale, ambiguity_map):
++        """Compare target-projected depth with source-frame predicted depth."""
++        eps = 1e-6
++        projection_scale = scale if self.opt.v1_multiscale else 0
++        target_depth = outputs[("depth", 0, scale)]
++        total_loss = target_depth.new_tensor(0.0)
++        frame_count = 0
++        valid_ratios = []
++        visibility_ratios = []
++        invalid_ratios = []
++        error_means = []
++        error_maps = []
++        visibility_maps = []
++        projection_maps = []
++
++        for frame_id in self.opt.frame_ids[1:]:
++            if frame_id == "s" or ("source_depth", frame_id, scale) not in outputs:
++                continue
++
++            pix_coords, projected_z, projection_valid = (
++                self.project_target_depth_to_source(
++                    inputs, outputs, frame_id, target_depth, projection_scale))
++            source_depth = outputs[("source_depth", frame_id, scale)]
++            if source_depth.shape[-2:] != target_depth.shape[-2:]:
++                source_depth = F.interpolate(
++                    source_depth, target_depth.shape[-2:],
++                    mode="bilinear", align_corners=False)
++            sampled_source_depth = F.grid_sample(
++                source_depth, pix_coords, padding_mode="zeros", align_corners=True)
++
++            finite_source = (
++                torch.isfinite(sampled_source_depth)
++                & (sampled_source_depth > self.opt.min_depth))
++            projection_valid = projection_valid & finite_source
++            log_error = torch.abs(
++                torch.log(sampled_source_depth.clamp_min(self.opt.min_depth))
++                - torch.log(projected_z.clamp_min(self.opt.min_depth)))
++
++            visibility_mask = projection_valid
++            if self.opt.visibility_aware_geo:
++                visibility_mask = (
++                    projection_valid
++                    & (log_error.detach() < self.opt.visibility_cycle_threshold))
++
++            weights = visibility_mask.float()
++            weights = weights * self.ambiguity_boost_for(ambiguity_map, weights)
++            robust_error = torch.sqrt(log_error * log_error + 1e-4)
++            frame_loss = (robust_error * weights).sum() / (weights.sum() + eps)
++            total_loss = total_loss + frame_loss
++            frame_count += 1
++
++            projection_float = projection_valid.float()
++            visibility_float = visibility_mask.float()
++            valid_ratio = projection_float.mean()
++            visibility_ratio = visibility_float.mean()
++            valid_denom = projection_float.sum().clamp_min(1.0)
++            error_mean = (
++                (log_error.detach() * projection_float).sum() / valid_denom)
++
++            valid_ratios.append(valid_ratio)
++            visibility_ratios.append(visibility_ratio)
++            invalid_ratios.append(1.0 - valid_ratio)
++            error_means.append(error_mean)
++            error_maps.append((log_error.detach() * projection_float))
++            visibility_maps.append(visibility_float.detach())
++            projection_maps.append(projection_float.detach())
++
++        if frame_count == 0:
++            zero = target_depth.new_tensor(0.0)
++            losses["temporal_geo/loss/{}".format(scale)] = zero
++            losses["temporal_geo/visibility_mask_ratio/{}".format(scale)] = zero
++            losses["temporal_geo/projection_invalid_ratio/{}".format(scale)] = zero
++            return zero
++
++        loss = total_loss / frame_count
++        losses["temporal_geo/loss/{}".format(scale)] = loss.detach()
++        losses["temporal_geo/projection_valid_ratio/{}".format(scale)] = (
++            torch.stack(valid_ratios).mean().detach())
++        losses["temporal_geo/projection_invalid_ratio/{}".format(scale)] = (
++            torch.stack(invalid_ratios).mean().detach())
++        losses["temporal_geo/visibility_mask_ratio/{}".format(scale)] = (
++            torch.stack(visibility_ratios).mean().detach())
++        losses["temporal_geo/log_depth_error_mean/{}".format(scale)] = (
++            torch.stack(error_means).mean().detach())
++
++        outputs[("temporal_geo_error", scale)] = torch.stack(error_maps).mean(0)
++        outputs[("temporal_geo_visibility", scale)] = torch.stack(visibility_maps).mean(0)
++        outputs[("temporal_geo_projection_valid", scale)] = (
++            torch.stack(projection_maps).mean(0))
++        return loss
++
++    def compute_feature_cross_view_consistency_loss(
++            self, inputs, outputs, losses, scale, ambiguity_map):
++        """Warp source encoder features to target and compare with cosine distance."""
++        eps = 1e-6
++        target_feature = outputs[("target_feature", scale)]
++        target_disp = outputs[("disp", scale)]
++        _, target_depth = disp_to_depth(
++            target_disp, self.opt.min_depth, self.opt.max_depth)
++
++        total_loss = target_feature.new_tensor(0.0)
++        frame_count = 0
++        mask_ratios = []
++        error_means = []
++        error_maps = []
++        mask_maps = []
++
++        target_feature_norm = F.normalize(target_feature, p=2, dim=1, eps=eps)
++
++        for frame_id in self.opt.frame_ids[1:]:
++            if frame_id == "s" or ("source_feature", frame_id, scale) not in outputs:
++                continue
++
++            pix_coords, projected_z, projection_valid = (
++                self.project_target_depth_to_source(
++                    inputs, outputs, frame_id, target_depth, scale))
++            source_feature = outputs[("source_feature", frame_id, scale)].detach()
++            source_feature_norm = F.normalize(source_feature, p=2, dim=1, eps=eps)
++            warped_source_feature = F.grid_sample(
++                source_feature_norm, pix_coords,
++                padding_mode="zeros", align_corners=True)
++            feature_error = torch.clamp(
++                1.0 - (target_feature_norm * warped_source_feature).sum(
++                    1, keepdim=True),
++                min=0.0,
++                max=2.0)
++
++            finite_mask = torch.isfinite(feature_error)
++            visibility_mask = projection_valid & finite_mask
++            if self.opt.visibility_aware_geo and ("source_disp", frame_id, scale) in outputs:
++                _, native_source_depth = disp_to_depth(
++                    outputs[("source_disp", frame_id, scale)],
++                    self.opt.min_depth,
++                    self.opt.max_depth)
++                sampled_source_depth = F.grid_sample(
++                    native_source_depth, pix_coords,
++                    padding_mode="zeros", align_corners=True)
++                depth_error = torch.abs(
++                    torch.log(sampled_source_depth.clamp_min(self.opt.min_depth))
++                    - torch.log(projected_z.clamp_min(self.opt.min_depth)))
++                visibility_mask = (
++                    visibility_mask
++                    & torch.isfinite(sampled_source_depth)
++                    & (sampled_source_depth > self.opt.min_depth)
++                    & (depth_error.detach() < self.opt.visibility_cycle_threshold))
++
++            weights = visibility_mask.float()
++            weights = weights * self.ambiguity_boost_for(ambiguity_map, weights)
++            frame_loss = (feature_error * weights).sum() / (weights.sum() + eps)
++            total_loss = total_loss + frame_loss
++            frame_count += 1
++
++            mask_ratio = visibility_mask.float().mean()
++            mask_ratios.append(mask_ratio)
++            error_means.append((feature_error.detach() * weights).sum() / (weights.sum() + eps))
++            error_maps.append((feature_error.detach() * visibility_mask.float()))
++            mask_maps.append(visibility_mask.float().detach())
++
++        if frame_count == 0:
++            zero = target_feature.new_tensor(0.0)
++            losses["feature_consistency/loss/{}".format(scale)] = zero
++            losses["feature_consistency/mask_ratio/{}".format(scale)] = zero
++            return zero
++
++        loss = total_loss / frame_count
++        losses["feature_consistency/loss/{}".format(scale)] = loss.detach()
++        losses["feature_consistency/mask_ratio/{}".format(scale)] = (
++            torch.stack(mask_ratios).mean().detach())
++        losses["feature_consistency/error_mean/{}".format(scale)] = (
++            torch.stack(error_means).mean().detach())
++
++        outputs[("feature_consistency_error", scale)] = torch.stack(error_maps).mean(0)
++        outputs[("feature_consistency_mask", scale)] = torch.stack(mask_maps).mean(0)
++        return loss
++
+     def compute_depth_losses(self, inputs, outputs, losses):
+         """Compute depth metrics, to allow monitoring during training
+
+@@ -769,6 +1312,7 @@ class Trainer:
+         writer = self.writers[mode]
+         for l, v in losses.items():
+             writer.add_scalar("{}".format(l), v, self.step)
++        self.write_scalar_diagnostics(mode, losses)
+
+         for j in range(min(4, self.opt.batch_size)):  # write a maxmimum of four images
+             for s in self.opt.scales:
+@@ -797,6 +1341,56 @@ class Trainer:
+                         "automask_{}/{}".format(s, j),
+                         outputs["identity_selection/{}".format(s)][j][None, ...], self.step)
+
++                debug_maps = [
++                    (("photo_error", s), "photo_error"),
++                    (("texture_ambiguity", s), "texture_ambiguity"),
++                    (("temporal_geo_error", s), "temporal_geo_error"),
++                    (("temporal_geo_visibility", s), "temporal_geo_visibility"),
++                    (("temporal_geo_projection_valid", s), "temporal_geo_projection_valid"),
++                    (("feature_consistency_error", s), "feature_consistency_error"),
++                    (("feature_consistency_mask", s), "feature_consistency_mask"),
++                ]
++                for key, name in debug_maps:
++                    if key in outputs:
++                        writer.add_image(
++                            "{}_{}/{}".format(name, s, j),
++                            normalize_image(outputs[key][j]), self.step)
++
++    def write_scalar_diagnostics(self, mode, losses):
++        """Save latest method diagnostics in plain JSON/CSV for quick review."""
++        if mode != "train":
++            return
++        if not (
++            self.temporal_consistency_enabled()
++            or self.opt.texture_ambiguity_weighting
++        ):
++            return
++
++        diagnostics = {
++            "step": int(self.step),
++            "epoch": int(self.epoch),
++        }
++        for name, value in losses.items():
++            if isinstance(value, torch.Tensor):
++                if value.numel() != 1:
++                    continue
++                diagnostics[name] = float(value.detach().cpu())
++            elif isinstance(value, np.ndarray):
++                if value.size != 1:
++                    continue
++                diagnostics[name] = float(value.reshape(-1)[0])
++            elif np.isscalar(value):
++                diagnostics[name] = float(value)
++
++        json_path = os.path.join(self.log_path, "diagnostics_last_logged.json")
++        csv_path = os.path.join(self.log_path, "diagnostics_last_logged.csv")
++        with open(json_path, "w", encoding="utf-8") as fp:
++            json.dump(diagnostics, fp, indent=2, sort_keys=True)
++        with open(csv_path, "w", newline="", encoding="utf-8") as fp:
++            writer = csv.DictWriter(fp, fieldnames=sorted(diagnostics.keys()))
++            writer.writeheader()
++            writer.writerow(diagnostics)
++
+     def save_opts(self):
+         """Save options to disk so we know what we ran this experiment with
+         """
+diff --git "a/citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\render_temporal_cross_view_diagnostics.py" "b/citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\render_temporal_cross_view_diagnostics.py"
+new file mode 100644
+index 0000000..e394210
+--- /dev/null
++++ "b/citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\render_temporal_cross_view_diagnostics.py"
+@@ -0,0 +1,169 @@
++from __future__ import annotations
++
++import argparse
++import json
++import sys
++from pathlib import Path
++from types import SimpleNamespace
++
++import numpy as np
++import torch
++from PIL import Image
++from torch.utils.data._utils.collate import default_collate
++
++
++REPO_ROOT = Path(__file__).resolve().parents[4]
++if str(REPO_ROOT) not in sys.path:
++    sys.path.insert(0, str(REPO_ROOT))
++
++from trainer import Trainer  # noqa: E402
++
++
++def tensor_to_rgb_image(tensor: torch.Tensor) -> Image.Image:
++    array = tensor.detach().cpu().clamp(0.0, 1.0).numpy()
++    array = np.transpose(array, (1, 2, 0))
++    return Image.fromarray((array * 255.0).astype(np.uint8), mode="RGB")
++
++
++def tensor_to_gray_image(tensor: torch.Tensor) -> Image.Image:
++    array = tensor.detach().cpu().float().numpy()
++    if array.ndim == 3:
++        array = array[0]
++    finite = np.isfinite(array)
++    if not finite.any():
++        scaled = np.zeros_like(array, dtype=np.uint8)
++    else:
++        values = array[finite]
++        lo = float(np.percentile(values, 1))
++        hi = float(np.percentile(values, 99))
++        if hi <= lo:
++            hi = lo + 1e-6
++        scaled = np.clip((array - lo) / (hi - lo), 0.0, 1.0)
++        scaled[~finite] = 0.0
++        scaled = (scaled * 255.0).astype(np.uint8)
++    return Image.fromarray(scaled, mode="L")
++
++
++def scalar_losses(losses: dict) -> dict:
++    summary = {}
++    for name, value in losses.items():
++        if isinstance(value, torch.Tensor):
++            if value.numel() == 1:
++                summary[name] = float(value.detach().cpu())
++        elif isinstance(value, np.ndarray):
++            if value.size == 1:
++                summary[name] = float(value.reshape(-1)[0])
++        elif np.isscalar(value):
++            summary[name] = float(value)
++    return summary
++
++
++def load_options(run_dir: Path, weights_folder: Path, output_dir: Path, batch_size: int,
++                 no_cuda: bool) -> SimpleNamespace:
++    opt_path = run_dir / "models" / "opt.json"
++    with opt_path.open(encoding="utf-8") as fp:
++        options = json.load(fp)
++
++    options["batch_size"] = batch_size
++    options["num_workers"] = 0
++    options["no_cuda"] = bool(no_cuda or not torch.cuda.is_available())
++    options["load_weights_folder"] = str(weights_folder)
++    options["models_to_load"] = ["encoder", "depth", "pose_encoder", "pose"]
++    options["mypretrain"] = None
++    options["log_dir"] = str(output_dir / "_diagnostic_trainer_logs")
++    options["model_name"] = "diagnostic_loader"
++    options["max_train_steps"] = 0
++    options["save_step_frequency"] = 0
++    options["log_frequency"] = 1000000
++    options["profile"] = False
++    return SimpleNamespace(**options)
++
++
++def save_sample_maps(output_dir: Path, sample_number: int, dataset_index: int,
++                     inputs: dict, outputs: dict) -> dict:
++    sample_dir = output_dir / f"sample_{dataset_index:04d}"
++    sample_dir.mkdir(parents=True, exist_ok=True)
++
++    saved = {}
++    rgb = inputs[("color", 0, 0)][sample_number]
++    tensor_to_rgb_image(rgb).save(sample_dir / "input_rgb.png")
++    saved["input_rgb"] = str(sample_dir / "input_rgb.png")
++
++    depth = outputs[("depth", 0, 0)][sample_number]
++    tensor_to_gray_image(depth).save(sample_dir / "pred_depth_gray.png")
++    saved["pred_depth_gray"] = str(sample_dir / "pred_depth_gray.png")
++    tensor_to_gray_image(1.0 / depth.clamp_min(1e-3)).save(
++        sample_dir / "pred_inverse_depth_gray.png")
++    saved["pred_inverse_depth_gray"] = str(sample_dir / "pred_inverse_depth_gray.png")
++
++    map_specs = [
++        (("photo_error", 0), "photo_error_gray.png"),
++        (("temporal_geo_error", 0), "geometry_error_gray.png"),
++        (("temporal_geo_visibility", 0), "visibility_mask_gray.png"),
++        (("temporal_geo_projection_valid", 0), "projection_valid_gray.png"),
++        (("texture_ambiguity", 0), "texture_ambiguity_gray.png"),
++        (("feature_consistency_error", 2), "feature_error_gray.png"),
++        (("feature_consistency_mask", 2), "feature_mask_gray.png"),
++    ]
++    for key, filename in map_specs:
++        if key in outputs:
++            tensor_to_gray_image(outputs[key][sample_number]).save(sample_dir / filename)
++            saved[filename[:-4]] = str(sample_dir / filename)
++    return saved
++
++
++def parse_args() -> argparse.Namespace:
++    parser = argparse.ArgumentParser(
++        description="Render temporal cross-view diagnostic maps for a Milestone 4 run.")
++    parser.add_argument("--run_dir", type=Path, required=True)
++    parser.add_argument("--weights_folder", type=Path, required=True)
++    parser.add_argument("--output_dir", type=Path, required=True)
++    parser.add_argument("--sample_indices", nargs="+", type=int, default=[0, 35, 82, 96])
++    parser.add_argument("--no_cuda", action="store_true")
++    return parser.parse_args()
++
++
++def main() -> None:
++    args = parse_args()
++    args.output_dir.mkdir(parents=True, exist_ok=True)
++    opt = load_options(
++        args.run_dir.resolve(),
++        args.weights_folder.resolve(),
++        args.output_dir.resolve(),
++        batch_size=len(args.sample_indices),
++        no_cuda=args.no_cuda,
++    )
++
++    trainer = Trainer(opt)
++    trainer.set_eval()
++    trainer.epoch = 0
++    trainer.step = 0
++    dataset = trainer.val_loader.dataset
++    samples = [dataset[index] for index in args.sample_indices]
++    inputs = default_collate(samples)
++
++    with torch.no_grad():
++        outputs, losses = trainer.process_batch(inputs)
++
++    manifest = {
++        "run_dir": str(args.run_dir.resolve()),
++        "weights_folder": str(args.weights_folder.resolve()),
++        "sample_indices": args.sample_indices,
++        "losses": scalar_losses(losses),
++        "samples": {},
++    }
++    for sample_number, dataset_index in enumerate(args.sample_indices):
++        manifest["samples"][str(dataset_index)] = save_sample_maps(
++            args.output_dir, sample_number, dataset_index, inputs, outputs)
++
++    with (args.output_dir / "diagnostic_visual_manifest.json").open(
++            "w", encoding="utf-8") as fp:
++        json.dump(manifest, fp, indent=2, sort_keys=True)
++
++    print("Saved temporal cross-view diagnostics")
++    print(f"  Output: {args.output_dir.resolve()}")
++    print(f"  Samples: {', '.join(str(i) for i in args.sample_indices)}")
++
++
++if __name__ == "__main__":
++    main()

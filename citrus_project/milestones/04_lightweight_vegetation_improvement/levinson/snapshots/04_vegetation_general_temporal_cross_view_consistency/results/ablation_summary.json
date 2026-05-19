@@ -1,0 +1,71 @@
+{
+  "eval_scope": "first-100 validation samples",
+  "step_budget": 250,
+  "batch_size": 12,
+  "baseline_control": "plain_litemono_citrus_imagenet_pretrain_b12_250steps_seed0_control",
+  "variants": [
+    {
+      "name": "same_budget_control",
+      "run_name": "plain_litemono_citrus_imagenet_pretrain_b12_250steps_seed0_control",
+      "raw_abs_rel": 0.909865,
+      "raw_a1": 0.0,
+      "median_scaled_abs_rel": 0.563429,
+      "median_scaled_a1": 0.357720,
+      "conclusion": "reference"
+    },
+    {
+      "name": "temporal_geo",
+      "run_name": "vg_tcv_geo_teacher_b12_250steps_seed0_w015",
+      "raw_abs_rel": 0.903271,
+      "raw_a1": 0.0,
+      "median_scaled_abs_rel": 0.566564,
+      "median_scaled_a1": 0.359725,
+      "conclusion": "mixed tiny a1 gain"
+    },
+    {
+      "name": "temporal_geo_visibility_default",
+      "run_name": "vg_tcv_geo_visibility_teacher_b12_250steps_seed0_w015",
+      "raw_abs_rel": 0.902976,
+      "raw_a1": 0.0,
+      "median_scaled_abs_rel": 0.568795,
+      "median_scaled_a1": 0.358077,
+      "conclusion": "negative; default mask was nearly a no-op"
+    },
+    {
+      "name": "temporal_geo_visibility_strict",
+      "run_name": "vg_tcv_geo_visibility_teacher_b12_250steps_seed0_w015_vthr003",
+      "raw_abs_rel": 0.902723,
+      "raw_a1": 0.0,
+      "median_scaled_abs_rel": 0.588438,
+      "median_scaled_a1": 0.310695,
+      "conclusion": "negative; mask became too sparse"
+    },
+    {
+      "name": "temporal_geo_texture",
+      "run_name": "vg_tcv_geo_texture_teacher_b12_250steps_seed0_w015_tw035",
+      "raw_abs_rel": 0.902772,
+      "raw_a1": 0.0,
+      "median_scaled_abs_rel": 0.565090,
+      "median_scaled_a1": 0.360479,
+      "conclusion": "best tiny a1 gain, not a clean improvement"
+    },
+    {
+      "name": "temporal_geo_feature",
+      "run_name": "vg_tcv_geo_feature_teacher_b12_250steps_seed0_w015_fw005",
+      "raw_abs_rel": 0.912881,
+      "raw_a1": 0.0,
+      "median_scaled_abs_rel": 0.558089,
+      "median_scaled_a1": 0.337346,
+      "conclusion": "mixed; improves abs_rel but hurts a1"
+    },
+    {
+      "name": "full_reduced_feature",
+      "run_name": "vg_tcv_full_teacher_b12_250steps_seed0_w015_tw035_fw002",
+      "raw_abs_rel": 0.936633,
+      "raw_a1": 0.0,
+      "median_scaled_abs_rel": 0.575513,
+      "median_scaled_a1": 0.350296,
+      "conclusion": "negative stacking result"
+    }
+  ]
+}

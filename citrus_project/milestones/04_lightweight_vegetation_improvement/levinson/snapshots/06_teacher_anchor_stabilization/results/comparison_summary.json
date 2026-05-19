@@ -1,0 +1,82 @@
+{
+  "snapshot": "06_teacher_anchor_stabilization",
+  "method_label": "label-free teacher-anchored self-supervised adaptation",
+  "run_name": "teacher_anchor_stabilization_b12_30ep_rank005_no_texture",
+  "conclusion": "promising mixed; marginal stabilization on validation, not a clean replacement for Snapshot 05",
+  "metrics": [
+    {
+      "model": "Original Lite-Mono",
+      "split": "val",
+      "raw_abs_rel": 0.7128,
+      "raw_a1": 0.0195,
+      "median_scaled_abs_rel": 0.4176,
+      "median_scaled_a1": 0.4629
+    },
+    {
+      "model": "B0 plain Citrus",
+      "split": "val",
+      "raw_abs_rel": 0.7736,
+      "raw_a1": 0.0074,
+      "median_scaled_abs_rel": 0.5100,
+      "median_scaled_a1": 0.6107
+    },
+    {
+      "model": "Snapshot 05",
+      "split": "val",
+      "raw_abs_rel": 0.7372,
+      "raw_a1": 0.0169,
+      "median_scaled_abs_rel": 0.4611,
+      "median_scaled_a1": 0.5954
+    },
+    {
+      "model": "Snapshot 06",
+      "split": "val",
+      "raw_abs_rel": 0.7375397602358296,
+      "raw_a1": 0.016549391558735874,
+      "median_scaled_abs_rel": 0.4577670263138716,
+      "median_scaled_a1": 0.5992609914838585
+    },
+    {
+      "model": "Original Lite-Mono",
+      "split": "test",
+      "raw_abs_rel": 0.7273,
+      "raw_a1": 0.0149,
+      "median_scaled_abs_rel": 0.3836,
+      "median_scaled_a1": 0.4989
+    },
+    {
+      "model": "B0 plain Citrus",
+      "split": "test",
+      "raw_abs_rel": 0.7787,
+      "raw_a1": 0.0077,
+      "median_scaled_abs_rel": 0.4889,
+      "median_scaled_a1": 0.6582
+    },
+    {
+      "model": "Snapshot 05",
+      "split": "test",
+      "raw_abs_rel": 0.7359,
+      "raw_a1": 0.0147,
+      "median_scaled_abs_rel": 0.4132,
+      "median_scaled_a1": 0.6463
+    },
+    {
+      "model": "Snapshot 06",
+      "split": "test",
+      "raw_abs_rel": 0.7347557038197086,
+      "raw_a1": 0.014989789789641116,
+      "median_scaled_abs_rel": 0.4167860473692708,
+      "median_scaled_a1": 0.6417510645119479
+    }
+  ],
+  "key_deltas": {
+    "snapshot06_vs_snapshot05_val_median_abs_rel": -0.0033329736861283974,
+    "snapshot06_vs_snapshot05_val_median_a1": 0.0038609914838585007,
+    "snapshot06_vs_snapshot05_test_median_abs_rel": 0.003586047369270767,
+    "snapshot06_vs_snapshot05_test_median_a1": -0.004548935488052116,
+    "snapshot06_vs_b0_val_median_abs_rel": -0.05223297368612843,
+    "snapshot06_vs_b0_test_median_abs_rel": -0.0721139526307292,
+    "snapshot06_vs_original_val_median_abs_rel": 0.04016702631387162,
+    "snapshot06_vs_original_test_median_abs_rel": 0.03318604736927078
+  }
+}

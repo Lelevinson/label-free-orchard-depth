@@ -156,6 +156,13 @@ citrus_project/milestones/03_self_supervised_adaptation/runs/
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/
 citrus_project/milestones/04_lightweight_vegetation_improvement/runs/
 
+# Milestone 4 Levinson generated evidence
+# Keep compact READMEs, command files, configs, code snapshots, patches, and
+# small summaries tracked outside these local generated-output folders.
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/results/
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/*/local_evidence/
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/*/local_results/
+
 # Local Codex project config / MCP secrets
 .codex/
 

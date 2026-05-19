@@ -13,7 +13,7 @@ For Milestone 4 work, use this README as the main handoff. Do not inspect every 
 - Baseline recipe, final metrics, checkpoint paths, and visual paths: this README.
 - Levinson's Milestone 4 workstream, including the B0 plain Citrus baseline snapshot and tested 01/02/03 method-gate snapshots: `levinson/README.md`.
 - Marvel's supervised/hybrid Milestone 4 workstream: `Marvel/README.md`.
-- Original full baseline metric JSON/CSV result folder, preserved for existing references: `levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/`.
+- Original full baseline metric JSON/CSV result folder, preserved for existing references: `levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/`. New large generated Levinson outputs should go under the relevant snapshot's local `local_evidence/` folder or checkpoint-selection `local_results/` folder instead of this shared results area.
 
 Levinson improvement code snapshots use descriptive numeric folders such as `levinson/snapshots/01_photometric_confidence_masking/` once an improvement is implemented and tested. Paper-style labels such as `A` or `A+B` can still be written inside stage READMEs later if useful.
 
@@ -52,7 +52,13 @@ If a completed stage has no code changes, use a simple marker such as `code/NO_C
 
 Current collaboration note:
 
-After the 01/02/03 self-supervised gates were tested and packaged, the live root `options.py` and `trainer.py` were restored to the shared baseline state. The experimental method code is preserved in each tested snapshot under `code/`; it is not currently active in the global trainer.
+After the 01/02/03 self-supervised gates were tested and packaged, the live root `options.py` and `trainer.py` were restored to the shared baseline state. Snapshot 04 then left the live root on the temporal-cross-view method branch. Snapshot 05 superseded that active branch, and Snapshot 06 reuses the same teacher-anchored implementation with a config-only stabilization. Live root `options.py`, `trainer.py`, the teacher diagnostic renderer, and the visual comparison helper remain on the teacher-anchored regularization branch, with tested copies and patch artifacts preserved under `levinson/snapshots/05_teacher_anchored_relative_structure_regularization/` and `levinson/snapshots/06_teacher_anchor_stabilization/`.
+
+Large local generated evidence policy:
+
+- Keep compact, curated snapshot evidence in the snapshot root folders.
+- Keep bulky generated panels, NPZ arrays, and exhaustive sweep folders under snapshot-local `local_evidence/` or checkpoint-selection `local_results/`.
+- The shared `.gitignore` now ignores Levinson `runs/`, `results/`, snapshot `local_evidence/`, and checkpoint-selection `local_results/` folders so future generated evidence does not flood Git. This checkout also keeps matching `.git/info/exclude` rules as a personal safety net.
 
 ## Plain Lite-Mono Citrus Baseline
 
@@ -364,3 +370,186 @@ stop
 ```
 
 The softer confidence multiplier did not rescue the confidence direction. It improved raw `abs_rel` slightly but worsened the relative-depth threshold metric, so do not scale this exact configuration.
+
+## Vegetation-General Temporal Cross-View Consistency Gate
+
+Snapshot:
+
+```text
+levinson/snapshots/04_vegetation_general_temporal_cross_view_consistency/
+```
+
+Purpose:
+
+- keep Levinson's path self-supervised and RGB-only at inference
+- add training-only temporal geometry, visibility masking, texture ambiguity weighting, and feature cross-view consistency
+- target generic vegetation failure modes: repeated local texture, thin occlusions, overlapping plants, and RGB-depth mismatch
+- avoid any `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, ZED depth, green-pixel mask, or citrus-specific detector as a training signal
+
+Tested options include:
+
+```text
+--temporal_geo_consistency
+--visibility_aware_geo
+--texture_ambiguity_weighting
+--feature_cross_view_consistency
+```
+
+The source-frame branch was revised to a stop-gradient teacher after an initial batch-size-12 attempt was too slow when source predictions participated in the backward graph.
+
+First-100 validation at step 250:
+
+| model | raw abs_rel | raw a1 | median-scaled abs_rel | median-scaled a1 |
+|---|---:|---:|---:|---:|
+| Same-budget no-mask ImageNet-pretrain control, step 250 | 0.9099 | 0.0000 | 0.5634 | 0.3577 |
+| Temporal geometry | 0.9033 | 0.0000 | 0.5666 | 0.3597 |
+| Geometry + default visibility | 0.9030 | 0.0000 | 0.5688 | 0.3581 |
+| Geometry + strict visibility `0.003` | 0.9027 | 0.0000 | 0.5884 | 0.3107 |
+| Geometry + texture ambiguity | 0.9028 | 0.0000 | 0.5651 | 0.3605 |
+| Geometry + feature consistency | 0.9129 | 0.0000 | 0.5581 | 0.3373 |
+| Full reduced-feature method | 0.9366 | 0.0000 | 0.5755 | 0.3503 |
+
+Conclusion:
+
+```text
+stable but weak negative evidence; do not scale
+```
+
+The best branch, geometry + texture ambiguity, gave only a tiny median-scaled `a1` gain over the same-budget control and still worsened median-scaled `abs_rel`. Feature consistency improved `abs_rel` but hurt `a1`; strict visibility became too sparse; full stacking was negative. Do not launch a longer Snapshot 04 run.
+
+Follow-up diagnostic and next-method proposal:
+
+```text
+levinson/snapshots/04_vegetation_general_temporal_cross_view_consistency/diagnostic_report_and_snapshot05_proposal.md
+```
+
+Completed Snapshot 05:
+
+```text
+levinson/snapshots/05_teacher_anchored_relative_structure_regularization/
+```
+
+Method framing:
+
+```text
+Teacher-Anchored Relative-Structure Regularization for Label-Free Self-Supervised Vegetation Adaptation
+```
+
+This replacement moved away from cross-view self-consistency and tested a frozen RGB-only teacher as a training-only relative-structure anchor. The student still trained with the normal Citrus self-supervised photometric video objective from ImageNet encoder pretrain. The teacher was the original RGB-only Lite-Mono checkpoint at `weights/lite-mono/`; it was not trained and did not use Citrus labels. The run did not use `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, ZED depth, or LiDAR-derived labels as training losses or masks. Inference remains one RGB image into the student Lite-Mono depth network.
+
+Full run:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/teacher_structure_regularization_b12_30ep_full/
+```
+
+Saved evaluation:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/final_weights29_evaluation_full/
+```
+
+Full validation/test comparison:
+
+| model | split | raw abs_rel | raw a1 | median-scaled abs_rel | median-scaled a1 |
+|---|---:|---:|---:|---:|---:|
+| original Lite-Mono | val | 0.7128 | 0.0195 | 0.4176 | 0.4629 |
+| B0 plain Citrus | val | 0.7736 | 0.0074 | 0.5100 | 0.6107 |
+| Snapshot 05 | val | 0.7372 | 0.0169 | 0.4611 | 0.5954 |
+| original Lite-Mono | test | 0.7273 | 0.0149 | 0.3836 | 0.4989 |
+| B0 plain Citrus | test | 0.7787 | 0.0077 | 0.4889 | 0.6582 |
+| Snapshot 05 | test | 0.7359 | 0.0147 | 0.4132 | 0.6463 |
+
+Conclusion:
+
+```text
+continue / promising mixed
+```
+
+Snapshot 05 improves B0's raw and median-scaled `abs_rel` on validation/test while keeping most of B0's median-scaled `a1` gain. It also beats original Lite-Mono on median-scaled `a1`, but still trails original Lite-Mono on median-scaled `abs_rel`, so it is not a clean win yet.
+
+Completed Snapshot 06:
+
+```text
+levinson/snapshots/06_teacher_anchor_stabilization/
+```
+
+Method framing:
+
+```text
+Teacher Anchor Stabilization for Label-Free Teacher-Anchored Self-Supervised Adaptation
+```
+
+Snapshot 06 is a deliberate Snapshot 05 ablation. It kept the frozen RGB-only teacher and scale-invariant structure/gradient losses, but reduced `--teacher_ranking_weight` from `0.02` to `0.005` and removed `--teacher_texture_ambiguity_emphasis`. It did not add any depth labels, valid masks, LiDAR, ZED depth, or LiDAR-derived training masks/losses. Inference remains one RGB image into the student Lite-Mono depth network.
+
+Full run:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/teacher_anchor_stabilization_b12_30ep_rank005_no_texture/
+```
+
+Saved evaluation:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/06_teacher_anchor_stabilization/local_evidence/final_weights29_evaluation_full/
+```
+
+Full validation/test comparison:
+
+| model | split | raw abs_rel | raw a1 | median-scaled abs_rel | median-scaled a1 |
+|---|---:|---:|---:|---:|---:|
+| original Lite-Mono | val | 0.7128 | 0.0195 | 0.4176 | 0.4629 |
+| B0 plain Citrus | val | 0.7736 | 0.0074 | 0.5100 | 0.6107 |
+| Snapshot 05 | val | 0.7372 | 0.0169 | 0.4611 | 0.5954 |
+| Snapshot 06 | val | 0.7375 | 0.0165 | 0.4578 | 0.5993 |
+| original Lite-Mono | test | 0.7273 | 0.0149 | 0.3836 | 0.4989 |
+| B0 plain Citrus | test | 0.7787 | 0.0077 | 0.4889 | 0.6582 |
+| Snapshot 05 | test | 0.7359 | 0.0147 | 0.4132 | 0.6463 |
+| Snapshot 06 | test | 0.7348 | 0.0150 | 0.4168 | 0.6418 |
+
+Conclusion:
+
+```text
+promising mixed / marginal stabilization
+```
+
+Snapshot 06 slightly improves Snapshot 05 on validation median-scaled `abs_rel` and `a1`, but slightly worsens test median-scaled `abs_rel` and `a1`. Keep it as a useful ablation, not a clean replacement for Snapshot 05. Future Levinson teacher-anchor work should change the schedule/checkpoint-selection logic more clearly rather than keep nudging ranking or texture weights.
+
+## Teacher-Anchor Checkpoint Selection
+
+Checkpoint-selection note:
+
+```text
+levinson/checkpoint_selection/teacher_anchor_snapshot05_06/README.md
+```
+
+Sweep output:
+
+```text
+levinson/checkpoint_selection/teacher_anchor_snapshot05_06/local_results/
+```
+
+Selected Snapshot 05 `weights_19` visual/inference package:
+
+```text
+levinson/snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_visuals/
+```
+
+Selection rule:
+
+```text
+Full validation only. Select the lowest median-scaled abs_rel checkpoint whose validation median-scaled a1 is within 0.02 absolute of B0 validation a1. Evaluate test only after selection.
+```
+
+Selected checkpoints:
+
+| run | selected checkpoint | val median abs_rel | val median a1 | test median abs_rel | test median a1 |
+|---|---|---:|---:|---:|---:|
+| Snapshot 05 | `weights_19` | 0.4447 | 0.5915 | 0.3947 | 0.6476 |
+| Snapshot 06 | `weights_25` | 0.4493 | 0.5925 | 0.4076 | 0.6359 |
+
+Interpretation:
+
+Snapshot 05 `weights_19` is the strongest current Levinson label-free teacher-anchor checkpoint. It clearly improves B0 test median-scaled `abs_rel` (`0.4889` to `0.3947`) while keeping most of B0 test median-scaled `a1` (`0.6582` to `0.6476`). It gets close to original Lite-Mono test median-scaled `abs_rel=0.3836`, but does not beat it. Do not use test to choose a different checkpoint unless a new explicit selection protocol is defined.
+
+The 2026-05-19 visual packaging pass generated comparison panels against original Lite-Mono, B0, and Snapshot 05 `weights_29` on validation and test, plus plain selected-checkpoint RGB/depth/disparity outputs. Visual read: mixed but useful. `weights_19` should be the main Snapshot 05 paper-table checkpoint, while `weights_29` remains the final-epoch ablation/evidence point. No new training was run for this packaging step. The bulky generated visual package is intentionally snapshot-local and locally ignored.

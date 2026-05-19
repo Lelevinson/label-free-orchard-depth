@@ -1,0 +1,23 @@
+diff --git "a/citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\05_teacher_anchored_relative_structure_regularization\\commands\\train_full.ps1" "b/citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\06_teacher_anchor_stabilization\\commands\\train_full.ps1"
+index 861b137..f5c97b9 100644
+--- "a/citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\05_teacher_anchored_relative_structure_regularization\\commands\\train_full.ps1"
++++ "b/citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\06_teacher_anchor_stabilization\\commands\\train_full.ps1"
+@@ -3,7 +3,7 @@ D:/Conda_Envs/lite-mono/python.exe train.py `
+   --split citrus_prepared `
+   --data_path citrus_project/dataset_workspace `
+   --model lite-mono `
+-  --model_name teacher_structure_regularization_b12_30ep_full `
++  --model_name teacher_anchor_stabilization_b12_30ep_rank005_no_texture `
+   --log_dir citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs `
+   --mypretrain weights/lite-mono/lite-mono-pretrain.pth `
+   --weights_init pretrained `
+@@ -25,8 +25,6 @@ D:/Conda_Envs/lite-mono/python.exe train.py `
+   --teacher_gradient_loss `
+   --teacher_gradient_weight 0.01 `
+   --teacher_ranking_loss `
+-  --teacher_ranking_weight 0.02 `
++  --teacher_ranking_weight 0.005 `
+   --teacher_rank_samples 512 `
+-  --teacher_texture_ambiguity_emphasis `
+-  --texture_ambiguity_weight 0.25 `
+   --teacher_path weights/lite-mono

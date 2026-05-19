@@ -1,0 +1,34 @@
+D:/Conda_Envs/lite-mono/python.exe train.py `
+  --dataset citrus `
+  --split citrus_prepared `
+  --data_path citrus_project/dataset_workspace `
+  --model lite-mono `
+  --model_name teacher_structure_regularization_b12_smoke_1step `
+  --log_dir citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs `
+  --mypretrain weights/lite-mono/lite-mono-pretrain.pth `
+  --weights_init pretrained `
+  --batch_size 12 `
+  --num_epochs 1 `
+  --lr 0.0001 0.000005 31 0.0001 0.00001 31 `
+  --weight_decay 0.01 `
+  --drop_path 0.2 `
+  --height 192 `
+  --width 640 `
+  --num_workers 0 `
+  --log_frequency 1 `
+  --save_frequency 1 `
+  --max_train_steps 1 `
+  --save_step_frequency 1 `
+  --seed 0 `
+  --teacher_structure_regularization `
+  --teacher_structure_weight 0.03 `
+  --teacher_structure_warmup_steps 500 `
+  --teacher_structure_decay 0.5 `
+  --teacher_gradient_loss `
+  --teacher_gradient_weight 0.01 `
+  --teacher_ranking_loss `
+  --teacher_ranking_weight 0.02 `
+  --teacher_rank_samples 512 `
+  --teacher_texture_ambiguity_emphasis `
+  --texture_ambiguity_weight 0.25 `
+  --teacher_path weights/lite-mono

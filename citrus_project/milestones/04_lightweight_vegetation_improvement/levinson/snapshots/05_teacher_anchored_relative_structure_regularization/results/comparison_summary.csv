@@ -1,0 +1,10 @@
+model,split,training_budget,raw_abs_rel,raw_a1,median_scaled_abs_rel,median_scaled_a1,note
+Original Lite-Mono,val,pretrained KITTI checkpoint,0.7128,0.0195,0.4176,0.4629,Milestone 1 full validation reference
+B0 plain Citrus,val,30 epochs ImageNet encoder pretrain,0.7736,0.0074,0.5100,0.6107,Plain Citrus self-supervised baseline
+Snapshot 05,val,30 epochs ImageNet encoder pretrain plus frozen RGB teacher,0.7372,0.0169,0.4611,0.5954,Teacher-anchored label-free adaptation
+Original Lite-Mono,test,pretrained KITTI checkpoint,0.7273,0.0149,0.3836,0.4989,Milestone 1 full test reference
+B0 plain Citrus,test,30 epochs ImageNet encoder pretrain,0.7787,0.0077,0.4889,0.6582,Plain Citrus self-supervised baseline
+Snapshot 05,test,30 epochs ImageNet encoder pretrain plus frozen RGB teacher,0.7359,0.0147,0.4132,0.6463,Teacher-anchored label-free adaptation
+Same-budget no-mask control,val first-100,250 steps,0.9099,0.0000,0.5634,0.3577,Snapshot 04 control budget
+Snapshot 04 best branch,val first-100,250 steps,0.9028,0.0000,0.5651,0.3605,Temporal geometry plus texture ambiguity
+Snapshot 05,val first-100,30 epochs final checkpoint,0.7314,0.0053,0.3444,0.6510,Not same budget as Snapshot 04 gates

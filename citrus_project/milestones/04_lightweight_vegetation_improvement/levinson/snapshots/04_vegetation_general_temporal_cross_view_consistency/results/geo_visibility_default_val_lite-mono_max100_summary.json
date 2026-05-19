@@ -1,0 +1,77 @@
+{
+  "requested_samples": 100,
+  "samples_with_metrics": 100,
+  "averaging_rule": "per_image_metric_mean",
+  "timing": {
+    "model_load_seconds": 2.0881857,
+    "evaluation_loop_seconds": 10.448400399999999,
+    "total_run_seconds": 12.5995378,
+    "requested_samples_per_second": 9.570843016314727,
+    "metric_samples_per_second": 9.570843016314727,
+    "mean_sample_wall_seconds": 0.10405580500000008,
+    "total_model_forward_seconds": 2.0936123999999956,
+    "mean_model_forward_seconds": 0.020936123999999955,
+    "model_forward_fps": 47.76433307330441,
+    "timing_note": "evaluation_loop includes image/label loading, inference, resizing, and metrics; model_forward includes encoder, decoder, disparity-depth conversion, and output resize."
+  },
+  "total_valid_pixels": 33044491,
+  "mean_valid_fraction": 0.35855567491319446,
+  "median_scale_ratio": 12.443099602660245,
+  "mean_scale_ratio": 13.21813539570622,
+  "mean_raw_metrics": {
+    "abs_rel": 0.9029757993269116,
+    "sq_rel": 3.249086058734786,
+    "rmse": 5.288198360782174,
+    "rmse_log": 2.6742295193798418,
+    "a1": 0.0,
+    "a2": 0.0,
+    "a3": 0.0
+  },
+  "mean_median_scaled_metrics": {
+    "abs_rel": 0.5687950472089911,
+    "sq_rel": 1.7439125557542081,
+    "rmse": 4.169003767255202,
+    "rmse_log": 0.7475263810044163,
+    "a1": 0.35807718415743744,
+    "a2": 0.5573002530909557,
+    "a3": 0.6759977938750541
+  },
+  "created_at": "2026-05-17T01:12:30",
+  "split": "val",
+  "split_samples": 564,
+  "max_samples_arg": 100,
+  "model": "lite-mono",
+  "weights_folder": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\runs\\vg_tcv_geo_visibility_teacher_b12_250steps_seed0_w015\\models\\step_250",
+  "device": "cuda",
+  "model_info": {
+    "encoder_parameters": 2848120,
+    "depth_decoder_parameters": 226627,
+    "total_parameters": 3074747,
+    "total_parameters_millions": 3.074747,
+    "encoder_trainable_parameters": 2848120,
+    "depth_decoder_trainable_parameters": 226627,
+    "total_trainable_parameters": 3074747,
+    "total_trainable_parameters_millions": 3.074747,
+    "encoder_checkpoint": {
+      "bytes": 11496563,
+      "megabytes": 10.963976860046387
+    },
+    "depth_decoder_checkpoint": {
+      "bytes": 912583,
+      "megabytes": 0.8703069686889648
+    },
+    "total_checkpoint": {
+      "bytes": 12409146,
+      "megabytes": 11.834283828735352
+    },
+    "parameter_note": "Counts include the Lite-Mono encoder and depth decoder used for depth inference; they do not include the training-only pose network."
+  },
+  "feed_width": 640,
+  "feed_height": 192,
+  "model_min_depth": 0.1,
+  "model_max_depth": 100.0,
+  "eval_min_depth": 0.001,
+  "eval_max_depth": 80.0,
+  "dataset_workspace": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\dataset_workspace",
+  "prepared_dataset": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\dataset_workspace\\prepared_training_dataset"
+}

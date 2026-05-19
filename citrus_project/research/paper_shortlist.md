@@ -166,6 +166,40 @@ Current status:
 - Important caveat: the final checkpoint improves median-scaled `a1` but worsens raw-scale metrics and median-scaled `abs_rel`. Use this as baseline/motivation evidence, not a final proposed-method win.
 - A later checkpoint sweep was discarded after visual review and is not part of committed paper evidence.
 
+### Teacher-Anchored Label-Free Citrus Adaptation
+
+Evidence notes:
+
+- `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/README.md`
+- `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/06_teacher_anchor_stabilization/README.md`
+- checkpoint-selection note: `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/teacher_anchor_snapshot05_06/README.md`
+- sweep outputs: `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/teacher_anchor_snapshot05_06/local_results/`
+- selected `weights_19` visual/inference package: `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_visuals/`
+
+Why it matters:
+
+- This is the strongest Levinson label-free method family so far.
+- It keeps Citrus training label-free: no `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, ZED depth, or LiDAR-derived labels are used as training losses or masks.
+- It uses a frozen RGB-only Lite-Mono teacher as a training-only relative-structure anchor while keeping inference as one RGB image into the Lite-Mono student.
+- Checkpoint selection was validation-first: all Snapshot 05/06 checkpoints were swept on validation, then only selected checkpoints were tested.
+
+Paper section fit:
+
+- Proposed label-free/self-supervised adaptation method
+- Ablation and checkpoint-selection protocol
+- Main comparison against original Lite-Mono and B0 plain Citrus training
+
+Current status:
+
+- Snapshot 05 final `weights_29` test: median-scaled `abs_rel=0.4132`, `a1=0.6463`.
+- Snapshot 06 final `weights_29` test: median-scaled `abs_rel=0.4168`, `a1=0.6418`.
+- Validation-selected Snapshot 05 `weights_19` test: median-scaled `abs_rel=0.3947`, `a1=0.6476`.
+- Validation-selected Snapshot 06 `weights_25` test: median-scaled `abs_rel=0.4076`, `a1=0.6359`.
+- Best current label-free teacher-anchor checkpoint: Snapshot 05 `weights_19`.
+- It clearly improves B0 test median-scaled `abs_rel` (`0.4889` to `0.3947`) while keeping most of B0 test median-scaled `a1` (`0.6582` to `0.6476`).
+- It gets close to original Lite-Mono test median-scaled `abs_rel=0.3836`, but does not beat it, so claims must say "near-closes the gap" rather than "cleanly outperforms original."
+- Visual packaging on 2026-05-19 supports the same cautious story: comparison panels and plain inference maps are mixed but useful, with broad structure gains in good/typical cases and remaining smooth/over-corrected vegetation or occlusion failures. Use `weights_19` as the main Snapshot 05 paper-table result; keep `weights_29` as the final-epoch ablation/evidence point.
+
 ### Original Lite-Mono Qualitative Citrus Prediction
 
 Evidence notes:
