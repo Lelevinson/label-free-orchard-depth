@@ -4,6 +4,8 @@ Date: 2026-05-19
 
 Scope: Levinson Milestone 4 hygiene checkpoint before any Snapshot 07 method work. No training or new experiments were run for this audit.
 
+Supersession note, 2026-05-20: this file is a historical pre-Snapshot07 audit. Snapshot 07 has since been implemented and packaged, and the current active-root policy is now in `ACTIVE_ROOT_CODE_STATE.md`. The body below is preserved because it explains the exact state before Snapshot 07 began; do not use its "current" Snapshot 05/06 root-code statements as present-tense guidance.
+
 ## Commands Inspected
 
 - `git status --short`
@@ -109,7 +111,7 @@ No unignored accidental junk appeared in `git ls-files --others --exclude-standa
 
 ## 6. Active Root-Code State
 
-Root code remains active as Snapshot 05/06 branch.
+At the time of this pre-Snapshot07 audit, root code remained active as the Snapshot 05/06 branch.
 
 The explicit root-code policy note is:
 
@@ -124,12 +126,12 @@ Specifically:
 - `options.py` and `trainer.py` are not restored to the shared baseline; they contain disabled-by-default method flags and trainer support for Snapshot 04 plus Snapshot 05/06 teacher-anchor work.
 - `render_teacher_structure_diagnostics.py` and the updated comparison helper remain available for teacher-anchor diagnostics.
 - Snapshot 06 did not need new implementation beyond Snapshot 05; it was a config-only stabilization.
-- Snapshot 05 selected `weights_19` remains the current best Levinson label-free teacher-anchor checkpoint.
+- Snapshot 05 selected `weights_19` was the then-current best Levinson label-free teacher-anchor checkpoint.
 
 State label for handoff:
 
 ```text
-root code remains active as Snapshot 05/06 branch; root code is ready for Snapshot 07 continuation after reading this audit and the Snapshot 05/06 READMEs
+pre-Snapshot07 state: root code remained active as the Snapshot 05/06 branch; root code was ready for Snapshot 07 continuation after reading this audit and the Snapshot 05/06 READMEs
 ```
 
 ## Verification Plan
@@ -160,4 +162,4 @@ Start a new Snapshot 07 chat by reading:
 6. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/pre_snapshot07_repo_audit.md`
 7. Snapshot 05 README, checkpoint-selection README, and Snapshot 05 professor-facing `visual_diagnosis.md`
 
-Do not start Snapshot 07 training until the team decides whether `weights_19` is sufficient as the current label-free result or whether the next method is clearly different from another small Snapshot 05/06 weight tweak.
+Historical guidance at the time: defer Snapshot 07 training until the team decides whether `weights_19` is sufficient as the then-current label-free result or whether the next method is clearly different from another small Snapshot 05/06 weight tweak.

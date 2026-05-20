@@ -39,7 +39,7 @@ Changes:
 
 The source-frame branch was revised after an early batch-size-12 attempt proved too slow when source depths participated in the backward graph. The tested implementation uses stop-gradient source predictions as a training-only teacher; each source frame still receives normal depth supervision when it appears as a target in other batches.
 
-Root files remain as the active method branch after packaging. They were not restored to baseline.
+At Snapshot 04 packaging time, root files remained as this active method branch and were not restored to baseline. That historical state was later superseded by Snapshot 05 and then Snapshot 07; read `../../ACTIVE_ROOT_CODE_STATE.md` before using root `trainer.py` or `options.py`.
 
 ## Flags
 

@@ -10,7 +10,7 @@ Structure-Aware Label-Free Vegetation Depth
 
 ## Why Snapshot 05 weights_19 Is Not Enough
 
-Snapshot 05 `weights_19` is the best current Levinson label-free checkpoint, but it is not a solved result. It strongly improves B0 test median-scaled `abs_rel` while keeping most of B0's `a1`, yet it still trails Original Lite-Mono on test median-scaled `abs_rel`:
+At design time, Snapshot 05 `weights_19` was the best then-current Levinson label-free checkpoint, but it was not a solved result. It strongly improved B0 test median-scaled `abs_rel` while keeping most of B0's `a1`, yet it still trailed Original Lite-Mono on test median-scaled `abs_rel`:
 
 | model | test median abs_rel | test median a1 |
 |---|---:|---:|

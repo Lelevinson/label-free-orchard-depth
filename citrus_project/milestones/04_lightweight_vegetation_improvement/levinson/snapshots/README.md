@@ -39,7 +39,7 @@ Previous checkpoint-selection decision:
 05_teacher_anchored_relative_structure_regularization/ weights_19
 ```
 
-Snapshot 05 `weights_19` was selected by the validation-only teacher-anchor checkpoint sweep and visually packaged on 2026-05-19 without new training. It is the current main Snapshot 05 paper-table candidate. Visual and plain inference outputs are saved under:
+Snapshot 05 `weights_19` was selected by the validation-only teacher-anchor checkpoint sweep and visually packaged on 2026-05-19 without new training. It is the main Snapshot 05 comparison point, not the current Levinson lead after Snapshot 07. Visual and plain inference outputs are saved under:
 
 ```text
 05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_visuals/

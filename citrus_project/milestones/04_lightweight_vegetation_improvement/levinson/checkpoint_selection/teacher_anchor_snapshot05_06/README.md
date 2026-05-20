@@ -202,14 +202,14 @@ Snapshot 06 `weights_25` also improves over B0 on median-scaled `abs_rel`, but i
 
 Yes, teacher-anchored regularization can produce a validation-selected checkpoint that clearly improves over B0 while keeping most of B0's `a1`.
 
-The best evidence is Snapshot 05 `weights_19`: test median-scaled `abs_rel=0.3947` and test median-scaled `a1=0.6476`. This is much better than B0 on `abs_rel` and only slightly below B0 on `a1`.
+The best Snapshot 05/06 evidence is Snapshot 05 `weights_19`: test median-scaled `abs_rel=0.3947` and test median-scaled `a1=0.6476`. This is much better than B0 on `abs_rel` and only slightly below B0 on `a1`.
 
 However, it still does not beat original Lite-Mono on test median-scaled `abs_rel`: `0.3947` vs original `0.3836`. It gets meaningfully closer than `weights_29`, while preserving the adapted model's much stronger `a1`.
 
 Conclusion:
 
 ```text
-checkpoint selection strengthens Snapshot 05; Snapshot 05 weights_19 is the best current Levinson label-free teacher-anchor checkpoint, but not a clean win over original Lite-Mono on median-scaled abs_rel
+checkpoint selection strengthens Snapshot 05; Snapshot 05 weights_19 is the best pre-Snapshot07 Levinson label-free teacher-anchor checkpoint, but not a clean win over original Lite-Mono on median-scaled abs_rel
 ```
 
-Use Snapshot 05 `weights_19` as the main Levinson label-free teacher-anchor result in paper tables unless a later, explicitly documented validation-selection protocol supersedes it. Keep `weights_29` as the final-epoch ablation/evidence point because the final epochs appear to trade off or over-drift relative to the selected checkpoint.
+Use Snapshot 05 `weights_19` as the main Snapshot 05 teacher-anchor comparison point. Snapshot 07 later superseded it as the current lead Levinson label-free candidate. Keep `weights_29` as the final-epoch ablation/evidence point because the final epochs appear to trade off or over-drift relative to the selected checkpoint.

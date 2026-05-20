@@ -160,4 +160,4 @@ code/citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/re
 code/citrus_project/milestones/03_self_supervised_adaptation/compare_original_vs_adapted_visuals.py
 ```
 
-Root code remains active on the teacher-anchored branch. It was not restored to the shared baseline state after this run.
+At Snapshot 06 packaging time, root code remained active on the teacher-anchored branch and was not restored to the shared baseline state. That historical state was later superseded by Snapshot 07; read `../../ACTIVE_ROOT_CODE_STATE.md` for the current root-code state.

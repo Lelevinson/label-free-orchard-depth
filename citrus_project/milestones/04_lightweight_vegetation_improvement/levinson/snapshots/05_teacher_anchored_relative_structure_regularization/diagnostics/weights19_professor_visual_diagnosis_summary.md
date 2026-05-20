@@ -29,7 +29,7 @@ visual_diagnosis.md
 
 Summary:
 
-- `weights_19` remains the best current Levinson label-free teacher-anchor checkpoint numerically.
+- `weights_19` remains the best pre-Snapshot07 Levinson label-free teacher-anchor checkpoint numerically.
 - Full-image visuals are mixed: sky/far-canopy boundaries, dark plant blobs, and over-smoothed vegetation remain visible.
 - Valid-mask panels show where the measured LiDAR evaluation region supports the numeric gains.
 - The sky issue should not be hidden: blue-sky pixels are mostly outside the LiDAR mask, but upper-image canopy/far vegetation is partially evaluated.
@@ -39,4 +39,4 @@ Suggested use:
 
 - Show a good case with both the full-image panel and matching valid-mask panel.
 - Show at least one failure/largest-drop case to be honest about full-image artifacts.
-- Use this as diagnostic evidence for the current best checkpoint, not as a claim that Snapshot 05 visually solves vegetation depth.
+- Use this as diagnostic evidence for the main Snapshot 05 comparison checkpoint, not as a claim that Snapshot 05 visually solves vegetation depth.

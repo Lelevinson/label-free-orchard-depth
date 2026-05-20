@@ -1,6 +1,6 @@
 # Snapshot 05: Teacher-Anchored Relative-Structure Regularization
 
-Status: full 30-epoch run completed. Checkpoint-selection update: `weights_19` is now the current best Levinson label-free teacher-anchor candidate. Conclusion: promising mixed evidence; use the validation-selected checkpoint for paper tables, but do not claim a clean win over original Lite-Mono yet.
+Status: full 30-epoch run completed. Checkpoint-selection update: `weights_19` became the strongest pre-Snapshot07 Levinson label-free teacher-anchor candidate. Conclusion: promising mixed evidence; use the validation-selected checkpoint as the main Snapshot 05 comparison point, but do not claim a clean win over original Lite-Mono.
 
 Method framing:
 
@@ -52,7 +52,7 @@ code/citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/ch
 patches/final_method.diff
 ```
 
-Root code currently remains active as the Snapshot 05 branch after packaging. It was not restored to the shared baseline state.
+At Snapshot 05 packaging time, root code remained active as the Snapshot 05 branch and was not restored to the shared baseline state. That historical state was later superseded by Snapshot 07; read `../../ACTIVE_ROOT_CODE_STATE.md` for the current root-code state.
 
 ## Flags
 
@@ -344,7 +344,7 @@ A validation-first checkpoint sweep later evaluated Snapshot 05 and Snapshot 06 
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/teacher_anchor_snapshot05_06/README.md
 ```
 
-Under the rule "lowest validation median-scaled `abs_rel` while keeping validation median-scaled `a1` within `0.02` of B0", Snapshot 05 `weights_19` is selected and becomes the strongest current Levinson label-free teacher-anchor checkpoint. Its test metrics are median-scaled `abs_rel=0.3947` and `a1=0.6476`, better than this snapshot's final `weights_29` test metrics.
+Under the rule "lowest validation median-scaled `abs_rel` while keeping validation median-scaled `a1` within `0.02` of B0", Snapshot 05 `weights_19` is selected and becomes the strongest pre-Snapshot07 Levinson label-free teacher-anchor checkpoint. Its test metrics are median-scaled `abs_rel=0.3947` and `a1=0.6476`, better than this snapshot's final `weights_29` test metrics.
 
 The selected-checkpoint visual package was generated on 2026-05-19:
 
@@ -352,7 +352,7 @@ The selected-checkpoint visual package was generated on 2026-05-19:
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_visuals/
 ```
 
-Visual read: mixed but useful. Good/typical cases show the broad relative-structure improvement behind the metric gains, while failure/largest-drop cases still show smooth predictions and over-correction around vegetation and occlusion regions. This supports using `weights_19` as the current best label-free teacher-anchor candidate, not claiming a clean visual or metric win over original Lite-Mono.
+Visual read: mixed but useful. Good/typical cases show the broad relative-structure improvement behind the metric gains, while failure/largest-drop cases still show smooth predictions and over-correction around vegetation and occlusion regions. This supports using `weights_19` as the main Snapshot 05 comparison point, not claiming a clean visual or metric win over original Lite-Mono.
 
 A clearer professor-facing visual diagnosis was generated afterward:
 

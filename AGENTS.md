@@ -41,6 +41,7 @@ All new chats should read this file first.
 9. Folder-level `README.md` files are doorway maps. Use them to decide which deeper notes are relevant instead of reading every `.md` file in a folder.
 10. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/00_plain_citrus_baseline/README.md` is the compact B0 plain Citrus baseline snapshot for Levinson's Milestone 4 workstream. It contains inference weights plus copied final result files, visual panels, and `config/opt.json`.
 11. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/ACTIVE_ROOT_CODE_STATE.md` is the explicit policy note for the live repo-root training code versus frozen snapshot `code/` copies. Read it before any new Milestone 4 Levinson root-code edit.
+12. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/SNAPSHOT_FOLDER_AUDIT_BEFORE_PRESENTATION.md` is the pre-presentation audit of Levinson snapshot folder tidiness, contradictions, active root-code state, and presentation readiness.
 
 Update policy:
 
@@ -681,6 +682,7 @@ Milestone 4 planning questions:
 26. 2026-05-19: Added the pre-Snapshot07 repository audit at `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/pre_snapshot07_repo_audit.md`, documented that root `options.py` and `trainer.py` remained active as the Snapshot 05/06 teacher-anchor branch before Snapshot 07, and promoted the local-evidence ignore policy into shared `.gitignore` while keeping `.git/info/exclude` as a personal safety net.
 27. 2026-05-19: Added `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/ACTIVE_ROOT_CODE_STATE.md` to make the active-root policy explicit before Snapshot 07: root code is the active workbench used by `train.py`, snapshot `code/` folders are frozen archival copies, and future methods must inspect and document root-code state before editing or training.
 28. 2026-05-20: Completed and packaged Levinson snapshot `07_structure_aware_label_free_vegetation_depth/`. Snapshot 07 adds reliable-boundary teacher weighting and RGB-only sky/far ordinal pseudo-structure without Citrus training labels, passed smoke and 250-step pilot gates, completed one fair 30-epoch run, selected `weights_25` by validation-only checkpoint selection, and reached test median-scaled `abs_rel=0.3840`, `a1=0.6539`. It is the current strongest Levinson label-free candidate, with promising mixed visual evidence rather than a clean solved visual story. Root code now remains active as the Snapshot 07 structure-aware branch.
+29. 2026-05-20: Added the Levinson pre-presentation snapshot-folder audit at `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/SNAPSHOT_FOLDER_AUDIT_BEFORE_PRESENTATION.md` and clarified stale historical wording in Snapshot 04/05/06, the Snapshot 05/06 checkpoint-selection note, and the pre-Snapshot07 audit so future readers do not confuse pre-Snapshot07 evidence with the current Snapshot 07 lead state.
 
 ## Update Template
 

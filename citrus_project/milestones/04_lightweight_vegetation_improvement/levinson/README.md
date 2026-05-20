@@ -172,6 +172,14 @@ pre_snapshot07_repo_audit.md
 
 This note records the pre-Snapshot07 active root-code state, local-evidence layout, ignored artifact policy, and verification steps before the Snapshot 07 method attempt. For the current root state, read `ACTIVE_ROOT_CODE_STATE.md`.
 
+Pre-presentation snapshot-folder audit:
+
+```text
+SNAPSHOT_FOLDER_AUDIT_BEFORE_PRESENTATION.md
+```
+
+This note audits the Levinson snapshot folders after Snapshot 07 packaging and records the current presentation-readiness state.
+
 Do not edit Marvel's folder from this workstream without explicit approval.
 
 ## Code Snapshot Rule
