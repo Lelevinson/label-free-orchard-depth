@@ -41,7 +41,9 @@ All new chats should read this file first.
 9. Folder-level `README.md` files are doorway maps. Use them to decide which deeper notes are relevant instead of reading every `.md` file in a folder.
 10. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/00_plain_citrus_baseline/README.md` is the compact B0 plain Citrus baseline snapshot for Levinson's Milestone 4 workstream. It contains inference weights plus copied final result files, visual panels, and `config/opt.json`.
 11. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/ACTIVE_ROOT_CODE_STATE.md` is the explicit policy note for the live repo-root training code versus frozen snapshot `code/` copies. Read it before any new Milestone 4 Levinson root-code edit.
-12. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/SNAPSHOT_FOLDER_AUDIT_BEFORE_PRESENTATION.md` is the pre-presentation audit of Levinson snapshot folder tidiness, contradictions, active root-code state, and presentation readiness.
+12. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/DOCUMENTATION_INDEX.md` is the human/AI navigation map for Levinson's Milestone 4 docs after Snapshot 07.
+13. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/SNAPSHOT_FOLDER_AUDIT_BEFORE_PRESENTATION.md` is the pre-presentation audit of Levinson snapshot folder tidiness, contradictions, active root-code state, and presentation readiness.
+14. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/LEVINSON_DOCS_OPTIMIZATION_BEFORE_PRESENTATION.md` is the documentation optimization audit that inventories current versus historical Levinson docs before presentation preparation.
 
 Update policy:
 
@@ -683,6 +685,8 @@ Milestone 4 planning questions:
 27. 2026-05-19: Added `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/ACTIVE_ROOT_CODE_STATE.md` to make the active-root policy explicit before Snapshot 07: root code is the active workbench used by `train.py`, snapshot `code/` folders are frozen archival copies, and future methods must inspect and document root-code state before editing or training.
 28. 2026-05-20: Completed and packaged Levinson snapshot `07_structure_aware_label_free_vegetation_depth/`. Snapshot 07 adds reliable-boundary teacher weighting and RGB-only sky/far ordinal pseudo-structure without Citrus training labels, passed smoke and 250-step pilot gates, completed one fair 30-epoch run, selected `weights_25` by validation-only checkpoint selection, and reached test median-scaled `abs_rel=0.3840`, `a1=0.6539`. It is the current strongest Levinson label-free candidate, with promising mixed visual evidence rather than a clean solved visual story. Root code now remains active as the Snapshot 07 structure-aware branch.
 29. 2026-05-20: Added the Levinson pre-presentation snapshot-folder audit at `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/SNAPSHOT_FOLDER_AUDIT_BEFORE_PRESENTATION.md` and clarified stale historical wording in Snapshot 04/05/06, the Snapshot 05/06 checkpoint-selection note, and the pre-Snapshot07 audit so future readers do not confuse pre-Snapshot07 evidence with the current Snapshot 07 lead state.
+30. 2026-05-20: Added `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/DOCUMENTATION_INDEX.md` as the AI-friendly Levinson documentation map before presentation preparation, and marked old planning/design notes as historical where needed.
+31. 2026-05-20: Added `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/LEVINSON_DOCS_OPTIMIZATION_BEFORE_PRESENTATION.md` to record the Levinson Markdown inventory, current documentation hierarchy, historical/stale docs, redundant/confusing files, and presentation-readiness decision.
 
 ## Update Template
 

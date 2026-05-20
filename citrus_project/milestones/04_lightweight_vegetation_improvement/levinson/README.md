@@ -4,6 +4,12 @@ This folder collects Levinson's Milestone 4 progress so the completed baseline a
 
 Read this file first for this workstream, then open only the needed snapshot README.
 
+For a compact human/AI navigation map, read:
+
+```text
+DOCUMENTATION_INDEX.md
+```
+
 Levinson's workstream is the self-supervised Milestone 4 path. Prioritize RGB-only training objectives or constraints that do not use `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, or ZED depth as a training loss. If a future idea needs label supervision, create or move it to a clearly separate hybrid branch instead of mixing it into this workstream.
 
 Inference should remain RGB-only unless a future note explicitly says otherwise. Training-supervision claims must be labeled honestly when comparing against Marvel's supervised/hybrid workstream.
@@ -179,6 +185,14 @@ SNAPSHOT_FOLDER_AUDIT_BEFORE_PRESENTATION.md
 ```
 
 This note audits the Levinson snapshot folders after Snapshot 07 packaging and records the current presentation-readiness state.
+
+Documentation optimization audit:
+
+```text
+LEVINSON_DOCS_OPTIMIZATION_BEFORE_PRESENTATION.md
+```
+
+This note inventories Levinson Markdown files, separates current navigation docs from historical plans, and records the documentation cleanup before presentation preparation.
 
 Do not edit Marvel's folder from this workstream without explicit approval.
 

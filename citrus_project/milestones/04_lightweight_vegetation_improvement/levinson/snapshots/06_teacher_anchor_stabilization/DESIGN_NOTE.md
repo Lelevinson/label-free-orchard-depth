@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-Status: completed. The selected design ran for the full 30-epoch B0/Snapshot 05 recipe and is packaged in this snapshot.
+Status: historical completed design note. The selected design ran for the full 30-epoch B0/Snapshot 05 recipe and is packaged in this snapshot; Snapshot 06 remains a marginal/mixed ablation, not the current lead after Snapshot 07.
 
 ## Starting Point
 

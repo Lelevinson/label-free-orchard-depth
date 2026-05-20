@@ -2,6 +2,8 @@
 
 Date: 2026-05-17
 
+Status: historical diagnostic/proposal note. The Snapshot 05 proposal was implemented, then superseded by Snapshot 07 as the current lead Levinson label-free candidate. Keep this file for provenance and failure analysis; do not treat it as a current action plan.
+
 Update on 2026-05-17: the proposed Snapshot 05 direction below was implemented and full-run tested under `../05_teacher_anchored_relative_structure_regularization/`. The older design wording here is retained as the diagnostic handoff from Snapshot 04, but the active Snapshot 05 name is Teacher-Anchored Relative-Structure Regularization.
 
 Verdict: Snapshot 04 is stable but weak negative evidence. Do not scale it.

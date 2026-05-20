@@ -2,6 +2,8 @@
 
 Date: 2026-05-19
 
+Status: historical design note for the completed Snapshot 07 method. Current results and presentation-facing conclusions live in `README.md` and `final_result_summary.md`.
+
 Working name:
 
 ```text

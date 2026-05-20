@@ -1,5 +1,7 @@
 # Levinson Milestone 4 Overnight Experiment Plan
 
+Status: historical planning note. Superseded by completed Snapshots 02, 03, 04, 05, 06, and the current lead Snapshot 07. Keep for provenance; do not treat as a current action plan.
+
 Executed planning note for the controlled self-supervised Milestone 4 overnight gates.
 
 Status: executed for experiments 02 and 03 after user approval.
