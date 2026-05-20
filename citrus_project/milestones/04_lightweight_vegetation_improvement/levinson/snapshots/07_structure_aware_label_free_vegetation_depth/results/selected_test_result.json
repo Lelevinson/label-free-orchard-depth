@@ -1,0 +1,16 @@
+{
+  "checkpoint": "weights_25",
+  "epoch": 25,
+  "split": "test",
+  "samples": 407,
+  "raw_abs_rel": 0.7296716650372272,
+  "raw_a1": 0.013048310198004114,
+  "median_scaled_abs_rel": 0.3840294099182123,
+  "median_scaled_a1": 0.6539131697026496,
+  "median_scaled_a2": 0.8406950212926333,
+  "median_scaled_a3": 0.9104677579872935,
+  "median_scale_ratio": 3.302028089929597,
+  "model_forward_fps": 27.075501326024344,
+  "weights_folder": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\runs\\structure_aware_label_free_vegetation_depth_b12_30ep_full\\models\\weights_25",
+  "summary_json": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\checkpoint_selection\\test_selected\\weights_25\\test_lite-mono_full_summary.json"
+}

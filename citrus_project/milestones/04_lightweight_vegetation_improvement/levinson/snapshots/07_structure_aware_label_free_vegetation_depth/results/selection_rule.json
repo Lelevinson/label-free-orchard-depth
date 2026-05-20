@@ -1,0 +1,7 @@
+{
+  "b0_validation_median_scaled_a1": 0.6107277115285429,
+  "a1_margin": 0.02,
+  "a1_close_threshold": 0.5907277115285429,
+  "test_set_used_for_selection": false,
+  "rule": "lowest full-validation median_scaled_abs_rel among checkpoints with median_scaled_a1 >= B0_val_a1 - a1_margin; fallback to lowest abs_rel if no checkpoint qualifies"
+}

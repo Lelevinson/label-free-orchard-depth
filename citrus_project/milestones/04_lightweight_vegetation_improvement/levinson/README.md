@@ -8,13 +8,13 @@ Levinson's workstream is the self-supervised Milestone 4 path. Prioritize RGB-on
 
 Inference should remain RGB-only unless a future note explicitly says otherwise. Training-supervision claims must be labeled honestly when comparing against Marvel's supervised/hybrid workstream.
 
-Before editing root training code or starting any future Snapshot 07 work, read:
+Before editing root training code or starting any future Levinson method work, read:
 
 ```text
 ACTIVE_ROOT_CODE_STATE.md
 ```
 
-Root `trainer.py` and `options.py` are currently the active Snapshot 05/06 teacher-anchor workbench used by `train.py`. Snapshot `code/` folders are frozen archival copies, not automatically imported runtime code.
+Root `trainer.py` and `options.py` are currently the active Snapshot 07 structure-aware teacher-anchor workbench used by `train.py`. Snapshot `code/` folders are frozen archival copies, not automatically imported runtime code.
 
 ## Contents
 
@@ -30,13 +30,14 @@ Current moved result folder:
 results/plain_litemono_imagenet_b12_30ep_final_weights29/
 ```
 
-Large generated results for Snapshots 05/06 are now kept with their relevant evidence owner instead of the shared `results/` folder:
+Large generated results for Snapshots 05/06/07 are now kept with their relevant evidence owner instead of the shared `results/` folder:
 
 ```text
 snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/final_weights29_evaluation_full/
 snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_visuals/
 snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_professor_visual_diagnostics/
 snapshots/06_teacher_anchor_stabilization/local_evidence/final_weights29_evaluation_full/
+snapshots/07_structure_aware_label_free_vegetation_depth/local_evidence/
 checkpoint_selection/teacher_anchor_snapshot05_06/local_results/
 ```
 
@@ -48,6 +49,7 @@ Current local ignored run folder:
 runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/
 runs/teacher_structure_regularization_b12_30ep_full/
 runs/teacher_anchor_stabilization_b12_30ep_rank005_no_texture/
+runs/structure_aware_label_free_vegetation_depth_b12_30ep_full/
 ```
 
 Baseline snapshot:
@@ -67,6 +69,7 @@ snapshots/03_soft_confidence_multiplier/
 snapshots/04_vegetation_general_temporal_cross_view_consistency/
 snapshots/05_teacher_anchored_relative_structure_regularization/
 snapshots/06_teacher_anchor_stabilization/
+snapshots/07_structure_aware_label_free_vegetation_depth/
 ```
 
 `01_photometric_confidence_masking/` is the first self-supervised Milestone 4 method gate. It adds disabled-by-default photometric-confidence masking on top of existing automasking, copies tested `trainer.py` and `options.py`, records smoke and 250-step gate commands, and concludes `uncertain / do not scale yet`.
@@ -116,7 +119,7 @@ Teacher-anchor checkpoint-selection note:
 checkpoint_selection/teacher_anchor_snapshot05_06/README.md
 ```
 
-This validation-first sweep evaluated Snapshot 05 and Snapshot 06 `weights_0` through `weights_29` on full validation, then evaluated only the selected checkpoints on test. The rule selected the lowest validation median-scaled `abs_rel` checkpoint whose validation median-scaled `a1` stayed within `0.02` absolute of B0. Snapshot 05 `weights_19` is the strongest current label-free teacher-anchor checkpoint: test median-scaled `abs_rel=0.3947`, `a1=0.6476`. It improves B0 strongly on `abs_rel`, keeps most of B0's `a1`, and gets close to original Lite-Mono on median-scaled `abs_rel`, but does not beat original.
+This validation-first sweep evaluated Snapshot 05 and Snapshot 06 `weights_0` through `weights_29` on full validation, then evaluated only the selected checkpoints on test. The rule selected the lowest validation median-scaled `abs_rel` checkpoint whose validation median-scaled `a1` stayed within `0.02` absolute of B0. Snapshot 05 `weights_19` is the strongest pre-Snapshot07 label-free teacher-anchor checkpoint: test median-scaled `abs_rel=0.3947`, `a1=0.6476`. It improves B0 strongly on `abs_rel`, keeps most of B0's `a1`, and gets close to original Lite-Mono on median-scaled `abs_rel`, but does not beat original.
 
 Selected Snapshot 05 `weights_19` visual and plain inference outputs:
 
@@ -134,7 +137,30 @@ snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/s
 
 Use this for discussion. It separates full-image qualitative depth from valid-LiDAR-only evaluation behavior and is explicit that `weights_19` is numerically promising but not visually solved or paper-polished.
 
-After the 01/02/03 gates were packaged, the live root `options.py` and `trainer.py` were restored to the shared baseline state for collaboration. Snapshot 04 later left the live root as the active temporal-cross-view method branch. Snapshot 05 superseded it, and Snapshot 06 reuses that same teacher-anchored implementation. Live root `options.py`, `trainer.py`, `render_teacher_structure_diagnostics.py`, and the visual comparison helper currently remain as the active teacher-anchored method branch. The tested experimental code remains in each snapshot's `code/` folder for reproducibility or later reapplication.
+`07_structure_aware_label_free_vegetation_depth/` is the current strongest Levinson label-free candidate. It builds from the Snapshot 05/06 frozen RGB-teacher implementation, then adds reliable-boundary teacher weighting from RGB edges plus teacher disparity edges and an RGB-only sky/far ordinal pseudo-structure loss. It targets the Snapshot 05 `weights_19` visual diagnosis directly: vegetation blobs, over-smoothing, sky/far-canopy confusion, and tree-ground boundary weakness. It remains label-free for Citrus training and inference remains one RGB image into Lite-Mono DepthNet.
+
+Snapshot 07 selected-checkpoint metrics:
+
+| model | split | raw abs_rel | raw a1 | median-scaled abs_rel | median-scaled a1 |
+|---|---:|---:|---:|---:|---:|
+| Original Lite-Mono | val | 0.7128 | 0.0195 | 0.4176 | 0.4629 |
+| B0 plain Citrus | val | 0.7736 | 0.0074 | 0.5100 | 0.6107 |
+| Snapshot 05 `weights_19` | val | 0.7389 | 0.0177 | 0.4447 | 0.5915 |
+| Snapshot 07 `weights_25` | val | 0.7265 | 0.0167 | 0.4344 | 0.5927 |
+| Original Lite-Mono | test | 0.7273 | 0.0149 | 0.3836 | 0.4989 |
+| B0 plain Citrus | test | 0.7787 | 0.0077 | 0.4889 | 0.6582 |
+| Snapshot 05 `weights_19` | test | 0.7391 | 0.0144 | 0.3947 | 0.6476 |
+| Snapshot 07 `weights_25` | test | 0.7297 | 0.0130 | 0.3840 | 0.6539 |
+
+Snapshot 07 package:
+
+```text
+snapshots/07_structure_aware_label_free_vegetation_depth/
+```
+
+Visual read: promising mixed. Metrics now nearly close original Lite-Mono's test median-scaled `abs_rel` gap while preserving B0-like `a1`, and Snapshot 07 beats Snapshot 05 `weights_19` on both test median-scaled metrics. Full-image qualitative outputs still show smooth vegetation masses and some sky/far-canopy weakness, so it is a strong paper candidate but not a solved visual story.
+
+After the 01/02/03 gates were packaged, the live root `options.py` and `trainer.py` were restored to the shared baseline state for collaboration. Snapshot 04 later left the live root as the active temporal-cross-view method branch. Snapshot 05 superseded it, Snapshot 06 reused the same teacher-anchored implementation, and Snapshot 07 now supersedes that active branch with structure-aware teacher/sky-far code. Live root `options.py`, `trainer.py`, `render_teacher_structure_diagnostics.py`, and the visual comparison helper currently remain as the active Snapshot 07 method branch. The tested experimental code remains in each snapshot's `code/` folder for reproducibility or later reapplication.
 
 The `runs/` folder is ignored by Git because it can contain optimizer states, pose-network weights, and TensorBoard logs. The legacy B0 folder under `results/` remains tracked for existing references, but new compact evidence should live in the relevant snapshot or checkpoint-selection folder while bulky generated outputs stay under ignored `local_evidence/` or `local_results/`.
 
@@ -144,7 +170,7 @@ Pre-Snapshot07 hygiene audit:
 pre_snapshot07_repo_audit.md
 ```
 
-This note records the current active root-code state, local-evidence layout, ignored artifact policy, and verification steps before the next Levinson method attempt.
+This note records the pre-Snapshot07 active root-code state, local-evidence layout, ignored artifact policy, and verification steps before the Snapshot 07 method attempt. For the current root state, read `ACTIVE_ROOT_CODE_STATE.md`.
 
 Do not edit Marvel's folder from this workstream without explicit approval.
 

@@ -52,7 +52,7 @@ If a completed stage has no code changes, use a simple marker such as `code/NO_C
 
 Current collaboration note:
 
-After the 01/02/03 self-supervised gates were tested and packaged, the live root `options.py` and `trainer.py` were restored to the shared baseline state. Snapshot 04 then left the live root on the temporal-cross-view method branch. Snapshot 05 superseded that active branch, and Snapshot 06 reuses the same teacher-anchored implementation with a config-only stabilization. Live root `options.py`, `trainer.py`, the teacher diagnostic renderer, and the visual comparison helper remain on the teacher-anchored regularization branch, with tested copies and patch artifacts preserved under `levinson/snapshots/05_teacher_anchored_relative_structure_regularization/` and `levinson/snapshots/06_teacher_anchor_stabilization/`.
+After the 01/02/03 self-supervised gates were tested and packaged, the live root `options.py` and `trainer.py` were restored to the shared baseline state. Snapshot 04 then left the live root on the temporal-cross-view method branch. Snapshot 05 superseded that active branch, Snapshot 06 reused the same teacher-anchored implementation with a config-only stabilization, and Snapshot 07 now supersedes the active root workbench with structure-aware teacher/sky-far code. Live root `options.py`, `trainer.py`, the teacher diagnostic renderer, and the visual comparison helper remain on the Snapshot 07 structure-aware label-free branch, with tested copies and patch artifacts preserved under `levinson/snapshots/05_teacher_anchored_relative_structure_regularization/`, `levinson/snapshots/06_teacher_anchor_stabilization/`, and `levinson/snapshots/07_structure_aware_label_free_vegetation_depth/`.
 
 Large local generated evidence policy:
 
@@ -550,6 +550,75 @@ Selected checkpoints:
 
 Interpretation:
 
-Snapshot 05 `weights_19` is the strongest current Levinson label-free teacher-anchor checkpoint. It clearly improves B0 test median-scaled `abs_rel` (`0.4889` to `0.3947`) while keeping most of B0 test median-scaled `a1` (`0.6582` to `0.6476`). It gets close to original Lite-Mono test median-scaled `abs_rel=0.3836`, but does not beat it. Do not use test to choose a different checkpoint unless a new explicit selection protocol is defined.
+Snapshot 05 `weights_19` is the strongest pre-Snapshot07 Levinson label-free teacher-anchor checkpoint. It clearly improves B0 test median-scaled `abs_rel` (`0.4889` to `0.3947`) while keeping most of B0 test median-scaled `a1` (`0.6582` to `0.6476`). It gets close to original Lite-Mono test median-scaled `abs_rel=0.3836`, but does not beat it. Do not use test to choose a different checkpoint unless a new explicit selection protocol is defined.
 
 The 2026-05-19 visual packaging pass generated comparison panels against original Lite-Mono, B0, and Snapshot 05 `weights_29` on validation and test, plus plain selected-checkpoint RGB/depth/disparity outputs. Visual read: mixed but useful. `weights_19` should be the main Snapshot 05 paper-table checkpoint, while `weights_29` remains the final-epoch ablation/evidence point. No new training was run for this packaging step. The bulky generated visual package is intentionally snapshot-local and locally ignored.
+
+## Snapshot 07 Structure-Aware Label-Free Vegetation Depth
+
+Completed Snapshot 07:
+
+```text
+levinson/snapshots/07_structure_aware_label_free_vegetation_depth/
+```
+
+Method framing:
+
+```text
+Structure-Aware RGB-Teacher-Guided Label-Free Self-Supervised Vegetation Depth
+```
+
+Snapshot 07 is a method-level change, not a small Snapshot 05/06 weight tweak. It builds from the frozen RGB-only teacher-anchor code and adds two training-only label-free signals:
+
+- reliable-boundary teacher anchoring from RGB edge confidence multiplied by teacher disparity-edge confidence
+- RGB-only sky/far ordinal pseudo-structure from conservative color/brightness/saturation/top-image priors
+
+It targets the Snapshot 05 `weights_19` visual diagnosis: vegetation blobs, sky/far-canopy confusion, tree-ground boundary weakness, over-smoothing, and weak full-image qualitative depth. It did not use `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, ZED depth, or LiDAR-derived training masks/losses. Inference remains one RGB image into the student Lite-Mono depth network.
+
+Full run:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/structure_aware_label_free_vegetation_depth_b12_30ep_full/
+```
+
+Validation-selected checkpoint:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/structure_aware_label_free_vegetation_depth_b12_30ep_full/models/weights_25/
+```
+
+Checkpoint-selection and generated visual evidence:
+
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/07_structure_aware_label_free_vegetation_depth/local_evidence/
+```
+
+Pilot gate:
+
+| run | raw abs_rel | raw a1 | median-scaled abs_rel | median-scaled a1 |
+|---|---:|---:|---:|---:|
+| no-mask control, 250 steps | 0.9099 | 0.0000 | 0.5634 | 0.3577 |
+| Snapshot 07 pilot, 250 steps | 0.9044 | 0.0000 | 0.5497 | 0.3712 |
+
+The CUDA smoke and 250-step pilot had finite losses and non-trivial structure/sky maps, so the full run was justified.
+
+Selected-checkpoint comparison:
+
+| model | split | raw abs_rel | raw a1 | median-scaled abs_rel | median-scaled a1 |
+|---|---:|---:|---:|---:|---:|
+| original Lite-Mono | val | 0.7128 | 0.0195 | 0.4176 | 0.4629 |
+| B0 plain Citrus | val | 0.7736 | 0.0074 | 0.5100 | 0.6107 |
+| Snapshot 05 `weights_19` | val | 0.7389 | 0.0177 | 0.4447 | 0.5915 |
+| Snapshot 07 `weights_25` | val | 0.7265 | 0.0167 | 0.4344 | 0.5927 |
+| original Lite-Mono | test | 0.7273 | 0.0149 | 0.3836 | 0.4989 |
+| B0 plain Citrus | test | 0.7787 | 0.0077 | 0.4889 | 0.6582 |
+| Snapshot 05 `weights_19` | test | 0.7391 | 0.0144 | 0.3947 | 0.6476 |
+| Snapshot 07 `weights_25` | test | 0.7297 | 0.0130 | 0.3840 | 0.6539 |
+
+Conclusion:
+
+```text
+promising mixed / strongest Levinson label-free candidate so far
+```
+
+Snapshot 07 beats B0 and Snapshot 05 `weights_19` on test median-scaled `abs_rel`, improves test median-scaled `a1` over Snapshot 05 `weights_19`, and nearly matches original Lite-Mono on test median-scaled `abs_rel` while strongly beating original on `a1`. It still slightly trails B0 on test median-scaled `a1`, and qualitative full-image depth remains mixed with smooth vegetation masses and some sky/far-canopy weakness. Treat it as the current lead label-free paper candidate, not a visually solved final method.

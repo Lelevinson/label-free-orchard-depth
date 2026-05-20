@@ -2053,4 +2053,3 @@ class Trainer:
             self.model_pose_optimizer.load_state_dict(optimizer_pose_dict)
         else:
             print("Cannot find Adam weights so Adam is randomly initialized")
-

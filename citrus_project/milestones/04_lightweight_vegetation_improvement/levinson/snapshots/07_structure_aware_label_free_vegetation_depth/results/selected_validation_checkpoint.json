@@ -1,0 +1,21 @@
+{
+  "checkpoint": "weights_25",
+  "epoch": 25,
+  "split": "val",
+  "samples": 564,
+  "raw_abs_rel": 0.7264770000592952,
+  "raw_a1": 0.016715118031860574,
+  "median_scaled_abs_rel": 0.434417122997138,
+  "median_scaled_a1": 0.5926731886297187,
+  "median_scaled_a2": 0.8059387903203699,
+  "median_scaled_a3": 0.8911832841398033,
+  "median_scale_ratio": 3.137278899537738,
+  "model_forward_fps": 33.615858531593155,
+  "weights_folder": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\runs\\structure_aware_label_free_vegetation_depth_b12_30ep_full\\models\\weights_25",
+  "summary_json": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\checkpoint_selection\\validation\\weights_25\\val_lite-mono_full_summary.json",
+  "b0_val_a1": 0.6107277115285429,
+  "a1_margin": 0.02,
+  "a1_close_threshold": 0.5907277115285429,
+  "a1_close_passed": true,
+  "selection_rule": "lowest full-validation median_scaled_abs_rel among checkpoints with median_scaled_a1 >= B0_val_a1 - a1_margin; fallback to lowest abs_rel if no checkpoint qualifies"
+}

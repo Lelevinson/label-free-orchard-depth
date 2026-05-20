@@ -1,0 +1,540 @@
+{
+  "weights_folder": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\runs\\structure_aware_label_free_vegetation_depth_b12_30ep_full\\models\\weights_25",
+  "note": "Plain inference visualizations from Snapshot 07 weights_25. LiDAR labels and masks are included only as visual/evaluation references.",
+  "samples": [
+    {
+      "split": "val",
+      "index": 94,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-03_13_bag_1689715992942775736.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-33-03_13_bag_1689715992942775736.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-33-03_13_bag_1689715992942775736.npz",
+      "scale_ratio": 3.533895382840117,
+      "median_scaled_abs_rel": 0.14189277177540754,
+      "median_scaled_a1": 0.8909803316713185,
+      "roles": [
+        {
+          "comparison": "original_vs_weights19_val_full",
+          "role": "adapted_good",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\original_vs_weights19_val_full\\adapted_good_index_0094_comparison.png"
+        },
+        {
+          "comparison": "b0_vs_weights19_val_full",
+          "role": "adapted_good",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\b0_vs_weights19_val_full\\adapted_good_index_0094_comparison.png"
+        },
+        {
+          "comparison": "weights29_vs_weights19_val_full",
+          "role": "adapted_good",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\weights29_vs_weights19_val_full\\adapted_good_index_0094_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val\\index_0094_zed_2023-07-18-14-33-03_13_bag_1689715992942775736_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "val",
+      "index": 423,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-32_14_bag_1689716025857066744.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-33-32_14_bag_1689716025857066744.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-33-32_14_bag_1689716025857066744.npz",
+      "scale_ratio": 3.136253197030252,
+      "median_scaled_abs_rel": 0.32333256403351746,
+      "median_scaled_a1": 0.6976823809735893,
+      "roles": [
+        {
+          "comparison": "original_vs_weights19_val_full",
+          "role": "adapted_typical",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\original_vs_weights19_val_full\\adapted_typical_index_0423_comparison.png"
+        },
+        {
+          "comparison": "b0_vs_weights19_val_full",
+          "role": "adapted_typical",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\b0_vs_weights19_val_full\\adapted_typical_index_0423_comparison.png"
+        },
+        {
+          "comparison": "weights29_vs_weights19_val_full",
+          "role": "adapted_typical",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\weights29_vs_weights19_val_full\\adapted_typical_index_0423_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val\\index_0423_zed_2023-07-18-14-33-32_14_bag_1689716025857066744_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "val",
+      "index": 20,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-03_13_bag_1689715985544082520.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-33-03_13_bag_1689715985544082520.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-33-03_13_bag_1689715985544082520.npz",
+      "scale_ratio": 1.3242320196350397,
+      "median_scaled_abs_rel": 0.9866931172580528,
+      "median_scaled_a1": 0.0150169878430748,
+      "roles": [
+        {
+          "comparison": "original_vs_weights19_val_full",
+          "role": "adapted_bad",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\original_vs_weights19_val_full\\adapted_bad_index_0020_comparison.png"
+        },
+        {
+          "comparison": "b0_vs_weights19_val_full",
+          "role": "adapted_bad",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\b0_vs_weights19_val_full\\adapted_bad_index_0020_comparison.png"
+        },
+        {
+          "comparison": "weights29_vs_weights19_val_full",
+          "role": "adapted_bad",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\weights29_vs_weights19_val_full\\adapted_bad_index_0020_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val\\index_0020_zed_2023-07-18-14-33-03_13_bag_1689715985544082520_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "val",
+      "index": 394,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-32_14_bag_1689716022961365848.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-33-32_14_bag_1689716022961365848.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-33-32_14_bag_1689716022961365848.npz",
+      "scale_ratio": 2.283927864133086,
+      "median_scaled_abs_rel": 0.4947598720149976,
+      "median_scaled_a1": 0.10402180160038399,
+      "roles": [
+        {
+          "comparison": "original_vs_weights19_val_full",
+          "role": "largest_drop_vs_original",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\original_vs_weights19_val_full\\largest_drop_vs_original_index_0394_comparison.png"
+        },
+        {
+          "comparison": "original_vs_snapshot07_val_full",
+          "role": "largest_drop_vs_original",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\original_vs_snapshot07_val_full\\largest_drop_vs_original_index_0394_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val\\index_0394_zed_2023-07-18-14-33-32_14_bag_1689716022961365848_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "val",
+      "index": 196,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-03_13_bag_1689716003158423032.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-33-03_13_bag_1689716003158423032.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-33-03_13_bag_1689716003158423032.npz",
+      "scale_ratio": 2.7417866896313057,
+      "median_scaled_abs_rel": 0.4395215951437602,
+      "median_scaled_a1": 0.40562932559534504,
+      "roles": [
+        {
+          "comparison": "b0_vs_weights19_val_full",
+          "role": "largest_drop_vs_original",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\b0_vs_weights19_val_full\\largest_drop_vs_original_index_0196_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val\\index_0196_zed_2023-07-18-14-33-03_13_bag_1689716003158423032_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "val",
+      "index": 171,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-03_13_bag_1689716000656821048.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-33-03_13_bag_1689716000656821048.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-33-03_13_bag_1689716000656821048.npz",
+      "scale_ratio": 2.809393899885423,
+      "median_scaled_abs_rel": 0.4585143576182134,
+      "median_scaled_a1": 0.4622983102528268,
+      "roles": [
+        {
+          "comparison": "weights29_vs_weights19_val_full",
+          "role": "largest_drop_vs_original",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\weights29_vs_weights19_val_full\\largest_drop_vs_original_index_0171_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val\\index_0171_zed_2023-07-18-14-33-03_13_bag_1689716000656821048_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "val",
+      "index": 41,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-03_13_bag_1689715987639898168.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-33-03_13_bag_1689715987639898168.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-33-03_13_bag_1689715987639898168.npz",
+      "scale_ratio": 3.434565980229893,
+      "median_scaled_abs_rel": 0.10441196222366596,
+      "median_scaled_a1": 0.8922534531053801,
+      "roles": [
+        {
+          "comparison": "original_vs_snapshot07_val_full",
+          "role": "adapted_good",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\original_vs_snapshot07_val_full\\adapted_good_index_0041_comparison.png"
+        },
+        {
+          "comparison": "b0_vs_snapshot07_val_full",
+          "role": "adapted_good",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\b0_vs_snapshot07_val_full\\adapted_good_index_0041_comparison.png"
+        },
+        {
+          "comparison": "snapshot05w19_vs_snapshot07_val_full",
+          "role": "adapted_good",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\snapshot05w19_vs_snapshot07_val_full\\adapted_good_index_0041_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val\\index_0041_zed_2023-07-18-14-33-03_13_bag_1689715987639898168_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "val",
+      "index": 15,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-03_13_bag_1689715985042637368.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-33-03_13_bag_1689715985042637368.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-33-03_13_bag_1689715985042637368.npz",
+      "scale_ratio": 3.101603182343866,
+      "median_scaled_abs_rel": 0.5533330671412573,
+      "median_scaled_a1": 0.6917552796008992,
+      "roles": [
+        {
+          "comparison": "original_vs_snapshot07_val_full",
+          "role": "adapted_typical",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\original_vs_snapshot07_val_full\\adapted_typical_index_0015_comparison.png"
+        },
+        {
+          "comparison": "b0_vs_snapshot07_val_full",
+          "role": "adapted_typical",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\b0_vs_snapshot07_val_full\\adapted_typical_index_0015_comparison.png"
+        },
+        {
+          "comparison": "snapshot05w19_vs_snapshot07_val_full",
+          "role": "adapted_typical",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\snapshot05w19_vs_snapshot07_val_full\\adapted_typical_index_0015_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val\\index_0015_zed_2023-07-18-14-33-03_13_bag_1689715985042637368_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "val",
+      "index": 21,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-03_13_bag_1689715985642801144.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-33-03_13_bag_1689715985642801144.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-33-03_13_bag_1689715985642801144.npz",
+      "scale_ratio": 1.4663725947290127,
+      "median_scaled_abs_rel": 0.926994660954499,
+      "median_scaled_a1": 0.01025483449433232,
+      "roles": [
+        {
+          "comparison": "original_vs_snapshot07_val_full",
+          "role": "adapted_bad",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\original_vs_snapshot07_val_full\\adapted_bad_index_0021_comparison.png"
+        },
+        {
+          "comparison": "b0_vs_snapshot07_val_full",
+          "role": "adapted_bad",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\b0_vs_snapshot07_val_full\\adapted_bad_index_0021_comparison.png"
+        },
+        {
+          "comparison": "snapshot05w19_vs_snapshot07_val_full",
+          "role": "adapted_bad",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\snapshot05w19_vs_snapshot07_val_full\\adapted_bad_index_0021_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val\\index_0021_zed_2023-07-18-14-33-03_13_bag_1689715985642801144_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "val",
+      "index": 431,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-32_14_bag_1689716026651968152.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-33-32_14_bag_1689716026651968152.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-33-32_14_bag_1689716026651968152.npz",
+      "scale_ratio": 2.6336304200499714,
+      "median_scaled_abs_rel": 0.3928435787120121,
+      "median_scaled_a1": 0.48343913607897404,
+      "roles": [
+        {
+          "comparison": "b0_vs_snapshot07_val_full",
+          "role": "largest_drop_vs_original",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\b0_vs_snapshot07_val_full\\largest_drop_vs_original_index_0431_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val\\index_0431_zed_2023-07-18-14-33-32_14_bag_1689716026651968152_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "val",
+      "index": 344,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-33-32_14_bag_1689716017962465464.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-33-32_14_bag_1689716017962465464.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-33-32_14_bag_1689716017962465464.npz",
+      "scale_ratio": 2.5230838020288253,
+      "median_scaled_abs_rel": 0.688562272885539,
+      "median_scaled_a1": 0.2590196019962536,
+      "roles": [
+        {
+          "comparison": "snapshot05w19_vs_snapshot07_val_full",
+          "role": "largest_drop_vs_original",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\snapshot05w19_vs_snapshot07_val_full\\largest_drop_vs_original_index_0344_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\val\\index_0344_zed_2023-07-18-14-33-32_14_bag_1689716017962465464_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "test",
+      "index": 310,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-28-44_4_bag_1689715743458188952.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-28-44_4_bag_1689715743458188952.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-28-44_4_bag_1689715743458188952.npz",
+      "scale_ratio": 3.503742564804858,
+      "median_scaled_abs_rel": 0.20108128680270723,
+      "median_scaled_a1": 0.8622687110737371,
+      "roles": [
+        {
+          "comparison": "original_vs_weights19_test_full",
+          "role": "adapted_good",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\original_vs_weights19_test_full\\adapted_good_index_0310_comparison.png"
+        },
+        {
+          "comparison": "b0_vs_weights19_test_full",
+          "role": "adapted_good",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\b0_vs_weights19_test_full\\adapted_good_index_0310_comparison.png"
+        },
+        {
+          "comparison": "weights29_vs_weights19_test_full",
+          "role": "adapted_good",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\weights29_vs_weights19_test_full\\adapted_good_index_0310_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test\\index_0310_zed_2023-07-18-14-28-44_4_bag_1689715743458188952_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "test",
+      "index": 325,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-28-44_4_bag_1689715744953971384.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-28-44_4_bag_1689715744953971384.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-28-44_4_bag_1689715744953971384.npz",
+      "scale_ratio": 3.714072960914462,
+      "median_scaled_abs_rel": 0.8795290037283505,
+      "median_scaled_a1": 0.7697906964483419,
+      "roles": [
+        {
+          "comparison": "original_vs_weights19_test_full",
+          "role": "adapted_typical",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\original_vs_weights19_test_full\\adapted_typical_index_0325_comparison.png"
+        },
+        {
+          "comparison": "b0_vs_weights19_test_full",
+          "role": "adapted_typical",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\b0_vs_weights19_test_full\\adapted_typical_index_0325_comparison.png"
+        },
+        {
+          "comparison": "weights29_vs_weights19_test_full",
+          "role": "adapted_typical",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\weights29_vs_weights19_test_full\\adapted_typical_index_0325_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test\\index_0325_zed_2023-07-18-14-28-44_4_bag_1689715744953971384_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "test",
+      "index": 394,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-28-44_4_bag_1689715751851817592.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-28-44_4_bag_1689715751851817592.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-28-44_4_bag_1689715751851817592.npz",
+      "scale_ratio": 1.4834356214283204,
+      "median_scaled_abs_rel": 1.0178911761996334,
+      "median_scaled_a1": 0.0022475953570740854,
+      "roles": [
+        {
+          "comparison": "original_vs_weights19_test_full",
+          "role": "adapted_bad",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\original_vs_weights19_test_full\\adapted_bad_index_0394_comparison.png"
+        },
+        {
+          "comparison": "b0_vs_weights19_test_full",
+          "role": "adapted_bad",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\b0_vs_weights19_test_full\\adapted_bad_index_0394_comparison.png"
+        },
+        {
+          "comparison": "weights29_vs_weights19_test_full",
+          "role": "adapted_bad",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\weights29_vs_weights19_test_full\\adapted_bad_index_0394_comparison.png"
+        },
+        {
+          "comparison": "original_vs_snapshot07_test_full",
+          "role": "adapted_bad",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\original_vs_snapshot07_test_full\\adapted_bad_index_0394_comparison.png"
+        },
+        {
+          "comparison": "b0_vs_snapshot07_test_full",
+          "role": "adapted_bad",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\b0_vs_snapshot07_test_full\\adapted_bad_index_0394_comparison.png"
+        },
+        {
+          "comparison": "snapshot05w19_vs_snapshot07_test_full",
+          "role": "adapted_bad",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\snapshot05w19_vs_snapshot07_test_full\\adapted_bad_index_0394_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test\\index_0394_zed_2023-07-18-14-28-44_4_bag_1689715751851817592_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "test",
+      "index": 368,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-28-44_4_bag_1689715749256633592.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-28-44_4_bag_1689715749256633592.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-28-44_4_bag_1689715749256633592.npz",
+      "scale_ratio": 2.0224304948022973,
+      "median_scaled_abs_rel": 0.87981505335177,
+      "median_scaled_a1": 0.11497655811295301,
+      "roles": [
+        {
+          "comparison": "original_vs_weights19_test_full",
+          "role": "largest_drop_vs_original",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\original_vs_weights19_test_full\\largest_drop_vs_original_index_0368_comparison.png"
+        },
+        {
+          "comparison": "original_vs_snapshot07_test_full",
+          "role": "largest_drop_vs_original",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\original_vs_snapshot07_test_full\\largest_drop_vs_original_index_0368_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test\\index_0368_zed_2023-07-18-14-28-44_4_bag_1689715749256633592_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "test",
+      "index": 239,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-31-37_10_bag_1689715922348834008.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-31-37_10_bag_1689715922348834008.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-31-37_10_bag_1689715922348834008.npz",
+      "scale_ratio": 2.863667439174591,
+      "median_scaled_abs_rel": 0.2857399480654502,
+      "median_scaled_a1": 0.6454103752649075,
+      "roles": [
+        {
+          "comparison": "b0_vs_weights19_test_full",
+          "role": "largest_drop_vs_original",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\b0_vs_weights19_test_full\\largest_drop_vs_original_index_0239_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test\\index_0239_zed_2023-07-18-14-31-37_10_bag_1689715922348834008_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "test",
+      "index": 39,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-29-41_6_bag_1689715803837485176.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-29-41_6_bag_1689715803837485176.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-29-41_6_bag_1689715803837485176.npz",
+      "scale_ratio": 2.845294871212953,
+      "median_scaled_abs_rel": 0.4044908133686577,
+      "median_scaled_a1": 0.4974321731910031,
+      "roles": [
+        {
+          "comparison": "weights29_vs_weights19_test_full",
+          "role": "largest_drop_vs_original",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\results\\teacher_structure_regularization_b12_30ep_selected_weights19_visuals\\comparison_panels\\weights29_vs_weights19_test_full\\largest_drop_vs_original_index_0039_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test\\index_0039_zed_2023-07-18-14-29-41_6_bag_1689715803837485176_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "test",
+      "index": 407,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-28-44_4_bag_1689715753147296952.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-28-44_4_bag_1689715753147296952.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-28-44_4_bag_1689715753147296952.npz",
+      "scale_ratio": 3.5246437194401756,
+      "median_scaled_abs_rel": 0.1423747461375887,
+      "median_scaled_a1": 0.8734141708564164,
+      "roles": [
+        {
+          "comparison": "original_vs_snapshot07_test_full",
+          "role": "adapted_good",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\original_vs_snapshot07_test_full\\adapted_good_index_0407_comparison.png"
+        },
+        {
+          "comparison": "b0_vs_snapshot07_test_full",
+          "role": "adapted_good",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\b0_vs_snapshot07_test_full\\adapted_good_index_0407_comparison.png"
+        },
+        {
+          "comparison": "snapshot05w19_vs_snapshot07_test_full",
+          "role": "adapted_good",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\snapshot05w19_vs_snapshot07_test_full\\adapted_good_index_0407_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test\\index_0407_zed_2023-07-18-14-28-44_4_bag_1689715753147296952_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "test",
+      "index": 379,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-28-44_4_bag_1689715750355024120.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-28-44_4_bag_1689715750355024120.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-28-44_4_bag_1689715750355024120.npz",
+      "scale_ratio": 3.111700046358589,
+      "median_scaled_abs_rel": 0.3784566476228069,
+      "median_scaled_a1": 0.7719233308040149,
+      "roles": [
+        {
+          "comparison": "original_vs_snapshot07_test_full",
+          "role": "adapted_typical",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\original_vs_snapshot07_test_full\\adapted_typical_index_0379_comparison.png"
+        },
+        {
+          "comparison": "b0_vs_snapshot07_test_full",
+          "role": "adapted_typical",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\b0_vs_snapshot07_test_full\\adapted_typical_index_0379_comparison.png"
+        },
+        {
+          "comparison": "snapshot05w19_vs_snapshot07_test_full",
+          "role": "adapted_typical",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\snapshot05w19_vs_snapshot07_test_full\\adapted_typical_index_0379_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test\\index_0379_zed_2023-07-18-14-28-44_4_bag_1689715750355024120_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "test",
+      "index": 332,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-28-44_4_bag_1689715745650549176.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-28-44_4_bag_1689715745650549176.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-28-44_4_bag_1689715745650549176.npz",
+      "scale_ratio": 3.752666557648912,
+      "median_scaled_abs_rel": 0.2061483110551265,
+      "median_scaled_a1": 0.7423194735946452,
+      "roles": [
+        {
+          "comparison": "b0_vs_snapshot07_test_full",
+          "role": "largest_drop_vs_original",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\b0_vs_snapshot07_test_full\\largest_drop_vs_original_index_0332_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test\\index_0332_zed_2023-07-18-14-28-44_4_bag_1689715745650549176_snapshot07_weights25_plain_inference_panel.png"
+    },
+    {
+      "split": "test",
+      "index": 106,
+      "rgb_rel": "extracted_rgbd/zed2i_zed_node_left_image_rect_color/zed_2023-07-18-14-29-41_6_bag_1689715810545294296.png",
+      "dense_rel": "prepared_training_dataset/dense_lidar_npz/zed_2023-07-18-14-29-41_6_bag_1689715810545294296.npz",
+      "valid_mask_rel": "prepared_training_dataset/dense_lidar_valid_mask_npz/zed_2023-07-18-14-29-41_6_bag_1689715810545294296.npz",
+      "scale_ratio": 2.564819584328741,
+      "median_scaled_abs_rel": 0.705485999564158,
+      "median_scaled_a1": 0.21385966147024668,
+      "roles": [
+        {
+          "comparison": "snapshot05w19_vs_snapshot07_test_full",
+          "role": "largest_drop_vs_original",
+          "panel_path": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\comparison_panels\\snapshot05w19_vs_snapshot07_test_full\\largest_drop_vs_original_index_0106_comparison.png"
+        }
+      ],
+      "output_dir": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test",
+      "panel": "D:\\IBPI\\Image Proc-AI Assisted-SP1\\Lite-Mono\\citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\07_structure_aware_label_free_vegetation_depth\\local_evidence\\visuals\\plain_inference_depth_outputs\\test\\index_0106_zed_2023-07-18-14-29-41_6_bag_1689715810545294296_snapshot07_weights25_plain_inference_panel.png"
+    }
+  ]
+}

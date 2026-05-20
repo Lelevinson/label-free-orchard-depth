@@ -1,6 +1,6 @@
 # Active Root Code State
 
-Date: 2026-05-19
+Date: 2026-05-20
 
 This note exists to prevent future Milestone 4 chats from confusing the live repo-root training code with frozen snapshot copies.
 
@@ -14,16 +14,16 @@ Every completed Levinson snapshot that changes tested Python code must copy the 
 
 ## Current Root State
 
-After commit `84df36b`, root `trainer.py` and `options.py` are still the active Snapshot 05/06 teacher-anchor branch. They are not restored to the original Lite-Mono baseline and not restored to the shared Milestone 2/3 baseline trainer state.
+After Snapshot 07 packaging, root `trainer.py` and `options.py` are the active Snapshot 07 structure-aware teacher-anchor workbench. They are not restored to the original Lite-Mono baseline and not restored to the shared Milestone 2/3 baseline trainer state.
 
 The active root code is what `train.py` imports and runs by default.
 
 This means:
 
-- root `options.py` exposes Snapshot 04 temporal/feature flags and Snapshot 05/06 teacher-anchor flags;
-- root `trainer.py` contains Snapshot 04 temporal cross-view utilities and Snapshot 05/06 teacher-anchor regularization code;
+- root `options.py` exposes Snapshot 04 temporal/feature flags, Snapshot 05/06 teacher-anchor flags, and Snapshot 07 structure-aware teacher/sky-far flags;
+- root `trainer.py` contains Snapshot 04 temporal cross-view utilities, Snapshot 05/06 teacher-anchor regularization code, and Snapshot 07 reliable-boundary plus RGB-only sky/far pseudo-structure code;
 - all new method flags remain disabled by default, so plain runs still require explicit flags;
-- Snapshot 05/06 teacher-anchor behavior is available from root when the relevant flags are enabled.
+- Snapshot 05/06 teacher-anchor behavior and Snapshot 07 structure-aware behavior are available from root when the relevant flags are enabled.
 
 ## Snapshot Copies Are Archival
 
@@ -73,17 +73,35 @@ citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/render_
 
 Snapshot 06 is a configuration-only stabilization of Snapshot 05, so it does not have additional implementation files beyond the active Snapshot 05 teacher-anchor code.
 
-## Why This Is Okay Before Snapshot 07
+Snapshot 07 code folder:
 
-The active root workbench is a valid starting point as long as Snapshot 07 deliberately inspects it first.
+```text
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/07_structure_aware_label_free_vegetation_depth/code/
+```
 
-Before implementing Snapshot 07, future Codex should decide whether to:
+Contains:
 
-1. build from the active teacher-anchor code;
+```text
+options.py
+trainer.py
+render_teacher_structure_diagnostics.py
+render_selected_checkpoint_inference_visuals.py
+run_snapshot07_checkpoint_selection.py
+```
+
+Snapshot 07 builds from the active Snapshot 05/06 teacher-anchor implementation and adds reliable-boundary teacher weighting plus an RGB-only sky/far ordinal pseudo-structure loss.
+
+## Why This Matters After Snapshot 07
+
+The active root workbench is a valid starting point as long as future methods deliberately inspect it first.
+
+Before implementing Snapshot 08 or any other future Levinson method, future Codex should decide whether to:
+
+1. build from the active Snapshot 07 structure-aware teacher-anchor code;
 2. restore the shared baseline trainer/options first; or
 3. copy a specific snapshot archival version into root intentionally.
 
-Any choice is acceptable only if it is documented in the Snapshot 07 README or design note before training.
+Any choice is acceptable only if it is documented in the next snapshot README or design note before training.
 
 ## Why This Is Dangerous If Undocumented
 
@@ -92,6 +110,7 @@ It is dangerous to leave this implicit because future agents may assume root `tr
 If that mistake happens, a future run might:
 
 - unknowingly inherit teacher-anchor or temporal-consistency implementation code;
+- unknowingly inherit Snapshot 07 structure-aware teacher/sky-far code;
 - compare against the wrong control;
 - fail to copy changed code into the new snapshot;
 - mislabel a run as baseline or pure self-supervised-from-scratch.
@@ -105,7 +124,7 @@ Before any new Levinson method edits or training:
 3. read `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/README.md`;
 4. read the relevant snapshot README(s);
 5. inspect root `trainer.py` and `options.py`;
-6. document whether Snapshot 07 starts from active teacher-anchor root code or a restored baseline.
+6. document whether the new method starts from active Snapshot 07 root code, a restored baseline, or a copied archival snapshot.
 
 Going forward:
 

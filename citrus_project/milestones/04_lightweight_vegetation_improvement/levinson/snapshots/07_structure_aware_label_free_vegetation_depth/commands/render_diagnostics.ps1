@@ -1,0 +1,5 @@
+D:/Conda_Envs/lite-mono/python.exe citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/render_teacher_structure_diagnostics.py `
+  --run_dir citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/structure_aware_label_free_vegetation_depth_b12_30ep_full `
+  --weights_folder citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/structure_aware_label_free_vegetation_depth_b12_30ep_full/models/weights_25 `
+  --output_dir citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/07_structure_aware_label_free_vegetation_depth/local_evidence/visuals/structure_diagnostic_maps `
+  --sample_indices 41 15 21 394

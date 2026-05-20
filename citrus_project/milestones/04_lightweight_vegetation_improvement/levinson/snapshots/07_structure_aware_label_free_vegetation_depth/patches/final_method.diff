@@ -1,0 +1,545 @@
+diff --git a/citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/teacher_anchor_snapshot05_06/scripts/render_selected_checkpoint_inference_visuals.py b/citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/teacher_anchor_snapshot05_06/scripts/render_selected_checkpoint_inference_visuals.py
+index f358663..1a50e29 100644
+--- a/citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/teacher_anchor_snapshot05_06/scripts/render_selected_checkpoint_inference_visuals.py
++++ b/citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/teacher_anchor_snapshot05_06/scripts/render_selected_checkpoint_inference_visuals.py
+@@ -168,6 +168,7 @@ def render_panel(
+     scaled_depth: np.ndarray,
+     scaled_disp: np.ndarray,
+     title: str,
++    display_label: str,
+ ) -> None:
+     eval_mask = (valid_mask > 0) & np.isfinite(dense) & (dense > 0)
+     label_display = np.where(eval_mask, dense, np.nan)
+@@ -195,16 +196,16 @@ def render_panel(
+     axes[0, 0].imshow(rgb)
+     axes[0, 0].set_title("RGB input")
+     im = axes[0, 1].imshow(raw_depth, cmap="magma_r", vmin=depth_vmin, vmax=depth_vmax)
+-    axes[0, 1].set_title("weights_19 raw predicted depth")
++    axes[0, 1].set_title(f"{display_label} raw predicted depth")
+     fig.colorbar(im, ax=axes[0, 1], fraction=0.046, pad=0.04)
+     im = axes[0, 2].imshow(
+         scaled_depth, cmap="magma_r", vmin=depth_vmin, vmax=depth_vmax
+     )
+-    axes[0, 2].set_title("weights_19 median-scaled depth")
++    axes[0, 2].set_title(f"{display_label} median-scaled depth")
+     fig.colorbar(im, ax=axes[0, 2], fraction=0.046, pad=0.04)
+
+     im = axes[1, 0].imshow(scaled_disp, cmap="magma", vmin=disp_vmin, vmax=disp_vmax)
+-    axes[1, 0].set_title("weights_19 predicted disparity")
++    axes[1, 0].set_title(f"{display_label} predicted disparity")
+     fig.colorbar(im, ax=axes[1, 0], fraction=0.046, pad=0.04)
+     im = axes[1, 1].imshow(label_display, cmap="magma_r", vmin=depth_vmin, vmax=depth_vmax)
+     axes[1, 1].set_title("LiDAR depth label (visual reference)")
+@@ -220,7 +221,12 @@ def render_panel(
+
+
+ def render_split(args: argparse.Namespace, split: str) -> List[Dict[str, object]]:
+-    per_sample_csv = args.per_sample_csv_template.format(split=split)
++    if split == "val" and args.val_per_sample_csv is not None:
++        per_sample_csv = str(args.val_per_sample_csv)
++    elif split == "test" and args.test_per_sample_csv is not None:
++        per_sample_csv = str(args.test_per_sample_csv)
++    else:
++        per_sample_csv = args.per_sample_csv_template.format(split=split)
+     comparison_paths = [
+         Path(str(path).format(split=split)).resolve()
+         for path in args.comparison_summary
+@@ -293,7 +299,7 @@ def render_split(args: argparse.Namespace, split: str) -> List[Dict[str, object]
+         )
+         render_panel(
+             output_path=sample_prefix.with_name(
+-                sample_prefix.name + "_weights19_plain_inference_panel.png"
++                sample_prefix.name + f"_{args.file_label}_plain_inference_panel.png"
+             ),
+             rgb_path=rgb_path,
+             dense=dense,
+@@ -302,6 +308,7 @@ def render_split(args: argparse.Namespace, split: str) -> List[Dict[str, object]
+             scaled_depth=scaled_depth,
+             scaled_disp=scaled_disp,
+             title=title,
++            display_label=args.display_label,
+         )
+
+         summary = {
+@@ -317,7 +324,7 @@ def render_split(args: argparse.Namespace, split: str) -> List[Dict[str, object]
+             "output_dir": str(output_root),
+             "panel": str(
+                 sample_prefix.with_name(
+-                    sample_prefix.name + "_weights19_plain_inference_panel.png"
++                    sample_prefix.name + f"_{args.file_label}_plain_inference_panel.png"
+                 )
+             ),
+         }
+@@ -394,6 +401,8 @@ def parse_args() -> argparse.Namespace:
+             "overridden internally for validation because its folder is named validation/."
+         ),
+     )
++    parser.add_argument("--val_per_sample_csv", type=Path)
++    parser.add_argument("--test_per_sample_csv", type=Path)
+     parser.add_argument(
+         "--comparison_summary",
+         type=Path,
+@@ -413,8 +422,16 @@ def parse_args() -> argparse.Namespace:
+             / "original_vs_adapted_selection_summary.csv",
+         ],
+     )
++    parser.add_argument(
++        "--respect_per_sample_template",
++        action="store_true",
++        help="use --per_sample_csv_template as provided instead of replacing it "
++             "with the built-in Snapshot 05 selected-checkpoint paths",
++    )
+     parser.add_argument("--splits", nargs="+", default=["val", "test"], choices=["val", "test"])
+     parser.add_argument("--model", default="lite-mono")
++    parser.add_argument("--display_label", default="Snapshot 05 weights_19")
++    parser.add_argument("--file_label", default="weights19")
+     parser.add_argument("--no_cuda", action="store_true")
+     parser.add_argument("--min_depth", type=float, default=0.1)
+     parser.add_argument("--max_depth", type=float, default=100.0)
+@@ -435,7 +452,9 @@ def main() -> None:
+         / "local_results"
+     )
+     for split in args.splits:
+-        if split == "val":
++        if args.respect_per_sample_template:
++            pass
++        elif split == "val":
+             args.per_sample_csv_template = str(
+                 checkpoint_selection_root
+                 / "validation"
+@@ -460,7 +479,7 @@ def main() -> None:
+             {
+                 "weights_folder": str(args.weights_folder.resolve()),
+                 "note": (
+-                    "Plain inference visualizations from Snapshot 05 selected weights_19. "
++                    f"Plain inference visualizations from {args.display_label}. "
+                     "LiDAR labels and masks are included only as visual/evaluation references."
+                 ),
+                 "samples": all_rows,
+diff --git a/citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/render_teacher_structure_diagnostics.py b/citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/render_teacher_structure_diagnostics.py
+index fa5867a..a4f19e1 100644
+--- a/citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/render_teacher_structure_diagnostics.py
++++ b/citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/render_teacher_structure_diagnostics.py
+@@ -99,6 +99,11 @@ def save_sample_maps(output_dir: Path, sample_number: int, dataset_index: int,
+         (("teacher_structure_diff", 0), "student_teacher_structure_diff_gray.png"),
+         (("teacher_gradient_error", 0), "teacher_gradient_error_gray.png"),
+         (("teacher_confidence", 0), "teacher_confidence_gray.png"),
++        (("structure_rgb_edge", 0), "structure_rgb_edge_gray.png"),
++        (("structure_teacher_edge", 0), "structure_teacher_edge_gray.png"),
++        (("structure_boundary_reliability", 0), "structure_boundary_reliability_gray.png"),
++        (("structure_sky_confidence", 0), "structure_sky_confidence_gray.png"),
++        (("structure_lower_reference", 0), "structure_lower_reference_gray.png"),
+         (("texture_ambiguity", 0), "texture_ambiguity_gray.png"),
+         (("photo_error", 0), "photo_error_gray.png"),
+     ]
+@@ -111,7 +116,7 @@ def save_sample_maps(output_dir: Path, sample_number: int, dataset_index: int,
+
+ def parse_args() -> argparse.Namespace:
+     parser = argparse.ArgumentParser(
+-        description="Render teacher-anchored structure diagnostic maps for Snapshot 05.")
++        description="Render teacher-anchored and structure-aware diagnostic maps.")
+     parser.add_argument("--run_dir", type=Path, required=True)
+     parser.add_argument("--weights_folder", type=Path, required=True)
+     parser.add_argument("--output_dir", type=Path, required=True)
+diff --git a/options.py b/options.py
+index 4cdd17e..e7b6445 100644
+--- a/options.py
++++ b/options.py
+@@ -309,6 +309,82 @@ class LiteMonoOptions:
+                                  help="folder containing frozen RGB teacher encoder.pth and "
+                                       "depth.pth weights",
+                                  default="weights/lite-mono")
++        self.parser.add_argument("--structure_aware_teacher",
++                                 help="if set, uses RGB/teacher boundary reliability maps to "
++                                      "focus teacher structure losses near likely depth edges",
++                                 action="store_true")
++        self.parser.add_argument("--structure_edge_boost_weight",
++                                 type=float,
++                                 help="maximum multiplicative teacher-loss boost added at "
++                                      "RGB/teacher-agreeing boundaries",
++                                 default=0.75)
++        self.parser.add_argument("--structure_rgb_edge_threshold",
++                                 type=float,
++                                 help="RGB gradient magnitude where boundary reliability starts",
++                                 default=0.04)
++        self.parser.add_argument("--structure_rgb_edge_ramp",
++                                 type=float,
++                                 help="RGB gradient range used to ramp boundary reliability to 1",
++                                 default=0.12)
++        self.parser.add_argument("--structure_teacher_edge_threshold",
++                                 type=float,
++                                 help="teacher normalized-structure gradient where boundary "
++                                      "reliability starts",
++                                 default=0.04)
++        self.parser.add_argument("--structure_teacher_edge_ramp",
++                                 type=float,
++                                 help="teacher normalized-structure gradient range used to ramp "
++                                      "boundary reliability to 1",
++                                 default=0.12)
++        self.parser.add_argument("--structure_edge_dilation",
++                                 type=int,
++                                 help="odd max-pool window for widening reliable boundary maps",
++                                 default=5)
++        self.parser.add_argument("--sky_far_structure_loss",
++                                 help="if set, adds an RGB-only sky/far ordinal prior that "
++                                      "encourages confident sky-like pixels to be farther than "
++                                      "lower-scene reference pixels",
++                                 action="store_true")
++        self.parser.add_argument("--sky_far_weight",
++                                 type=float,
++                                 help="weight for the RGB-only sky/far ordinal prior",
++                                 default=0.01)
++        self.parser.add_argument("--sky_far_margin",
++                                 type=float,
++                                 help="required normalized inverse-depth separation between "
++                                      "lower-scene pixels and sky-like pixels",
++                                 default=0.35)
++        self.parser.add_argument("--sky_top_fraction",
++                                 type=float,
++                                 help="image-height fraction over which the sky position prior "
++                                      "can be active",
++                                 default=0.65)
++        self.parser.add_argument("--sky_lower_reference_start",
++                                 type=float,
++                                 help="vertical image fraction where lower-scene reference "
++                                      "pixels begin for the sky/far ordinal prior",
++                                 default=0.55)
++        self.parser.add_argument("--sky_blue_margin",
++                                 type=float,
++                                 help="minimum blue-channel dominance used by the soft sky cue",
++                                 default=0.03)
++        self.parser.add_argument("--sky_confidence_temperature",
++                                 type=float,
++                                 help="temperature for soft sky color/brightness gates",
++                                 default=0.08)
++        self.parser.add_argument("--sky_min_brightness",
++                                 type=float,
++                                 help="minimum RGB brightness encouraged by the sky cue",
++                                 default=0.25)
++        self.parser.add_argument("--sky_min_saturation",
++                                 type=float,
++                                 help="minimum RGB saturation encouraged by the sky cue",
++                                 default=0.05)
++        self.parser.add_argument("--sky_min_ratio",
++                                 type=float,
++                                 help="minimum mean soft sky and lower-reference weights needed "
++                                      "for an image to contribute to the sky/far loss",
++                                 default=0.01)
+         self.parser.add_argument("--no_ssim",
+                                  help="if set, disables ssim in the loss",
+                                  action="store_true")
+diff --git a/trainer.py b/trainer.py
+index 8a216a2..de3b655 100644
+--- a/trainer.py
++++ b/trainer.py
+@@ -275,6 +275,40 @@ class Trainer:
+             self.opt.teacher_texture_ambiguity_emphasis = False
+         if not hasattr(self.opt, "teacher_path"):
+             self.opt.teacher_path = os.path.join("weights", "lite-mono")
++        if not hasattr(self.opt, "structure_aware_teacher"):
++            self.opt.structure_aware_teacher = False
++        if not hasattr(self.opt, "structure_edge_boost_weight"):
++            self.opt.structure_edge_boost_weight = 0.75
++        if not hasattr(self.opt, "structure_rgb_edge_threshold"):
++            self.opt.structure_rgb_edge_threshold = 0.04
++        if not hasattr(self.opt, "structure_rgb_edge_ramp"):
++            self.opt.structure_rgb_edge_ramp = 0.12
++        if not hasattr(self.opt, "structure_teacher_edge_threshold"):
++            self.opt.structure_teacher_edge_threshold = 0.04
++        if not hasattr(self.opt, "structure_teacher_edge_ramp"):
++            self.opt.structure_teacher_edge_ramp = 0.12
++        if not hasattr(self.opt, "structure_edge_dilation"):
++            self.opt.structure_edge_dilation = 5
++        if not hasattr(self.opt, "sky_far_structure_loss"):
++            self.opt.sky_far_structure_loss = False
++        if not hasattr(self.opt, "sky_far_weight"):
++            self.opt.sky_far_weight = 0.01
++        if not hasattr(self.opt, "sky_far_margin"):
++            self.opt.sky_far_margin = 0.35
++        if not hasattr(self.opt, "sky_top_fraction"):
++            self.opt.sky_top_fraction = 0.65
++        if not hasattr(self.opt, "sky_lower_reference_start"):
++            self.opt.sky_lower_reference_start = 0.55
++        if not hasattr(self.opt, "sky_blue_margin"):
++            self.opt.sky_blue_margin = 0.03
++        if not hasattr(self.opt, "sky_confidence_temperature"):
++            self.opt.sky_confidence_temperature = 0.08
++        if not hasattr(self.opt, "sky_min_brightness"):
++            self.opt.sky_min_brightness = 0.25
++        if not hasattr(self.opt, "sky_min_saturation"):
++            self.opt.sky_min_saturation = 0.05
++        if not hasattr(self.opt, "sky_min_ratio"):
++            self.opt.sky_min_ratio = 0.01
+         if self.opt.max_train_steps < 0:
+             raise ValueError(
+                 "--max_train_steps must be non-negative; "
+@@ -352,6 +386,41 @@ class Trainer:
+             raise ValueError("--teacher_rank_samples must be at least 1")
+         if self.opt.teacher_confidence_threshold <= 0.0:
+             raise ValueError("--teacher_confidence_threshold must be greater than 0")
++        if self.opt.structure_edge_boost_weight < 0.0:
++            raise ValueError("--structure_edge_boost_weight must be non-negative")
++        if self.opt.structure_rgb_edge_threshold < 0.0:
++            raise ValueError("--structure_rgb_edge_threshold must be non-negative")
++        if self.opt.structure_rgb_edge_ramp <= 0.0:
++            raise ValueError("--structure_rgb_edge_ramp must be greater than 0")
++        if self.opt.structure_teacher_edge_threshold < 0.0:
++            raise ValueError("--structure_teacher_edge_threshold must be non-negative")
++        if self.opt.structure_teacher_edge_ramp <= 0.0:
++            raise ValueError("--structure_teacher_edge_ramp must be greater than 0")
++        if self.opt.structure_edge_dilation < 1:
++            raise ValueError("--structure_edge_dilation must be at least 1")
++        if self.opt.structure_edge_dilation % 2 == 0:
++            raise ValueError("--structure_edge_dilation must be odd")
++        if self.opt.sky_far_weight < 0.0:
++            raise ValueError("--sky_far_weight must be non-negative")
++        if self.opt.sky_far_margin < 0.0:
++            raise ValueError("--sky_far_margin must be non-negative")
++        if not 0.0 < self.opt.sky_top_fraction <= 1.0:
++            raise ValueError("--sky_top_fraction must be in (0, 1]")
++        if not 0.0 <= self.opt.sky_lower_reference_start < 1.0:
++            raise ValueError("--sky_lower_reference_start must be in [0, 1)")
++        if self.opt.sky_confidence_temperature <= 0.0:
++            raise ValueError("--sky_confidence_temperature must be greater than 0")
++        if self.opt.sky_min_ratio < 0.0:
++            raise ValueError("--sky_min_ratio must be non-negative")
++        if (self.opt.structure_aware_teacher or self.opt.sky_far_structure_loss) and not (
++            self.opt.teacher_structure_regularization
++            or self.opt.teacher_gradient_loss
++            or self.opt.teacher_ranking_loss
++        ):
++            raise ValueError(
++                "--structure_aware_teacher and --sky_far_structure_loss extend "
++                "the teacher-anchor method; enable at least one teacher "
++                "structure, gradient, or ranking loss.")
+         if self.teacher_structure_enabled() and self.opt.pose_model_type == "shared":
+             raise ValueError(
+                 "Teacher-anchored regularization is tested with the separate "
+@@ -977,7 +1046,7 @@ class Trainer:
+
+             if self.teacher_structure_enabled() and scale == 0:
+                 teacher_loss = self.compute_teacher_structure_losses(
+-                    outputs, losses, scale, ambiguity_map)
++                    outputs, losses, scale, ambiguity_map, target)
+                 loss += teacher_loss
+
+             if self.opt.temporal_geo_consistency and scale in self.opt.temporal_consistency_scales:
+@@ -1038,8 +1107,115 @@ class Trainer:
+         weights = weights.expand_as(values)
+         return (values * weights).sum() / (weights.sum() + 1e-6)
+
++    def gradient_magnitude_map(self, tensor):
++        grad_x = torch.abs(tensor[:, :, :, 1:] - tensor[:, :, :, :-1])
++        grad_y = torch.abs(tensor[:, :, 1:, :] - tensor[:, :, :-1, :])
++        magnitude = torch.zeros_like(tensor)
++        count = torch.zeros_like(tensor)
++        magnitude[:, :, :, 1:] += grad_x
++        magnitude[:, :, :, :-1] += grad_x
++        count[:, :, :, 1:] += 1.0
++        count[:, :, :, :-1] += 1.0
++        magnitude[:, :, 1:, :] += grad_y
++        magnitude[:, :, :-1, :] += grad_y
++        count[:, :, 1:, :] += 1.0
++        count[:, :, :-1, :] += 1.0
++        return magnitude / count.clamp_min(1.0)
++
++    def ramped_map(self, values, threshold, ramp):
++        return torch.clamp((values - threshold) / ramp, min=0.0, max=1.0)
++
++    def vertical_prior(self, reference, start, end, top_to_bottom=True):
++        height = reference.shape[-2]
++        y = torch.linspace(
++            0.0, 1.0, height, device=reference.device,
++            dtype=reference.dtype).view(1, 1, height, 1)
++        if top_to_bottom:
++            prior = torch.clamp((end - y) / max(end - start, 1e-6), 0.0, 1.0)
++        else:
++            prior = torch.clamp((y - start) / max(end - start, 1e-6), 0.0, 1.0)
++        return prior.expand_as(reference)
++
++    def compute_sky_confidence(self, target):
++        r = target[:, 0:1]
++        g = target[:, 1:2]
++        b = target[:, 2:3]
++        brightness = target.mean(1, keepdim=True)
++        saturation = target.max(1, keepdim=True)[0] - target.min(1, keepdim=True)[0]
++        blue_dominance = b - torch.maximum(r, g)
++        temperature = self.opt.sky_confidence_temperature
++
++        blue_score = torch.sigmoid(
++            (blue_dominance - self.opt.sky_blue_margin) / temperature)
++        brightness_score = torch.sigmoid(
++            (brightness - self.opt.sky_min_brightness) / temperature)
++        saturation_score = torch.sigmoid(
++            (saturation - self.opt.sky_min_saturation) / temperature)
++        top_prior = self.vertical_prior(
++            brightness, 0.0, self.opt.sky_top_fraction, top_to_bottom=True)
++        return (
++            blue_score * brightness_score * saturation_score * top_prior
++        ).detach()
++
++    def compute_structure_context(
++            self, target, teacher_structure, outputs, losses, scale):
++        gray = (
++            0.299 * target[:, 0:1]
++            + 0.587 * target[:, 1:2]
++            + 0.114 * target[:, 2:3])
++        rgb_gradient = self.gradient_magnitude_map(gray)
++        rgb_edge = self.ramped_map(
++            rgb_gradient,
++            self.opt.structure_rgb_edge_threshold,
++            self.opt.structure_rgb_edge_ramp)
++
++        teacher_gradient = self.gradient_magnitude_map(teacher_structure.detach())
++        teacher_edge = self.ramped_map(
++            teacher_gradient,
++            self.opt.structure_teacher_edge_threshold,
++            self.opt.structure_teacher_edge_ramp)
++
++        boundary = (rgb_edge * teacher_edge).detach()
++        if self.opt.structure_edge_dilation > 1:
++            pad = self.opt.structure_edge_dilation // 2
++            boundary = F.max_pool2d(
++                boundary,
++                kernel_size=self.opt.structure_edge_dilation,
++                stride=1,
++                padding=pad)
++
++        sky = self.compute_sky_confidence(target)
++        lower = self.vertical_prior(
++            sky, self.opt.sky_lower_reference_start, 1.0,
++            top_to_bottom=False)
++        lower = (lower * (1.0 - sky)).detach()
++
++        outputs[("structure_rgb_edge", scale)] = rgb_edge.detach()
++        outputs[("structure_teacher_edge", scale)] = teacher_edge.detach()
++        outputs[("structure_boundary_reliability", scale)] = boundary.detach()
++        outputs[("structure_sky_confidence", scale)] = sky.detach()
++        outputs[("structure_lower_reference", scale)] = lower.detach()
++
++        losses["structure_rgb_edge/mean/{}".format(scale)] = rgb_edge.mean()
++        losses["structure_rgb_edge/ratio/{}".format(scale)] = (
++            (rgb_edge > 0.5).float().mean())
++        losses["structure_teacher_edge/mean/{}".format(scale)] = teacher_edge.mean()
++        losses["structure_boundary/mean/{}".format(scale)] = boundary.mean()
++        losses["structure_boundary/ratio/{}".format(scale)] = (
++            (boundary > 0.25).float().mean())
++        losses["structure_sky/mean/{}".format(scale)] = sky.mean()
++        losses["structure_sky/ratio/{}".format(scale)] = (
++            (sky > 0.25).float().mean())
++        losses["structure_lower_reference/mean/{}".format(scale)] = lower.mean()
++
++        return {
++            "boundary": boundary,
++            "sky": sky,
++            "lower": lower,
++        }
++
+     def teacher_weight_map(self, student_structure, teacher_structure,
+-                           ambiguity_map, outputs, losses, scale):
++                           ambiguity_map, structure_context, outputs, losses, scale):
+         weights = torch.ones_like(student_structure)
+
+         if self.opt.teacher_confidence:
+@@ -1059,6 +1235,15 @@ class Trainer:
+             losses["teacher_structure/texture_boost_mean/{}".format(scale)] = (
+                 boost.mean())
+
++        if self.opt.structure_aware_teacher and structure_context is not None:
++            boost = 1.0 + (
++                self.opt.structure_edge_boost_weight * structure_context["boundary"])
++            weights = weights * boost
++            losses["structure_boundary/teacher_boost_mean/{}".format(scale)] = (
++                boost.mean())
++            losses["structure_boundary/teacher_boost_max/{}".format(scale)] = (
++                boost.max())
++
+         return weights.detach()
+
+     def gradient_error_map(self, grad_x_error, grad_y_error, reference):
+@@ -1143,8 +1328,39 @@ class Trainer:
+             valid_weight.mean().detach())
+         return ranking_loss
+
++    def compute_sky_far_structure_loss(
++            self, student_structure, structure_context, losses, scale):
++        sky = structure_context["sky"]
++        lower = structure_context["lower"]
++        eps = 1e-6
++        sky_sum = sky.sum(dim=(2, 3), keepdim=True)
++        lower_sum = lower.sum(dim=(2, 3), keepdim=True)
++        sky_ratio = sky.mean(dim=(2, 3), keepdim=True)
++        lower_ratio = lower.mean(dim=(2, 3), keepdim=True)
++        valid = (
++            (sky_ratio >= self.opt.sky_min_ratio)
++            & (lower_ratio >= self.opt.sky_min_ratio)
++        ).float()
++
++        sky_mean = (student_structure * sky).sum(
++            dim=(2, 3), keepdim=True) / (sky_sum + eps)
++        lower_mean = (student_structure * lower).sum(
++            dim=(2, 3), keepdim=True) / (lower_sum + eps)
++        separation = lower_mean - sky_mean
++        per_image_loss = F.softplus(self.opt.sky_far_margin - separation)
++        valid_count = valid.sum()
++        sky_loss = (per_image_loss * valid).sum() / valid_count.clamp_min(1.0)
++
++        losses["sky_far/loss/{}".format(scale)] = sky_loss.detach()
++        losses["sky_far/valid_image_ratio/{}".format(scale)] = valid.mean()
++        losses["sky_far/sky_ratio_mean/{}".format(scale)] = sky_ratio.mean()
++        losses["sky_far/lower_ratio_mean/{}".format(scale)] = lower_ratio.mean()
++        losses["sky_far/separation_mean/{}".format(scale)] = (
++            (separation.detach() * valid).sum() / valid_count.clamp_min(1.0))
++        return sky_loss
++
+     def compute_teacher_structure_losses(
+-            self, outputs, losses, scale, ambiguity_map):
++            self, outputs, losses, scale, ambiguity_map, target):
+         if ("teacher_disp", scale) not in outputs:
+             raise ValueError(
+                 "Teacher structure regularization is enabled, but teacher output "
+@@ -1161,8 +1377,14 @@ class Trainer:
+         outputs[("teacher_structure_student", scale)] = student_structure.detach()
+         outputs[("teacher_structure_teacher", scale)] = teacher_structure.detach()
+
++        structure_context = None
++        if self.opt.structure_aware_teacher or self.opt.sky_far_structure_loss:
++            structure_context = self.compute_structure_context(
++                target, teacher_structure, outputs, losses, scale)
++
+         weights = self.teacher_weight_map(
+-            student_structure, teacher_structure, ambiguity_map, outputs, losses, scale)
++            student_structure, teacher_structure, ambiguity_map,
++            structure_context, outputs, losses, scale)
+         total_teacher_loss = student_structure.new_tensor(0.0)
+
+         if self.opt.teacher_structure_regularization:
+@@ -1204,6 +1426,16 @@ class Trainer:
+             losses["teacher_ranking/weighted_loss/{}".format(scale)] = (
+                 weighted.detach())
+
++        if self.opt.sky_far_structure_loss:
++            sky_loss = self.compute_sky_far_structure_loss(
++                student_structure, structure_context, losses, scale)
++            sky_weight = self.teacher_scheduled_weight(self.opt.sky_far_weight)
++            weighted = sky_weight * sky_loss
++            total_teacher_loss = total_teacher_loss + weighted
++            losses["sky_far/weight/{}".format(scale)] = torch.tensor(
++                sky_weight, device=self.device)
++            losses["sky_far/weighted_loss/{}".format(scale)] = weighted.detach()
++
+         losses["teacher_structure/total_weighted/{}".format(scale)] = (
+             total_teacher_loss.detach())
+         return total_teacher_loss
+@@ -1647,6 +1879,11 @@ class Trainer:
+                     (("teacher_structure_teacher", s), "teacher_structure_teacher"),
+                     (("teacher_gradient_error", s), "teacher_gradient_error"),
+                     (("teacher_confidence", s), "teacher_confidence"),
++                    (("structure_rgb_edge", s), "structure_rgb_edge"),
++                    (("structure_teacher_edge", s), "structure_teacher_edge"),
++                    (("structure_boundary_reliability", s), "structure_boundary_reliability"),
++                    (("structure_sky_confidence", s), "structure_sky_confidence"),
++                    (("structure_lower_reference", s), "structure_lower_reference"),
+                 ]
+                 for key, name in debug_maps:
+                     if key in outputs:
