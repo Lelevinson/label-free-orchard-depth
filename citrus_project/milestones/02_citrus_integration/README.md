@@ -6,9 +6,9 @@ Use this folder for milestone-specific helpers, notes, or experiment files relat
 - Citrus-specific evaluation code
 - split-manifest and evaluation plumbing
 
-Current status:
+Historical closeout status:
 
-- Milestone 2 has started with a deliberately small Dataset/DataLoader slice.
+- Milestone 2 began with a deliberately small Dataset/DataLoader slice and is now complete as the Citrus trainer-integration milestone.
 - `citrus_prepared_dataset.py` defines `CitrusPreparedDataset`, a loader for prepared Citrus split manifests.
 - The loader supports target-only samples by default and same-split temporal triplets when `frame_ids=[0, -1, 1]` is requested.
 - `inspect_citrus_prepared_dataset.py` smoke-tests target-only or temporal loading through a PyTorch `DataLoader`.
@@ -18,7 +18,7 @@ Current status:
 - `smoke_root_citrus_trainer_wiring.py` checks that root `Trainer` can select Citrus, build train/val DataLoaders, process one batch, and use the Citrus-safe depth metric mode.
 - `smoke_root_citrus_one_step_train.py` checks one full root Citrus forward/backward/optimizer update.
 - `smoke_citrus_color_augmentation.py` checks that train samples use `color_aug` jitter and validation samples stay unaugmented.
-- Milestone 2 core integration is complete, including a CUDA one-step smoke. No real Citrus fine-tuning experiment has started yet.
+- Milestone 2 core integration is complete, including a CUDA one-step smoke. Later Milestone 3/4 experiments built on this integration, so this README is a handoff/provenance note rather than current experiment status.
 
 Current data contract:
 
@@ -166,6 +166,6 @@ Latest Citrus color augmentation smoke result:
   - loss before update: `0.198368`
   - max checked encoder parameter delta after update: `0.0000050217`
 
-Next technical decision:
+Historical next technical decision at Milestone 2 closeout:
 
-- Milestone 2 core is complete. Next stage is Milestone 3: plan a short, controlled Citrus self-supervised adaptation run before launching longer fine-tuning.
+- Milestone 2 core was complete. The next stage at this handoff was Milestone 3: plan a short, controlled Citrus self-supervised adaptation run before launching longer fine-tuning.

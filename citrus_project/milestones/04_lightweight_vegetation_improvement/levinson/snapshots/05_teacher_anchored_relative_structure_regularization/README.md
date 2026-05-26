@@ -324,7 +324,7 @@ Decision:
 continue / promising mixed
 ```
 
-This is the strongest Levinson label-free direction so far, and it is clearly different from Snapshot 04. After validation-only checkpoint selection, `weights_19` should be used as the main Snapshot 05 result in paper tables. The result remains mixed: it nearly closes the original Lite-Mono median-scaled `abs_rel` gap on test while preserving B0-like `a1`, but it still does not beat original Lite-Mono on median-scaled `abs_rel`.
+Before Snapshot 07, this was the strongest Levinson label-free direction so far, and it is clearly different from Snapshot 04. After validation-only checkpoint selection, `weights_19` should be used as the main Snapshot 05 result in paper tables. The result remains mixed: it nearly closes the original Lite-Mono median-scaled `abs_rel` gap on test while preserving B0-like `a1`, but it still does not beat original Lite-Mono on median-scaled `abs_rel`.
 
 ## Follow-Up
 
