@@ -40,6 +40,8 @@ commands/render_diagnostics.ps1
 
 Full run command used the same fair setup as B0/Snapshot 05: batch size 12, 30 epochs, seed 0, Citrus prepared split, ImageNet encoder pretrain, and no depth-label training leakage.
 
+For exact full-run Snapshot 07 weights and heuristic thresholds, use `config/opt.json` and `diagnostics/full_run_last_logged.json` as the source of truth. The copied command scripts preserve runnable command templates but contain later stricter sky/far and boundary arguments that do not match the archived completed-run `opt.json`.
+
 ## Paths
 
 Snapshot package:

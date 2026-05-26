@@ -16,6 +16,9 @@ Use this file to decide what to read. Do not treat every Markdown file under thi
 3. `snapshots/README.md`
    - Compact map of all snapshot folders.
    - Use this before opening individual snapshot folders.
+4. `archive/research_process_notes/REPO_TIDY_AUDIT.md`
+   - Archived cleanup audit and safe documentation optimization report.
+   - Use this before deleting, archiving, or consolidating old notes, generated files, or presentation assets.
 
 ## Current Lead Method
 
@@ -75,12 +78,12 @@ snapshots/04_vegetation_general_temporal_cross_view_consistency/README.md
 
 Use these as honest negative/mixed evidence, not as current action plans.
 
-## Audits And Hygiene Notes
+## Archived Audits And Hygiene Notes
 
-Current pre-presentation snapshot folder audit:
+Pre-presentation snapshot folder audit:
 
 ```text
-SNAPSHOT_FOLDER_AUDIT_BEFORE_PRESENTATION.md
+archive/research_process_notes/SNAPSHOT_FOLDER_AUDIT_BEFORE_PRESENTATION.md
 ```
 
 This records snapshot-folder tidiness, contradictions fixed, active root-code state, confusing duplicates, and presentation readiness after Snapshot 07.
@@ -88,7 +91,7 @@ This records snapshot-folder tidiness, contradictions fixed, active root-code st
 Documentation optimization audit:
 
 ```text
-LEVINSON_DOCS_OPTIMIZATION_BEFORE_PRESENTATION.md
+archive/research_process_notes/LEVINSON_DOCS_OPTIMIZATION_BEFORE_PRESENTATION.md
 ```
 
 This records the Markdown inventory, current-versus-historical hierarchy, stale-plan status notes, redundant/confusing docs, and presentation-readiness decision.
@@ -96,7 +99,7 @@ This records the Markdown inventory, current-versus-historical hierarchy, stale-
 Historical pre-Snapshot07 repo audit:
 
 ```text
-pre_snapshot07_repo_audit.md
+archive/research_process_notes/pre_snapshot07_repo_audit.md
 ```
 
 This is preserved as historical state before Snapshot 07 began. It contains old Snapshot 05/06 root-code statements that are now explicitly superseded. For current root-code state, use `ACTIVE_ROOT_CODE_STATE.md`.
@@ -109,12 +112,20 @@ DOCUMENTATION_INDEX.md
 
 Use it as the navigation map for humans and AI agents.
 
+Archived repo/workspace cleanup audit:
+
+```text
+archive/research_process_notes/REPO_TIDY_AUDIT.md
+```
+
+This records source-of-truth docs, historical/provenance docs, stale or overlapping notes, presentation-only artifacts, temporary/generated cleanup candidates, and actions that need user approval before deletion.
+
 ## Historical Plans
 
 Do not use these as current action plans:
 
 ```text
-overnight_experiment_plan.md
+archive/research_process_notes/overnight_experiment_plan.md
 snapshots/04_vegetation_general_temporal_cross_view_consistency/diagnostic_report_and_snapshot05_proposal.md
 snapshots/06_teacher_anchor_stabilization/DESIGN_NOTE.md
 snapshots/07_structure_aware_label_free_vegetation_depth/DESIGN_NOTE.md
@@ -147,6 +158,14 @@ snapshots/<stage>/patches/
 Exception: `snapshots/00_plain_citrus_baseline/` intentionally includes compact inference weights and a small set of PNG panels as the promoted B0 package.
 
 ## Presentation Framing
+
+Presentation assets are separated under:
+
+```text
+presentation_assets/progress_presentation/
+```
+
+Treat those files as slide-support material, not research source-of-truth. They may contain cropped visuals, simplified tables, speaker notes, and post-hoc presentation fairness checks. Source research claims should be checked against `AGENTS.md`, the milestone/snapshot READMEs, and `archive/research_process_notes/REPO_TIDY_AUDIT.md`.
 
 Use this wording hierarchy:
 

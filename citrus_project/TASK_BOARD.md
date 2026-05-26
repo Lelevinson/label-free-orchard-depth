@@ -1,6 +1,6 @@
 # Task Board
 
-Date: 2026-05-20
+Date: 2026-05-25
 
 ## Current Project Position
 
@@ -22,8 +22,10 @@ Date: 2026-05-20
 - Snapshot 05 selected `weights_19` remains visually packaged as the strongest pre-Snapshot07 teacher-anchor candidate. Comparison panels against original Lite-Mono, B0, and Snapshot 05 `weights_29` plus plain selected-checkpoint RGB/depth/disparity outputs are saved under `levinson/snapshots/05_teacher_anchored_relative_structure_regularization/local_evidence/selected_weights19_visuals/`. No new training was run for that packaging step.
 - Levinson's `07_structure_aware_label_free_vegetation_depth` method is implemented, piloted, trained for 30 epochs, validation-selected, evaluated on full val/test, and packaged. It adds reliable-boundary teacher weighting plus RGB-only sky/far ordinal pseudo-structure. Selected `weights_25` is the current strongest Levinson label-free candidate (`test median abs_rel=0.3840`, `a1=0.6539`), nearly matching original Lite-Mono on median `abs_rel` while preserving B0-like `a1`; qualitative full-image depth remains promising mixed.
 - Large generated Levinson evidence was tidied into snapshot-local `local_evidence/` folders and checkpoint-selection `local_results/`; this checkout now uses `.git/info/exclude` as a personal ignore so bulky generated outputs do not flood `git status`.
-- A pre-Snapshot07 repository audit now records the active root-code state, local-evidence layout, ignored artifact policy, and verification checklist at `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/pre_snapshot07_repo_audit.md`. Shared `.gitignore` rules now also ignore Levinson generated `local_evidence/`, `local_results/`, future `results/`, and run artifacts.
+- A pre-Snapshot07 repository audit now records the active root-code state, local-evidence layout, ignored artifact policy, and verification checklist at `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/archive/research_process_notes/pre_snapshot07_repo_audit.md`. Shared `.gitignore` rules now also ignore Levinson generated `local_evidence/`, `local_results/`, future `results/`, and run artifacts.
 - Root `options.py`, `trainer.py`, the teacher diagnostic renderer, and the visual comparison helper currently remain on the Snapshot 07 structure-aware active method branch; tested copies and patch artifacts are preserved in the snapshots.
+- Progress-presentation assets now live under `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/presentation_assets/progress_presentation/`; treat them as slide-support material, not research source-of-truth.
+- Cleanup/tidy guidance is archived in `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/archive/research_process_notes/REPO_TIDY_AUDIT.md`; do not delete/archive candidates from that report without explicit approval.
 - Milestone 4 workstream ownership is split: Levinson focuses on self-supervised RGB-only training methods, while Marvel can explore supervised/hybrid methods using valid depth labels, valid masks, or LiDAR-guided training.
 - Next main research step: review Snapshot 07 as the lead label-free paper candidate, especially whether its mixed full-image visuals need one final principled refinement before freezing Levinson's method.
 
@@ -46,6 +48,7 @@ Near-term outputs:
 - Levinson Snapshot 07 paper-facing package review; the selected-checkpoint visual and diagnostic packages are now available for that decision
 - Marvel supervised/hybrid starting-plan note
 - professor-friendly explanation of the two workstreams and why supervision differs
+- user decision on delete/archive candidates from the repo tidy audit
 
 ### Levinson Workstream
 

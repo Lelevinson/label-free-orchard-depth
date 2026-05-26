@@ -25,10 +25,14 @@ Root `trainer.py` and `options.py` are currently the active Snapshot 07 structur
 ## Contents
 
 ```text
+archive/
+presentation_assets/
 results/
 runs/
 snapshots/
 ```
+
+`presentation_assets/` contains progress-presentation support material only. It should not be treated as research source-of-truth unless the same claim is also supported by `AGENTS.md`, the milestone/snapshot READMEs, or compact result summaries.
 
 Current moved result folder:
 
@@ -173,7 +177,7 @@ The `runs/` folder is ignored by Git because it can contain optimizer states, po
 Pre-Snapshot07 hygiene audit:
 
 ```text
-pre_snapshot07_repo_audit.md
+archive/research_process_notes/pre_snapshot07_repo_audit.md
 ```
 
 This note records the pre-Snapshot07 active root-code state, local-evidence layout, ignored artifact policy, and verification steps before the Snapshot 07 method attempt. For the current root state, read `ACTIVE_ROOT_CODE_STATE.md`.
@@ -181,7 +185,7 @@ This note records the pre-Snapshot07 active root-code state, local-evidence layo
 Pre-presentation snapshot-folder audit:
 
 ```text
-SNAPSHOT_FOLDER_AUDIT_BEFORE_PRESENTATION.md
+archive/research_process_notes/SNAPSHOT_FOLDER_AUDIT_BEFORE_PRESENTATION.md
 ```
 
 This note audits the Levinson snapshot folders after Snapshot 07 packaging and records the current presentation-readiness state.
@@ -189,10 +193,18 @@ This note audits the Levinson snapshot folders after Snapshot 07 packaging and r
 Documentation optimization audit:
 
 ```text
-LEVINSON_DOCS_OPTIMIZATION_BEFORE_PRESENTATION.md
+archive/research_process_notes/LEVINSON_DOCS_OPTIMIZATION_BEFORE_PRESENTATION.md
 ```
 
 This note inventories Levinson Markdown files, separates current navigation docs from historical plans, and records the documentation cleanup before presentation preparation.
+
+Archived repo/workspace tidy audit:
+
+```text
+archive/research_process_notes/REPO_TIDY_AUDIT.md
+```
+
+This note records the cleanup classification, safe documentation edits, presentation-only artifacts, delete/archive candidates that still require approval, and the recommended documentation structure.
 
 Do not edit Marvel's folder from this workstream without explicit approval.
 

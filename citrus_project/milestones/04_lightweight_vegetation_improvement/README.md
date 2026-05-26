@@ -11,7 +11,8 @@ Use this folder for milestone-specific helpers, notes, or experiment files relat
 For Milestone 4 work, use this README as the main handoff. Do not inspect every result or snapshot folder by default.
 
 - Baseline recipe, final metrics, checkpoint paths, and visual paths: this README.
-- Levinson's Milestone 4 workstream, including the B0 plain Citrus baseline snapshot and tested 01/02/03 method-gate snapshots: `levinson/README.md`.
+- Levinson's Milestone 4 workstream, including B0/Snapshot 00 through Snapshot 07 and the current Snapshot 07 label-free lead: `levinson/README.md`.
+- Levinson's AI/human documentation map and cleanup notes: `levinson/DOCUMENTATION_INDEX.md`.
 - Marvel's supervised/hybrid Milestone 4 workstream: `Marvel/README.md`.
 - Original full baseline metric JSON/CSV result folder, preserved for existing references: `levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/`. New large generated Levinson outputs should go under the relevant snapshot's local `local_evidence/` folder or checkpoint-selection `local_results/` folder instead of this shared results area.
 
@@ -266,7 +267,7 @@ Snapshot-tested options:
 --photometric_confidence_min_weight 0.25
 ```
 
-These options are preserved in the snapshot code copy. They are not currently active in the restored root trainer unless that snapshot code is intentionally reapplied.
+These options are preserved in the snapshot code copy. They are not part of the current Snapshot 07 active root workbench unless that snapshot code is intentionally reapplied.
 
 First 250-step gate from ImageNet encoder pretrain:
 
@@ -310,7 +311,7 @@ Snapshot-tested options:
 --rgb_edge_structure_target_grad 0.02
 ```
 
-These options are preserved in the snapshot code copy. They are not currently active in the restored root trainer unless that snapshot code is intentionally reapplied.
+These options are preserved in the snapshot code copy. They are not part of the current Snapshot 07 active root workbench unless that snapshot code is intentionally reapplied.
 
 First 250-step gate from ImageNet encoder pretrain:
 
@@ -353,7 +354,7 @@ Snapshot-tested options:
 --soft_confidence_min_multiplier 0.75
 ```
 
-These options are preserved in the snapshot code copy. They are not currently active in the restored root trainer unless that snapshot code is intentionally reapplied.
+These options are preserved in the snapshot code copy. They are not part of the current Snapshot 07 active root workbench unless that snapshot code is intentionally reapplied.
 
 First 250-step gate from ImageNet encoder pretrain:
 

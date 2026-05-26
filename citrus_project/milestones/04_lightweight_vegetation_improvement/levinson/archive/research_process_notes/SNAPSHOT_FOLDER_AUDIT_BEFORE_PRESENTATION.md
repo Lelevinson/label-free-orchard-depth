@@ -43,7 +43,7 @@ Current positioning:
 
 The audit found several stale present-tense statements left from earlier milestones:
 
-- `pre_snapshot07_repo_audit.md` described Snapshot 05/06 root code and Snapshot 05 `weights_19` as current. A supersession note and local wording fixes now mark those statements as historical and point current root state to `ACTIVE_ROOT_CODE_STATE.md`.
+- `archive/research_process_notes/pre_snapshot07_repo_audit.md` described Snapshot 05/06 root code and Snapshot 05 `weights_19` as current. A supersession note and local wording fixes now mark those statements as historical and point current root state to `ACTIVE_ROOT_CODE_STATE.md`.
 - Snapshot 07 `DESIGN_NOTE.md` used pre-implementation present tense for Snapshot 05 `weights_19`; it now says "at design time" to avoid conflicting with Snapshot 07's lead status.
 - Snapshot 04 README said root files remained as the active method branch. It now says that was the packaging-time state and has been superseded.
 - Snapshot 05 README said `weights_19` was the current best Levinson label-free teacher-anchor candidate. It now says strongest pre-Snapshot07 teacher-anchor candidate and main Snapshot 05 comparison point.
@@ -61,7 +61,7 @@ Markdown-only edits:
 ```text
 AGENTS.md
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/README.md
-citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/pre_snapshot07_repo_audit.md
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/archive/research_process_notes/pre_snapshot07_repo_audit.md
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/teacher_anchor_snapshot05_06/README.md
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/README.md
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/04_vegetation_general_temporal_cross_view_consistency/README.md
@@ -69,7 +69,7 @@ citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapsho
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/05_teacher_anchored_relative_structure_regularization/diagnostics/weights19_professor_visual_diagnosis_summary.md
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/06_teacher_anchor_stabilization/README.md
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/07_structure_aware_label_free_vegetation_depth/DESIGN_NOTE.md
-citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/SNAPSHOT_FOLDER_AUDIT_BEFORE_PRESENTATION.md
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/archive/research_process_notes/SNAPSHOT_FOLDER_AUDIT_BEFORE_PRESENTATION.md
 ```
 
 Files moved: none.

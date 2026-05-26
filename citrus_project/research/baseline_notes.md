@@ -1478,7 +1478,7 @@ Selected checkpoints:
 | Snapshot 05 | `weights_19` | 0.4447 | 0.5915 | 0.3947 | 0.6476 |
 | Snapshot 06 | `weights_25` | 0.4493 | 0.5925 | 0.4076 | 0.6359 |
 
-Interpretation: Snapshot 05 `weights_19` is the strongest current label-free teacher-anchor result. It improves B0 test median-scaled `abs_rel` from `0.4889` to `0.3947` while keeping most of B0 test median-scaled `a1` (`0.6476` vs `0.6582`). It gets close to original Lite-Mono test median-scaled `abs_rel=0.3836`, but still does not beat it.
+Interpretation: Snapshot 05 `weights_19` is the strongest pre-Snapshot07 label-free teacher-anchor result. It improves B0 test median-scaled `abs_rel` from `0.4889` to `0.3947` while keeping most of B0 test median-scaled `a1` (`0.6476` vs `0.6582`). It gets close to original Lite-Mono test median-scaled `abs_rel=0.3836`, but still does not beat it. Snapshot 07 later superseded it as the current Levinson label-free lead; keep `weights_19` as the main Snapshot 05 comparison point.
 
 Selected-checkpoint visual package:
 

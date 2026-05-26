@@ -1,3 +1,7 @@
+> Citrus research fork note: this repository is being used for the Lite-Mono + Citrus Farm research project.
+> For current project status, cleanup rules, datasets, Milestone 4 snapshots, and future AI/human handoff context, start with `AGENTS.md`, then `citrus_project/README.md`.
+> The upstream Lite-Mono README content is preserved below for original model usage and citation context.
+
 <div id="top" align="center">
   
 # Lite-Mono 

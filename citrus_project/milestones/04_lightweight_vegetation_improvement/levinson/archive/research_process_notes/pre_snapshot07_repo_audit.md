@@ -159,7 +159,7 @@ Start a new Snapshot 07 chat by reading:
 3. `citrus_project/TASK_BOARD.md`
 4. `citrus_project/milestones/04_lightweight_vegetation_improvement/README.md`
 5. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/README.md`
-6. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/pre_snapshot07_repo_audit.md`
+6. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/archive/research_process_notes/pre_snapshot07_repo_audit.md`
 7. Snapshot 05 README, checkpoint-selection README, and Snapshot 05 professor-facing `visual_diagnosis.md`
 
 Historical guidance at the time: defer Snapshot 07 training until the team decides whether `weights_19` is sufficient as the then-current label-free result or whether the next method is clearly different from another small Snapshot 05/06 weight tweak.
