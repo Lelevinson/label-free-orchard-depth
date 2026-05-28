@@ -162,6 +162,7 @@ citrus_project/milestones/04_lightweight_vegetation_improvement/runs/
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/results/
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/*/local_evidence/
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/*/local_results/
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/presentation_assets/
 
 # Local Codex project config / MCP secrets
 .codex/
