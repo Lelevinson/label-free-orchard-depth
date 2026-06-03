@@ -28,6 +28,12 @@ All new chats should read this file first.
 4. When a newer result supersedes an older temporary result, update or mark the older wording instead of leaving conflicting notes.
 5. Prefer clarity for future chats over preserving every intermediate line in this file.
 
+## Doc Layering Principle
+
+1. Outer/root docs (`CLAUDE.md`, this `AGENTS.md`) are pointers and current-status indexes, not full explanations of inner-folder detail.
+2. Per-milestone and per-snapshot detail belongs in the inner subfolder docs (e.g. Levinson `DOCUMENTATION_INDEX.md` and snapshot `README.md` files); this file should point to them rather than duplicate them.
+3. The Milestone 4 / Levinson section below is over-detailed against this principle and is a pending trim target: reduce it to a pointer plus the current-lead summary once a tidy pass is scheduled.
+
 ## Document Roles
 
 1. `AGENTS.md` is the current source of truth for project goal, milestone state, current decisions, canonical paths, and next actions.
