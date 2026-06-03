@@ -75,7 +75,7 @@ D:/Conda_Envs/lite-mono/python.exe train.py `
   --dataset citrus `
   --batch_size 12 `
   --num_epochs 30 `
-  --num_workers 0 `
+  --num_workers 4 `
   --seed 0 `
   --weights_init pretrained `
   --mypretrain weights/lite-mono/lite-mono-pretrain.pth `
@@ -122,7 +122,8 @@ citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/
       weights_29/   ← after epoch 30  (this is the final one)
 ```
 
-Expected runtime: ~10-15 hours for 30 epochs at batch 12.
+Expected runtime: ~10-15 hours on a laptop GPU; faster on a better lab GPU (maybe 4-6h).
+Batch size stays at 12 regardless of GPU power — keeps results comparable to all previous snapshots.
 
 You can check progress anytime:
 ```bash
