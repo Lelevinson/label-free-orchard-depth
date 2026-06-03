@@ -19,6 +19,9 @@ Use this file to decide what to read. Do not treat every Markdown file under thi
 4. `archive/research_process_notes/REPO_TIDY_AUDIT.md`
    - Archived cleanup audit and safe documentation optimization report.
    - Use this before deleting, archiving, or consolidating old notes, generated files, or presentation assets.
+5. `M4_CHANGE_LOG.md`
+   - Dated Milestone 4 provenance log (snapshot packaging, checkpoint selection, presentation assets, the literature pass, and the S08 feature-metric / TSOB gates).
+   - Moved out of the top-level `AGENTS.md` change log to keep that file at pointer altitude. Use it for "when/why did X happen", not as a current action plan.
 
 ## Current Lead Method
 
