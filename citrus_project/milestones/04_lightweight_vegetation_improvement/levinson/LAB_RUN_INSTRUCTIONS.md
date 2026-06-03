@@ -22,25 +22,54 @@ You should see files like `networks/mixture_head.py` appear.
 
 ---
 
-## Step 2 — Check the weights folder
+## Step 2 — Get the weights (download if missing)
 
 The training needs three weight files that are NOT in git (too large).
-Check if they exist:
+Check if they exist first:
 
 ```bash
 ls weights/lite-mono/
 ```
 
 You need ALL THREE of these:
-- `weights/lite-mono/encoder.pth`         ← frozen teacher encoder
-- `weights/lite-mono/depth.pth`           ← frozen teacher depth decoder
-- `weights/lite-mono/lite-mono-pretrain.pth`  ← ImageNet pretrain for the student
+- `weights/lite-mono/encoder.pth`              ← frozen teacher encoder
+- `weights/lite-mono/depth.pth`                ← frozen teacher depth decoder
+- `weights/lite-mono/lite-mono-pretrain.pth`   ← ImageNet pretrain for the student
 
-**If any are missing:** copy them from the laptop (USB stick or scp).
-They live at the same path on the laptop:
-`d:\IBPI\Image Proc-AI Assisted-SP1\Lite-Mono\weights\lite-mono\`
+**If missing, download them directly — no USB needed:**
 
-Do not continue to Step 3 until all three files exist.
+```bash
+# Make the folder
+mkdir -p weights/lite-mono
+
+# 1. Download the KITTI-trained model (gives encoder.pth + depth.pth inside a zip)
+wget -O weights/lite-mono/lite_mono_kitti.zip \
+  "https://surfdrive.surf.nl/files/index.php/s/CUjiK221EFLyXDY/download"
+
+# Unzip — encoder.pth and depth.pth should appear inside
+unzip weights/lite-mono/lite_mono_kitti.zip -d weights/lite-mono/
+rm weights/lite-mono/lite_mono_kitti.zip   # clean up zip after
+
+# 2. Download the ImageNet pretrain (single .pth file)
+wget -O weights/lite-mono/lite-mono-pretrain.pth \
+  "https://surfdrive.surf.nl/files/index.php/s/InMMGd5ZP2fXuia/download"
+```
+
+If `wget` is not available, use `curl` instead:
+```bash
+curl -L -o weights/lite-mono/lite_mono_kitti.zip \
+  "https://surfdrive.surf.nl/files/index.php/s/CUjiK221EFLyXDY/download"
+curl -L -o weights/lite-mono/lite-mono-pretrain.pth \
+  "https://surfdrive.surf.nl/files/index.php/s/InMMGd5ZP2fXuia/download"
+```
+
+After downloading, verify all three files exist:
+```bash
+ls -lh weights/lite-mono/
+# Should show: encoder.pth, depth.pth, lite-mono-pretrain.pth
+```
+
+Do not continue to Step 3 until all three files are confirmed present.
 
 ---
 
