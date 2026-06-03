@@ -304,6 +304,93 @@ class LiteMonoOptions:
                                  help="if set, uses the Snapshot 04 RGB-only texture ambiguity "
                                       "map as a weak emphasis prior for teacher losses",
                                  action="store_true")
+        self.parser.add_argument("--teacher_texture_reliability_gate",
+                                 help="if set, RELEASES (reduces) teacher-loss weight where the "
+                                      "RGB texture-ambiguity map is high, so the student is not "
+                                      "pulled toward a blobby teacher inside ambiguous canopy "
+                                      "(mirror of --teacher_texture_ambiguity_emphasis)",
+                                 action="store_true")
+        self.parser.add_argument("--teacher_texture_reliability_strength",
+                                 type=float,
+                                 help="fraction of teacher weight removed at full ambiguity=1 "
+                                      "(0 disables, 1 removes everything down to the floor)",
+                                 default=0.5)
+        self.parser.add_argument("--teacher_texture_reliability_floor",
+                                 type=float,
+                                 help="minimum teacher-weight multiplier the gate may apply, so "
+                                      "the teacher is never fully switched off",
+                                 default=0.3)
+        # --- Snapshot 08: feature-metric loss (FeatDepth-style, training-only) ---
+        self.parser.add_argument("--feature_metric_loss",
+                                 help="if set, adds a training-only FeatDepth-style feature-metric "
+                                      "loss: a small image autoencoder produces a regularized "
+                                      "feature map and source features are reprojected into the "
+                                      "target frame to give a sharper supervisory signal than raw "
+                                      "photometric matching in low-texture canopy. Inference is "
+                                      "unchanged and label-free.",
+                                 action="store_true")
+        self.parser.add_argument("--feature_metric_weight",
+                                 type=float,
+                                 help="weight of the feature-metric reprojection term added to the "
+                                      "total loss",
+                                 default=0.01)
+        self.parser.add_argument("--feature_metric_warmup_steps",
+                                 type=int,
+                                 help="linear warmup steps for the feature-metric weight",
+                                 default=500)
+        self.parser.add_argument("--feature_metric_channels",
+                                 type=int,
+                                 help="number of channels in the training-only feature map",
+                                 default=16)
+        self.parser.add_argument("--feature_recon_weight",
+                                 type=float,
+                                 help="weight of the autoencoder image reconstruction term",
+                                 default=1.0)
+        self.parser.add_argument("--feature_dis_weight",
+                                 type=float,
+                                 help="weight of the first-order discriminative feature term "
+                                      "(encourages distinctive, non-flat features)",
+                                 default=1e-3)
+        self.parser.add_argument("--feature_cvt_weight",
+                                 type=float,
+                                 help="weight of the second-order convergent feature term "
+                                      "(encourages smooth single-basin feature landscapes)",
+                                 default=1e-3)
+        # --- Snapshot 09: TSOB-style boundary-uncertainty mixture loss ---
+        self.parser.add_argument("--tsob_mixture_loss",
+                                 help="if set, adds a TSOB-style K=2 depth mixture loss at "
+                                      "scale 0: the decoder outputs two depth hypotheses and a "
+                                      "mixing weight; the moment-matching loss pushes the model "
+                                      "to commit to one hypothesis at boundaries instead of "
+                                      "blending them into blobs. Training-only; inference is "
+                                      "unchanged (uses the mean depth). Label-free.",
+                                 action="store_true")
+        self.parser.add_argument("--tsob_weight",
+                                 type=float,
+                                 help="weight of the TSOB moment-matching loss",
+                                 default=0.1)
+        self.parser.add_argument("--tsob_warmup_steps",
+                                 type=int,
+                                 help="linear warmup steps for the TSOB loss weight",
+                                 default=200)
+        self.parser.add_argument("--tsob_alpha_entropy_weight",
+                                 type=float,
+                                 help="weight of the mixture-weight entropy regularizer "
+                                      "(encourages confident, non-uniform mixing)",
+                                 default=0.01)
+        self.parser.add_argument("--tsob_alpha_smooth_weight",
+                                 type=float,
+                                 help="weight of the mixing-weight spatial smoothness term",
+                                 default=0.01)
+        self.parser.add_argument("--tsob_sigma_min",
+                                 type=float,
+                                 help="minimum per-component uncertainty (prevents collapse)",
+                                 default=0.01)
+        self.parser.add_argument("--feature_metric_downsample",
+                                 type=int,
+                                 help="integer factor to downsample images for the feature-metric "
+                                      "loss (1=full resolution; 2=half, much lower training memory)",
+                                 default=2)
         self.parser.add_argument("--teacher_path",
                                  type=str,
                                  help="folder containing frozen RGB teacher encoder.pth and "

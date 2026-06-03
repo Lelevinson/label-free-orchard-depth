@@ -76,6 +76,22 @@ class Trainer:
         self.models["depth"].to(self.device)
         self.parameters_to_train += list(self.models["depth"].parameters())
 
+        if getattr(self.opt, "tsob_mixture_loss", False):
+            # Training-only mixture head for the TSOB-style boundary-uncertainty loss.
+            # Reads scale-0 decoder features; not used at inference.
+            num_ch_dec0 = int(self.models["depth"].num_ch_dec[0])
+            self.models["mixture_head"] = networks.MixtureHead(num_ch_in=num_ch_dec0)
+            self.models["mixture_head"].to(self.device)
+            self.parameters_to_train += list(self.models["mixture_head"].parameters())
+
+        if getattr(self.opt, "feature_metric_loss", False):
+            # Training-only autoencoder for the FeatDepth-style feature-metric loss.
+            # Not used at inference; trained jointly by the main optimizer.
+            self.models["feature_net"] = networks.FeatureNet(
+                num_ch=getattr(self.opt, "feature_metric_channels", 16))
+            self.models["feature_net"].to(self.device)
+            self.parameters_to_train += list(self.models["feature_net"].parameters())
+
         if self.use_pose_net:
             if self.opt.pose_model_type == "separate_resnet":
                 self.models_pose["pose_encoder"] = networks.ResnetEncoder(
@@ -273,6 +289,40 @@ class Trainer:
             self.opt.teacher_confidence_threshold = 0.25
         if not hasattr(self.opt, "teacher_texture_ambiguity_emphasis"):
             self.opt.teacher_texture_ambiguity_emphasis = False
+        if not hasattr(self.opt, "teacher_texture_reliability_gate"):
+            self.opt.teacher_texture_reliability_gate = False
+        if not hasattr(self.opt, "teacher_texture_reliability_strength"):
+            self.opt.teacher_texture_reliability_strength = 0.5
+        if not hasattr(self.opt, "teacher_texture_reliability_floor"):
+            self.opt.teacher_texture_reliability_floor = 0.3
+        if not hasattr(self.opt, "tsob_mixture_loss"):
+            self.opt.tsob_mixture_loss = False
+        if not hasattr(self.opt, "tsob_weight"):
+            self.opt.tsob_weight = 0.1
+        if not hasattr(self.opt, "tsob_warmup_steps"):
+            self.opt.tsob_warmup_steps = 200
+        if not hasattr(self.opt, "tsob_alpha_entropy_weight"):
+            self.opt.tsob_alpha_entropy_weight = 0.01
+        if not hasattr(self.opt, "tsob_alpha_smooth_weight"):
+            self.opt.tsob_alpha_smooth_weight = 0.01
+        if not hasattr(self.opt, "tsob_sigma_min"):
+            self.opt.tsob_sigma_min = 0.01
+        if not hasattr(self.opt, "feature_metric_loss"):
+            self.opt.feature_metric_loss = False
+        if not hasattr(self.opt, "feature_metric_weight"):
+            self.opt.feature_metric_weight = 0.01
+        if not hasattr(self.opt, "feature_metric_warmup_steps"):
+            self.opt.feature_metric_warmup_steps = 500
+        if not hasattr(self.opt, "feature_metric_channels"):
+            self.opt.feature_metric_channels = 16
+        if not hasattr(self.opt, "feature_recon_weight"):
+            self.opt.feature_recon_weight = 1.0
+        if not hasattr(self.opt, "feature_dis_weight"):
+            self.opt.feature_dis_weight = 1e-3
+        if not hasattr(self.opt, "feature_cvt_weight"):
+            self.opt.feature_cvt_weight = 1e-3
+        if not hasattr(self.opt, "feature_metric_downsample"):
+            self.opt.feature_metric_downsample = 2
         if not hasattr(self.opt, "teacher_path"):
             self.opt.teacher_path = os.path.join("weights", "lite-mono")
         if not hasattr(self.opt, "structure_aware_teacher"):
@@ -384,6 +434,18 @@ class Trainer:
             raise ValueError("--teacher_ranking_weight must be non-negative")
         if self.opt.teacher_rank_samples < 1:
             raise ValueError("--teacher_rank_samples must be at least 1")
+        if not 0.0 <= self.opt.teacher_texture_reliability_strength <= 1.0:
+            raise ValueError(
+                "--teacher_texture_reliability_strength must be between 0 and 1")
+        if not 0.0 <= self.opt.teacher_texture_reliability_floor <= 1.0:
+            raise ValueError(
+                "--teacher_texture_reliability_floor must be between 0 and 1")
+        if self.opt.feature_metric_channels < 1:
+            raise ValueError("--feature_metric_channels must be at least 1")
+        if self.opt.feature_metric_weight < 0.0:
+            raise ValueError("--feature_metric_weight must be non-negative")
+        if self.opt.feature_metric_warmup_steps < 0:
+            raise ValueError("--feature_metric_warmup_steps must be non-negative")
         if self.opt.teacher_confidence_threshold <= 0.0:
             raise ValueError("--teacher_confidence_threshold must be greater than 0")
         if self.opt.structure_edge_boost_weight < 0.0:
@@ -994,7 +1056,10 @@ class Trainer:
                     scale == 0
                     and
                     self.teacher_structure_enabled()
-                    and self.opt.teacher_texture_ambiguity_emphasis
+                    and (
+                        self.opt.teacher_texture_ambiguity_emphasis
+                        or self.opt.teacher_texture_reliability_gate
+                    )
                 )
             ):
                 identity_for_ambiguity = (
@@ -1082,8 +1147,218 @@ class Trainer:
             losses["loss/{}".format(scale)] = loss
 
         total_loss /= self.num_scales
+
+        if getattr(self.opt, "feature_metric_loss", False):
+            fm_total = self.compute_feature_metric_losses(inputs, outputs, losses)
+            total_loss = total_loss + fm_total
+
+        if getattr(self.opt, "tsob_mixture_loss", False):
+            tsob_total = self.compute_tsob_mixture_loss(inputs, outputs, losses)
+            total_loss = total_loss + tsob_total
+
         losses["loss"] = total_loss
         return losses
+
+    def compute_tsob_mixture_loss(self, inputs, outputs, losses):
+        """TSOB-style K=2 depth mixture loss (training-only, label-free).
+
+        The mixture head takes scale-0 decoder features and produces:
+          mu_delta  — signed offset between the two depth hypotheses
+          log_s0/1  — per-component log-uncertainties (Laplacian scale)
+          alpha_logit — logit for the mixing weight
+
+        mu_0 = existing disp output (used by all other losses unchanged).
+        mu_1 = mu_0 + tanh(mu_delta) * 0.5  (bounded near-far split)
+        sigma_0/1 = softplus(log_s) + sigma_min
+        alpha = sigmoid(alpha_logit)  (weight for hypothesis 0)
+
+        For each source frame the loss warps both hypotheses into the target
+        frame and computes a Laplacian NLL per component, then takes the
+        alpha-weighted sum. This drives the model to commit to one hypothesis
+        at boundaries rather than averaging them into a blob.
+
+        Regularizers:
+          alpha_entropy — encourages confident (non-0.5) mixing weights
+          alpha_smooth  — spatial TV on the mixing weight map
+        """
+        if ("disp_feat", 0) not in outputs:
+            return outputs[("disp", 0)].new_tensor(0.0)
+
+        feat = outputs[("disp_feat", 0)]
+        raw = self.models["mixture_head"](feat)           # [B, 4, H, W]
+
+        mu_0 = outputs[("disp", 0)]                       # [B, 1, H, W]
+        mu_delta = raw[:, 0:1]
+        mu_1 = torch.clamp(mu_0 + torch.tanh(mu_delta) * 0.5, 0.0, 1.0)
+
+        sigma_min = self.opt.tsob_sigma_min
+        sigma_0 = F.softplus(raw[:, 1:2]) + sigma_min
+        sigma_1 = F.softplus(raw[:, 2:3]) + sigma_min
+        alpha = torch.sigmoid(raw[:, 3:4])                # weight for mu_0
+
+        target = inputs[("color", 0, 0)]
+        _, depth_0 = disp_to_depth(mu_0, self.opt.min_depth, self.opt.max_depth)
+        _, depth_1 = disp_to_depth(mu_1, self.opt.min_depth, self.opt.max_depth)
+
+        nll_sum = mu_0.new_tensor(0.0)
+        frame_count = 0
+
+        for frame_id in self.opt.frame_ids[1:]:
+            if frame_id == "s" or ("cam_T_cam", 0, frame_id) not in outputs:
+                continue
+            T = outputs[("cam_T_cam", 0, frame_id)]
+            source = inputs[("color", frame_id, 0)]
+
+            def warp_with_depth(depth):
+                cam_pts = self.backproject_depth[0](depth, inputs[("inv_K", 0)])
+                coords = self.project_3d[0](cam_pts, inputs[("K", 0)], T)
+                return F.grid_sample(
+                    source, coords, padding_mode="border", align_corners=True)
+
+            recon_0 = warp_with_depth(depth_0)
+            recon_1 = warp_with_depth(depth_1)
+
+            # Laplacian NLL: |error| / sigma + log(2*sigma)
+            err_0 = torch.abs(target - recon_0).mean(1, keepdim=True)
+            err_1 = torch.abs(target - recon_1).mean(1, keepdim=True)
+            nll_0 = err_0 / sigma_0 + torch.log(2.0 * sigma_0)
+            nll_1 = err_1 / sigma_1 + torch.log(2.0 * sigma_1)
+
+            nll_sum = nll_sum + (alpha * nll_0 + (1.0 - alpha) * nll_1).mean()
+            frame_count += 1
+
+        if frame_count == 0:
+            return mu_0.new_tensor(0.0)
+
+        nll_loss = nll_sum / frame_count
+
+        # Entropy regularizer: minimise H(alpha) to push toward 0 or 1
+        eps = 1e-6
+        entropy = -(alpha * torch.log(alpha + eps)
+                    + (1.0 - alpha) * torch.log(1.0 - alpha + eps)).mean()
+
+        # Spatial smoothness on alpha (TV)
+        alpha_smooth = (
+            torch.abs(alpha[:, :, :, 1:] - alpha[:, :, :, :-1]).mean()
+            + torch.abs(alpha[:, :, 1:, :] - alpha[:, :, :-1, :]).mean())
+
+        tsob_weight = self.ramped_weight(
+            self.opt.tsob_weight, self.opt.tsob_warmup_steps)
+        total = (tsob_weight * nll_loss
+                 + self.opt.tsob_alpha_entropy_weight * entropy
+                 + self.opt.tsob_alpha_smooth_weight * alpha_smooth)
+
+        losses["tsob/nll_loss"] = nll_loss.detach()
+        losses["tsob/entropy"] = entropy.detach()
+        losses["tsob/alpha_mean"] = alpha.mean().detach()
+        losses["tsob/sigma0_mean"] = sigma_0.mean().detach()
+        losses["tsob/sigma1_mean"] = sigma_1.mean().detach()
+        losses["tsob/weight"] = torch.tensor(tsob_weight, device=self.device)
+        losses["tsob/total"] = total.detach()
+        return total
+
+    def feature_first_order_l1(self, feature):
+        grad_x = torch.abs(feature[:, :, :, 1:] - feature[:, :, :, :-1]).mean()
+        grad_y = torch.abs(feature[:, :, 1:, :] - feature[:, :, :-1, :]).mean()
+        return grad_x + grad_y
+
+    def feature_second_order_l1(self, feature):
+        ddx = torch.abs(
+            feature[:, :, :, 2:] - 2.0 * feature[:, :, :, 1:-1]
+            + feature[:, :, :, :-2]).mean()
+        ddy = torch.abs(
+            feature[:, :, 2:, :] - 2.0 * feature[:, :, 1:-1, :]
+            + feature[:, :, :-2, :]).mean()
+        return ddx + ddy
+
+    def compute_feature_metric_losses(self, inputs, outputs, losses):
+        """FeatDepth-style feature-metric loss (training-only, label-free).
+
+        A small image autoencoder (``self.models["feature_net"]``) produces a
+        feature map shaped by three terms: a reconstruction term, a first-order
+        discriminative term (encourage distinctive, non-flat features), and a
+        second-order convergent term (encourage smooth single-basin landscapes).
+        The feature-metric term then reprojects SOURCE features into the TARGET
+        frame using the predicted depth/pose sampling grid and compares them in
+        feature space, giving depth/pose a sharper signal than raw photometric
+        matching in low-texture canopy. Features are detached in the matching term
+        so the autoencoder is shaped only by its own objective and cannot collapse
+        to cheat the depth supervision. Inference is unchanged and uses no labels.
+        """
+        feature_net = self.models["feature_net"]
+        downsample = max(1, int(self.opt.feature_metric_downsample))
+
+        def to_feature_res(image):
+            if downsample == 1:
+                return image
+            return F.avg_pool2d(image, kernel_size=downsample)
+
+        target_image = to_feature_res(inputs[("color", 0, 0)])
+        target_feature, target_recon = feature_net(target_image)
+        feature_hw = target_feature.shape[-2:]
+
+        recon_loss = self.charbonnier(target_recon - target_image).mean()
+        dis_loss = -self.feature_first_order_l1(target_feature)
+        cvt_loss = self.feature_second_order_l1(target_feature)
+        frame_count = 1
+
+        target_feature_match = target_feature.detach()
+        feature_reproj = []
+        for frame_id in self.opt.frame_ids[1:]:
+            if frame_id == "s" or ("sample", frame_id, 0) not in outputs:
+                continue
+            source_image = to_feature_res(inputs[("color", frame_id, 0)])
+            source_feature, source_recon = feature_net(source_image)
+            recon_loss = recon_loss + self.charbonnier(
+                source_recon - source_image).mean()
+            dis_loss = dis_loss - self.feature_first_order_l1(source_feature)
+            cvt_loss = cvt_loss + self.feature_second_order_l1(source_feature)
+            frame_count += 1
+
+            # The warp grid is at full resolution; resample it to the feature
+            # resolution (normalized [-1, 1] coords are resolution-independent).
+            grid = outputs[("sample", frame_id, 0)]
+            if grid.shape[1:3] != feature_hw:
+                grid = F.interpolate(
+                    grid.permute(0, 3, 1, 2), size=feature_hw,
+                    mode="bilinear", align_corners=True).permute(0, 2, 3, 1)
+            warped_source_feature = F.grid_sample(
+                source_feature.detach(), grid,
+                padding_mode="border", align_corners=True)
+            feature_reproj.append(
+                torch.abs(target_feature_match - warped_source_feature).mean(
+                    1, keepdim=True))
+
+        if not feature_reproj:
+            return target_feature.new_tensor(0.0)
+
+        feature_reproj = torch.cat(feature_reproj, 1)
+        if feature_reproj.shape[1] > 1:
+            fm_loss = feature_reproj.min(1)[0].mean()
+        else:
+            fm_loss = feature_reproj.mean()
+
+        recon_loss = recon_loss / frame_count
+        dis_loss = dis_loss / frame_count
+        cvt_loss = cvt_loss / frame_count
+
+        autoencoder_loss = (
+            self.opt.feature_recon_weight * recon_loss
+            + self.opt.feature_dis_weight * dis_loss
+            + self.opt.feature_cvt_weight * cvt_loss)
+
+        fm_weight = self.ramped_weight(
+            self.opt.feature_metric_weight, self.opt.feature_metric_warmup_steps)
+        total = fm_weight * fm_loss + autoencoder_loss
+
+        losses["feature_metric/fm_loss"] = fm_loss.detach()
+        losses["feature_metric/recon_loss"] = recon_loss.detach()
+        losses["feature_metric/dis_loss"] = dis_loss.detach()
+        losses["feature_metric/cvt_loss"] = cvt_loss.detach()
+        losses["feature_metric/weight"] = torch.tensor(
+            fm_weight, device=self.device)
+        losses["feature_metric/total"] = total.detach()
+        return total
 
     def charbonnier(self, error, epsilon=1e-3):
         return torch.sqrt(error * error + epsilon * epsilon)
@@ -1243,6 +1518,18 @@ class Trainer:
                 boost.mean())
             losses["structure_boundary/teacher_boost_max/{}".format(scale)] = (
                 boost.max())
+
+        if self.opt.teacher_texture_reliability_gate and ambiguity_map is not None:
+            ambiguity = self.resize_like(ambiguity_map, weights)
+            gate = 1.0 - self.opt.teacher_texture_reliability_strength * ambiguity
+            gate = torch.clamp(
+                gate,
+                min=self.opt.teacher_texture_reliability_floor,
+                max=1.0).detach()
+            weights = weights * gate
+            losses["teacher_reliability_gate/mean/{}".format(scale)] = gate.mean()
+            losses["teacher_reliability_gate/low_ratio/{}".format(scale)] = (
+                (gate < 0.75).float().mean())
 
         return weights.detach()
 

@@ -46,6 +46,16 @@ snapshots/07_structure_aware_label_free_vegetation_depth/DESIGN_NOTE.md
 
 This is historical design context. Prefer the Snapshot 07 README and final summary for presentation wording.
 
+## Next-Direction Candidates
+
+Verified literature shortlist for the next label-free improvement after Snapshot 07:
+
+```text
+LITERATURE_SHORTLIST.md
+```
+
+Use it to choose the next method. Self-supervised-pure options (feature-metric loss, boundary-uncertainty mixtures, normal/planarity priors, multi-frame cost-volume as a training-only teacher) keep Levinson's label-free identity; foundation-model distillation (Depth Anything / MiDaS / Marigold) is the highest-gain but non-pure option and belongs in Marvel's supervised/hybrid workstream. Chosen direction (2026-06-03): feature-metric loss (FeatDepth-style) first this week; boundary-uncertainty mixtures (TSOB) and the multi-frame training-only teacher queued over the next ~2-3 weeks.
+
 ## Previous Best And Ablations
 
 Previous/pre-Snapshot07 best:
