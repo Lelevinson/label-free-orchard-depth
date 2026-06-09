@@ -15,7 +15,9 @@ Read this file first, then open only the stage folder needed for the task.
 | `04_vegetation_general_temporal_cross_view_consistency/` | temporal geometry, visibility, texture ambiguity, and feature cross-view method-family gate; stable weak negative evidence, conclusion `do not scale` |
 | `05_teacher_anchored_relative_structure_regularization/` | full teacher-anchored label-free self-supervised adaptation run; selected checkpoint `weights_19` was the pre-Snapshot07 best teacher-anchor candidate |
 | `06_teacher_anchor_stabilization/` | reduced-ranking/no-texture stabilization of Snapshot 05; promising mixed marginal ablation, not a clean replacement |
-| `07_structure_aware_label_free_vegetation_depth/` | structure-aware RGB-teacher-guided label-free method; selected checkpoint `weights_25` is the current strongest Levinson label-free candidate |
+| `07_structure_aware_label_free_vegetation_depth/` | structure-aware RGB-teacher-guided label-free method; selected checkpoint `weights_25` is the current strongest Levinson label-free candidate (still the lead) |
+| `08_feature_metric_loss/` | FeatDepth-style feature-metric loss on the S07 stack; 3-epoch gate weak/mixed (abs_rel worsened), conclusion `stop` |
+| `09_tsob_boundary_uncertainty_mixture/` | TSOB-style K=2 depth-mixture loss on the S07 stack; full 30-epoch run worse than S07 on both test metrics, no visible de-blobbing, conclusion `stop` |
 
 ## Latest Stage
 
@@ -88,3 +90,5 @@ Avoid extra nested README files unless a subfolder becomes complicated enough to
 When a stage changes Python code, duplicate the tested `.py` files into that stage's `code/` folder. Preserve clear relative paths when useful, for example `code/trainer.py`, `code/options.py`, `code/layers.py`, or `code/networks/depth_decoder.py`.
 
 The live root `trainer.py` and `options.py` were restored to the shared baseline state after the 01/02/03 gates were packaged. Snapshot 04 later left the live root trainer/options as the active temporal-cross-view method branch. Snapshot 05 superseded that branch, Snapshot 06 reused the teacher-anchored implementation with different flags, and Snapshot 07 now supersedes that active root workbench with structure-aware teacher/sky-far code. Root `trainer.py`, `options.py`, `render_teacher_structure_diagnostics.py`, and the visual comparison helper remain active for Snapshot 07. Tested copies and patch artifacts live in `05_teacher_anchored_relative_structure_regularization/`, `06_teacher_anchor_stabilization/`, and `07_structure_aware_label_free_vegetation_depth/`. Use each stage README and command scripts to see which method was actually enabled.
+
+Snapshots 08 (feature-metric) and 09 (TSOB) added further off-by-default experimental code directly to root `options.py`/`trainer.py` (plus `networks/feature_net.py`, `networks/mixture_head.py`, and a one-line `networks/depth_decoder.py` exposure), committed together in git commit `2d3e4a2` on top of the S07 baseline commit `ccd0f70`. Both are negative results and are NOT promoted; their stage `code/` copies and a combined diff vs the S07 baseline live in their snapshot folders. Snapshot 07 `weights_25` remains the Levinson lead.

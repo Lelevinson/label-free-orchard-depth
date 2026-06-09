@@ -85,3 +85,60 @@ these results are validated on vegetation — see "Honest caveats".
 3. Can FSRE-style semantic gains be had with label-free vegetation segmentation?
 4. How do the pure methods (feature-metric + mixture-uncertainty + normal-consistency) compose on a
    ~3M backbone in 8GB at 640x192 without regressing the already-good `a1`?
+
+---
+
+# Round 2 (2026-06-05) — Gentle, abs_rel-focused, teacher-improving directions
+
+Lesson-informed follow-up after S08 (feature-metric) and S09 (TSOB) both TRADED OFF
+(nudged a1 / threshold but worsened abs_rel). Question: gentlest label-free TRAINING-side
+ways to improve overall accuracy (abs_rel) WITHOUT regressing a1, ideally by improving the
+teacher/pseudo-label. Verified deep-research pass: 23 sources, 25 claims, 23 confirmed / 2 killed.
+
+## RANKED #1 (recommended): EMA mean-teacher in-domain self-distillation + consistency-filtered pseudo-labels
+- What: replace/complement the FIXED urban (KITTI) teacher with an ADAPTIVE in-domain teacher =
+  an EMA (running-average) copy of the student itself, which learns vegetation as training
+  proceeds. Distill its predictions to the student, but only where reliable — gated by
+  consistency filters (DC-Filter = depth consistency across views, GC-Filter = geometric
+  consistency). EC-Depth (arXiv 2310.08044), ER-Depth (ACM 10.1145/3750050).
+- Why it should help abs_rel (not trade off): under DOMAIN SHIFT / corruption (the exact analog
+  of an urban teacher on vegetation) abs_rel AND a1 improve TOGETHER, no trade-off
+  (ER-Depth KITTI-C 0.115->0.111 abs_rel, a1 0.869->0.874). On clean in-domain data it is
+  accuracy-SAFE (abs_rel flat, sq_rel/RMSE slightly better). The consistency filter is the
+  gentle mechanism that prevents propagating teacher errors (directly answers our "aggressive
+  backfires" lesson).
+- Purity: PRESERVED (no labels, no external supervised teacher). Inference: single-image
+  RGB-only (only student DepthNet at test). Feasibility 8GB @ batch 12: GOOD (one frozen
+  forward pass + a weight copy). Code: MEDIUM (EMA update hook, 2 consistency filters,
+  distillation loss). Directly fixes S07's known weakness: its teacher is a fixed out-of-domain
+  urban model that is itself blobby on vegetation.
+- Variant #1b: previous-EPOCH checkpoint teacher (SRD-Depth 2302.09789; SS-MDE mechanism) — a
+  hard copy of last epoch instead of a running average; simpler bookkeeping (we already save
+  per-epoch checkpoints), slightly less smooth.
+- Failure modes: gains are regime-specific to OOD/hard data (good for us — CitrusFarm IS OOD vs
+  the urban teacher); without the DC/GC filters a noisy teacher propagates errors; two-stage
+  recipe (needs a decent stage-1 model — we have S07).
+
+## RANKED #2: distill a self-supervised MULTI-FRAME cost-volume teacher into the single-image student (training-only)
+- ManyDepth (2104.14540), FusionDepth (2305.06036), Mono-ViFI (2407.14126; shares weights so
+  single-image inference, even reports on Lite-Mono). Literature's strongest label-free abs_rel
+  improver. Purity preserved; inference single-image. BUT: LARGE code change, MODERATE 8GB
+  feasibility (cost-volume training is memory-heavy, may force lower batch/frames), and cost
+  volumes are unreliable on moving/low-texture vegetation. Higher ceiling, higher risk/effort.
+
+## RANKED #3: augmentation / TTA self-distillation (gentlest, smallest change)
+- BDEdepth (2309.05254, resizing-crop / split-permute self-distill, abs_rel 0.115->0.108 from the
+  augmentation+self-distill mechanism alone), EPCDepth selective post-processing (2109.12484),
+  Mono-ViFI spatial branch. Modest but real abs_rel gains, label-free, SMALL-MEDIUM code.
+
+## CAUTION / guardrails
+- Heavy weather/corruption augmentation ALONE (Robust-Depth 2307.08357) is accuracy-SAFE but does
+  NOT lift clean-condition abs_rel — pair augmentation with self-distillation for an actual gain.
+- DO NOT adopt external supervised teachers / GT (SS-MDE's LeReS term; MaskingDepth's semi-sup GT)
+  — those break label-free purity (Marvel/hybrid territory). Take only the self-distillation /
+  EMA / consistency-filter / augmentation MECHANICS.
+
+## Honest caveat
+- ALL quantitative evidence is KITTI / KITTI-C (urban + synthetic corruption), NOT CitrusFarm
+  vegetation. The OOD/corruption regime is the closest analog, but the magnitude of any abs_rel
+  gain on dense vegetation is unverified — must be gated in-domain.

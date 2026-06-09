@@ -1,0 +1,21 @@
+=== TSOB GATE START Wed Jun  3 18:01:21 TST 2026 ===
+control_rc=0
+experiment_rc=0
+=== TSOB GATE DONE Wed Jun  3 21:10:35 TST 2026 control_rc=0 experiment_rc=0 ===
+
+=== EVAL RESULTS (first-100 val, weights_2) ===
+control:    median abs_rel=0.3411  a1=0.5155
+experiment: median abs_rel=0.3234  a1=0.5805
+delta:      abs_rel=-0.0177 (improved)  a1=+0.0650 (improved)
+verdict:    GATE PASSED — both metrics improved cleanly. Send to lab for full 30-epoch run.
+
+=== CORRECTION (Opus re-verification, full 560-sample val) ===
+The "both improved cleanly" verdict above was based on first-100 val and is an artifact.
+Two identical control runs (S08 vs S09) differed by 0.026 in abs_rel but <0.001 in a1,
+showing abs_rel is noisy at 100 samples while a1 is stable.
+FULL 560-sample val (weights_2):
+  control:    abs_rel=0.4373  a1=0.4979  sq_rel=2.82  rmse=3.33
+  experiment: abs_rel=0.4558  a1=0.5393  sq_rel=4.26  rmse=3.81
+Real verdict: TRADE-OFF. a1/a2/a3 all improve (+0.041/+0.020/+0.013 = de-blobbing works),
+but abs_rel/sq_rel/rmse worsen (sharper-but-overconfident, matches TSOB paper's own caveat).
+NOT a clean win; it gives up S07's "matches original abs_rel" property to push a1.
