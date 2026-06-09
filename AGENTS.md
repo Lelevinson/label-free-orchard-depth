@@ -50,6 +50,7 @@ Update policy:
 5. Update `paper_shortlist.md` for results likely to support the paper.
 6. Update `advisor_notes.md` for advisor questions or recommendations.
 7. Update the relevant milestone README when milestone status, handoff guidance, or evidence ownership changes.
+8. For Milestone 4 branch folders, put the main branch report at the branch-folder root with a `00_BRANCH_*_REPORT.md` filename so it is the first thing visible when the folder is opened.
 
 ## User Collaboration Preference
 
@@ -548,6 +549,8 @@ Milestone 4 planning questions:
 32. 2026-06-09: Completed Branch C 2-epoch smoke and 30-epoch laptop run from earlier Hybrid `weights_13`. Final Branch C `weights_29` is the strongest result so far by final metrics: val raw abs_rel/a1=`0.1561`/`0.8668`, val median abs_rel/a1=`0.1581`/`0.8640`; test raw abs_rel/a1=`0.1399`/`0.8733`, test median abs_rel/a1=`0.1436`/`0.8675`. Visual panels and loss plots are saved under `branch_c_rgb_edge_smoothness/results/branch_c_rgb_edge_from_w13_b12_30ep_s001_laptop/`; validation checkpoint sweep remains the next selection step.
 33. 2026-06-09: Completed Branch C checkpoint sweep. Validation raw `abs_rel` winner is `weights_22` with val raw abs_rel/a1=`0.1530`/`0.8664`; validation median `abs_rel` winner is `weights_24` with val median abs_rel/a1=`0.1562`/`0.8641`. Test confirmation favors `weights_24` for raw metric depth: test raw abs_rel/a1=`0.1384`/`0.8694`; final `weights_29` remains best among confirmed candidates for test median-scaled abs_rel/a1=`0.1436`/`0.8675`. Recommended checkpoint to carry forward is `weights_24`, with `weights_22` and `weights_29` retained as comparison points. Generated selected-checkpoint Plain Citrus comparison panels under `branch_c_rgb_edge_smoothness/results/branch_c_rgb_edge_from_w13_b12_30ep_s001_laptop/checkpoint_sweep/visuals/weights_24_baseline_vs_branch_c_val/` and `.../weights_24_baseline_vs_branch_c_test/`.
 34. 2026-06-09: Generated same-image raw plus median-scaled comparison panels for Branch C `weights_24` versus final `weights_29` under `checkpoint_sweep/visuals/weights24_vs_weights29_val/` and `checkpoint_sweep/visuals/weights24_vs_weights29_test/`. Visual interpretation: the two checkpoints are very close; `weights_24` remains preferred for aggregate raw metric depth, while `weights_29` remains a strong final-epoch comparison.
+35. 2026-06-09: Organized Branch C under `citrus_project/milestones/04_lightweight_vegetation_improvement/Marvel/branch_c/branch_c_rgb_edge_smoothness/`, updated references, added main-repo ignore rules for bulky local result dumps, and created a separate local backup repo at `C:/Proj/milestone-4-dump` with a committed Branch C snapshot plus copied context notes and the two-checkpoint comparison helper.
+36. 2026-06-10: Added top-visible Branch C report aliases: `citrus_project/milestones/04_lightweight_vegetation_improvement/Marvel/branch_c/00_BRANCH_C_REPORT.md` and `branch_c_rgb_edge_smoothness/00_BRANCH_C_TRAINING_REPORT.md`. Future branch folders should expose their main report as a `00_BRANCH_*_REPORT.md` file at the branch root.
 
 ## Update Template
 
