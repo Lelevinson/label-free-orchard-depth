@@ -1,0 +1,271 @@
+diff --git a/options.py b/options.py
+index 4b6e4dc..9d5df16 100644
+--- a/options.py
++++ b/options.py
+@@ -391,6 +391,41 @@ class LiteMonoOptions:
+                                  help="integer factor to downsample images for the feature-metric "
+                                       "loss (1=full resolution; 2=half, much lower training memory)",
+                                  default=2)
++        # --- Snapshot 10: EMA in-domain self-teacher distillation (training-only) ---
++        self.parser.add_argument("--ema_self_distillation",
++                                 help="if set, adds a training-only EMA in-domain self-teacher: a "
++                                      "frozen exponential-moving-average copy of the student "
++                                      "supervises it via a scale-and-shift-aware metric term plus a "
++                                      "normalized structure anchor, gated by two independent "
++                                      "reliability filters (geometric min-reprojection + flip "
++                                      "consistency). Inference unchanged and label-free.",
++                                 action="store_true")
++        self.parser.add_argument("--ema_decay", type=float, default=0.99,
++                                 help="EMA teacher decay m in pt <- m*pt + (1-m)*ps")
++        self.parser.add_argument("--ema_decay_final", type=float, default=0.99,
++                                 help="final EMA decay; equal to --ema_decay disables the ramp")
++        self.parser.add_argument("--ema_start_step", type=int, default=0,
++                                 help="step to begin EMA distillation; 0 = auto (~5 epochs)")
++        self.parser.add_argument("--ema_distill_weight", type=float, default=0.3,
++                                 help="max weight of the EMA distillation loss")
++        self.parser.add_argument("--ema_distill_warmup_steps", type=int, default=2000,
++                                 help="linear warmup steps for the EMA distillation weight")
++        self.parser.add_argument("--ema_struct_weight", type=float, default=0.5,
++                                 help="weight of the normalized-structure anchor term (SI term leads)")
++        self.parser.add_argument("--ema_filter_adaptive",
++                                 help="if set, reliability thresholds are tau*mean(error) "
++                                      "(self-calibrating); otherwise fixed deltas are used",
++                                 action="store_true")
++        self.parser.add_argument("--ema_gc_tau", type=float, default=3.0,
++                                 help="adaptive GC (geometric min-reprojection) threshold multiplier")
++        self.parser.add_argument("--ema_gc_delta", type=float, default=0.04,
++                                 help="fixed GC threshold in raw photo-error units")
++        self.parser.add_argument("--ema_dc_tau", type=float, default=3.0,
++                                 help="adaptive DC (flip-consistency) threshold multiplier")
++        self.parser.add_argument("--ema_dc_delta", type=float, default=0.03,
++                                 help="fixed DC threshold in raw disparity units")
++        self.parser.add_argument("--ema_min_keep_ratio", type=float, default=0.05,
++                                 help="starvation guard: skip the distill loss if kept-pixel ratio < this")
+         self.parser.add_argument("--teacher_path",
+                                  type=str,
+                                  help="folder containing frozen RGB teacher encoder.pth and "
+diff --git a/trainer.py b/trainer.py
+index a5332f6..4979eb4 100644
+--- a/trainer.py
++++ b/trainer.py
+@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function
+ import time
+ import sys
+ import random
++import copy
+ import csv
+ import torch.optim as optim
+ from torch.utils.data import DataLoader
+@@ -44,6 +45,7 @@ class Trainer:
+         self.models = {}
+         self.models_pose = {}
+         self.teacher_models = {}
++        self.ema_models = {}
+         self.parameters_to_train = []
+         self.parameters_to_train_pose = []
+ 
+@@ -164,6 +166,17 @@ class Trainer:
+         if self.teacher_structure_enabled():
+             self.load_teacher_model()
+ 
++        if getattr(self.opt, "ema_self_distillation", False):
++            # Snapshot 10: in-domain EMA self-teacher (training-only). A frozen copy of
++            # the student encoder+depth, updated as an exponential moving average after
++            # each optimizer step. Kept OUT of self.models so set_train/optimizer/
++            # save_model loops never touch it. Discarded at inference.
++            for name in ("encoder", "depth"):
++                self.ema_models[name] = copy.deepcopy(self.models[name])
++                self.freeze_module(self.ema_models[name])
++                self.ema_models[name].eval()
++            print("EMA self-teacher initialized (training-only).")
++
+         print("Training model named:\n  ", self.opt.model_name)
+         print("Models and tensorboard events files are saved to:\n  ", self.opt.log_dir)
+         print("Training is using:\n  ", self.device)
+@@ -176,6 +189,12 @@ class Trainer:
+         if self.opt.max_train_steps > 0:
+             self.num_total_steps = min(self.num_total_steps, self.opt.max_train_steps)
+ 
++        if getattr(self.opt, "ema_self_distillation", False) and self.opt.ema_start_step <= 0:
++            steps_per_epoch = max(1, num_train_samples // self.opt.batch_size)
++            self.opt.ema_start_step = 5 * steps_per_epoch
++            print("EMA self-distillation: warmup start_step auto-set to {} (~5 epochs).".format(
++                self.opt.ema_start_step))
++
+         self.train_loader = DataLoader(
+             train_dataset, self.opt.batch_size, True,
+             num_workers=self.opt.num_workers, pin_memory=True, drop_last=True)
+@@ -323,6 +342,32 @@ class Trainer:
+             self.opt.feature_cvt_weight = 1e-3
+         if not hasattr(self.opt, "feature_metric_downsample"):
+             self.opt.feature_metric_downsample = 2
++        if not hasattr(self.opt, "ema_self_distillation"):
++            self.opt.ema_self_distillation = False
++        if not hasattr(self.opt, "ema_decay"):
++            self.opt.ema_decay = 0.99
++        if not hasattr(self.opt, "ema_decay_final"):
++            self.opt.ema_decay_final = 0.99
++        if not hasattr(self.opt, "ema_start_step"):
++            self.opt.ema_start_step = 0
++        if not hasattr(self.opt, "ema_distill_weight"):
++            self.opt.ema_distill_weight = 0.3
++        if not hasattr(self.opt, "ema_distill_warmup_steps"):
++            self.opt.ema_distill_warmup_steps = 2000
++        if not hasattr(self.opt, "ema_struct_weight"):
++            self.opt.ema_struct_weight = 0.5
++        if not hasattr(self.opt, "ema_filter_adaptive"):
++            self.opt.ema_filter_adaptive = False
++        if not hasattr(self.opt, "ema_gc_tau"):
++            self.opt.ema_gc_tau = 3.0
++        if not hasattr(self.opt, "ema_gc_delta"):
++            self.opt.ema_gc_delta = 0.04
++        if not hasattr(self.opt, "ema_dc_tau"):
++            self.opt.ema_dc_tau = 3.0
++        if not hasattr(self.opt, "ema_dc_delta"):
++            self.opt.ema_dc_delta = 0.03
++        if not hasattr(self.opt, "ema_min_keep_ratio"):
++            self.opt.ema_min_keep_ratio = 0.05
+         if not hasattr(self.opt, "teacher_path"):
+             self.opt.teacher_path = os.path.join("weights", "lite-mono")
+         if not hasattr(self.opt, "structure_aware_teacher"):
+@@ -571,6 +616,8 @@ class Trainer:
+             m.train()
+         if self.opt.freeze_depth_encoder:
+             self.models["encoder"].eval()
++        for m in self.ema_models.values():
++            m.eval()
+ 
+     def set_eval(self):
+         """Convert all models to testing/evaluation mode
+@@ -622,6 +669,9 @@ class Trainer:
+             if self.use_pose_net:
+                 self.model_pose_optimizer.step()
+ 
++            if getattr(self.opt, "ema_self_distillation", False) and not self.depth_updates_frozen():
++                self.update_ema()
++
+             duration = time.time() - before_op_time
+ 
+             # log less frequently after the first 2000 steps to save time & disk space
+@@ -1156,9 +1206,105 @@ class Trainer:
+             tsob_total = self.compute_tsob_mixture_loss(inputs, outputs, losses)
+             total_loss = total_loss + tsob_total
+ 
++        if getattr(self.opt, "ema_self_distillation", False):
++            ema_total = self.compute_ema_distill_loss(inputs, outputs, losses)
++            total_loss = total_loss + ema_total
++
+         losses["loss"] = total_loss
+         return losses
+ 
++    def update_ema(self):
++        """Update the EMA self-teacher: pt <- m*pt + (1-m)*ps over params + float buffers."""
++        m = self.opt.ema_decay
++        if self.opt.ema_decay_final != self.opt.ema_decay:
++            denom = max(1, self.opt.ema_start_step + self.opt.ema_distill_warmup_steps)
++            prog = min(1.0, float(self.step + 1) / float(denom))
++            m = self.opt.ema_decay + (self.opt.ema_decay_final - self.opt.ema_decay) * prog
++        with torch.no_grad():
++            for name in self.ema_models:
++                student, ema = self.models[name], self.ema_models[name]
++                for ps, pt in zip(student.parameters(), ema.parameters()):
++                    pt.mul_(m).add_(ps.detach(), alpha=1.0 - m)
++                for bs, bt in zip(student.buffers(), ema.buffers()):
++                    if bt.is_floating_point():
++                        bt.mul_(m).add_(bs.detach(), alpha=1.0 - m)
++                    else:
++                        bt.copy_(bs)
++
++    def compute_ema_distill_loss(self, inputs, outputs, losses):
++        """Snapshot 10: EMA in-domain self-teacher distillation, gated by two INDEPENDENT
++        reliability filters (GC geometric min-reprojection + DC flip-consistency).
++        Training-only, label-free. Inference unchanged. See
++        snapshots/10_ema_self_teacher/DESIGN_NOTE.md.
++        """
++        if self.step < self.opt.ema_start_step or not self.ema_models:
++            return outputs[("disp", 0)].new_tensor(0.0)
++
++        color = inputs[("color", 0, 0)]
++        hw = color.shape[-2:]
++
++        def to_hw(t):
++            if t.shape[-2:] != hw:
++                return F.interpolate(t, hw, mode="bilinear", align_corners=False)
++            return t
++
++        # Student disparity (grad on) and EMA teacher disparity on CLEAN target (no grad).
++        s_disp = to_hw(outputs[("disp", 0)])
++        with torch.no_grad():
++            t_disp = to_hw(
++                self.ema_models["depth"](self.ema_models["encoder"](color))[("disp", 0)]).detach()
++
++        # GC filter (free): reuse the post-automask min-reprojection error.
++        pe = to_hw(outputs[("photo_error", 0)].detach())
++        delta_g = (self.opt.ema_gc_tau * pe.mean()
++                   if self.opt.ema_filter_adaptive else pe.new_tensor(self.opt.ema_gc_delta))
++        m_g = (pe < delta_g).float()
++
++        # DC filter: EMA teacher self-consistency under horizontal flip, in RAW disparity space.
++        with torch.no_grad():
++            flip_disp = to_hw(self.ema_models["depth"](
++                self.ema_models["encoder"](torch.flip(color, dims=[3])))[("disp", 0)])
++            t_disp_flip = torch.flip(flip_disp, dims=[3]).detach()
++        dc = torch.abs(t_disp - t_disp_flip)
++        delta_d = (self.opt.ema_dc_tau * dc.mean()
++                   if self.opt.ema_filter_adaptive else dc.new_tensor(self.opt.ema_dc_delta))
++        m_d = (dc < delta_d).float()
++
++        M = (m_g * m_d).detach()
++        keep = M.mean()
++        canopy = M[:, :, int(0.4 * M.shape[-2]):, :]
++        keep_canopy = canopy.mean()
++
++        # Warmup ramp from ema_start_step; starvation guard.
++        denom = max(1, self.opt.ema_distill_warmup_steps)
++        prog = min(1.0, max(0.0, float(self.step + 1 - self.opt.ema_start_step) / float(denom)))
++        gamma = self.opt.ema_distill_weight * prog
++        if float(keep) < self.opt.ema_min_keep_ratio:
++            gamma = 0.0
++
++        # Term A: scale-and-shift-aware metric log-depth distillation (the abs_rel mover).
++        _, z_s = disp_to_depth(s_disp, self.opt.min_depth, self.opt.max_depth)
++        _, z_t = disp_to_depth(t_disp, self.opt.min_depth, self.opt.max_depth)
++        r = torch.log(z_s.clamp_min(1e-6)) - torch.log(z_t.clamp_min(1e-6)).detach()
++        r_bar = (M * r).sum() / (M.sum() + 1e-6)
++        l_si = (M * self.charbonnier(r - r_bar)).sum() / (M.sum() + 1e-6)
++
++        # Term B: normalized-log structure anchor (protects relative shape / a1).
++        s_struct = self.normalized_log_inverse_from_disp(s_disp)
++        t_struct = self.normalized_log_inverse_from_disp(t_disp).detach()
++        l_struct = self.weighted_mean(self.charbonnier(s_struct - t_struct), M)
++
++        l_dist = l_si + self.opt.ema_struct_weight * l_struct
++        total = gamma * l_dist
++
++        losses["ema_distill/l_si"] = l_si.detach()
++        losses["ema_distill/l_struct"] = l_struct.detach()
++        losses["ema_distill/keep_ratio"] = keep.detach()
++        losses["ema_distill/keep_ratio_canopy"] = keep_canopy.detach()
++        losses["ema_distill/gamma"] = torch.tensor(gamma, device=self.device)
++        losses["ema_distill/total"] = total.detach()
++        return total
++
+     def compute_tsob_mixture_loss(self, inputs, outputs, losses):
+         """TSOB-style K=2 depth mixture loss (training-only, label-free).
+ 
+@@ -2256,6 +2402,15 @@ class Trainer:
+         if self.use_pose_net:
+             torch.save(self.model_pose_optimizer.state_dict(), save_path)
+ 
++        # Snapshot 10: persist the EMA self-teacher and the step/epoch counters so a run
++        # can be resumed without the self.step desync (self.step is reset to 0 in train()).
++        for model_name, model in self.ema_models.items():
++            torch.save(model.state_dict(),
++                       os.path.join(save_folder, "ema_{}.pth".format(model_name)))
++        if self.ema_models:
++            torch.save({"step": self.step, "epoch": self.epoch},
++                       os.path.join(save_folder, "train_state.pth"))
++
+     def load_pretrain(self):
+         self.opt.mypretrain = os.path.expanduser(self.opt.mypretrain)
+         path = self.opt.mypretrain
