@@ -151,8 +151,23 @@ citrus_project/dataset_workspace/projection_alignment_audit
 
 # Generated research/demo artifacts
 citrus_project/research/generated/
+tmp_trainer_wiring_smoke/
+citrus_project/milestones/03_self_supervised_adaptation/runs/
+citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/
+citrus_project/milestones/04_lightweight_vegetation_improvement/runs/
 
+# Local Codex project config / MCP secrets
+.codex/
 
-# gitignorebaru
-
+# Marvel's gitignore
 citrus-farm-dataset
+
+# Paper
+lite-mono-paper.pdf
+
+# Local Citrus experiment result dumps
+citrus_project/dataset_workspace/labresults/
+citrus_project/milestones/04_lightweight_vegetation_improvement/Marvel/results/
+citrus_project/milestones/04_lightweight_vegetation_improvement/Marvel/runs/
+citrus_project/milestones/04_lightweight_vegetation_improvement/Marvel/branch_c/branch_c_rgb_edge_smoothness/results/
+context_recovery_backup_*/

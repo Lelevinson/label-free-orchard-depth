@@ -5,6 +5,7 @@ import time
 import sys
 import random
 import csv
+from pathlib import Path
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
@@ -18,6 +19,9 @@ from layers import *
 import datasets
 import networks
 from linear_warmup_cosine_annealing_warm_restarts_weight_decay import ChainedScheduler
+
+
+REPO_ROOT = Path(__file__).resolve().parents[5]
 
 
 # torch.backends.cudnn.benchmark = True
@@ -228,12 +232,54 @@ class Trainer:
             self.opt.boundary_loss_weight = 0.0
         if not hasattr(self.opt, "disable_boundary_normalize"):
             self.opt.disable_boundary_normalize = False
+        if not hasattr(self.opt, "lidar_loss_weight"):
+            self.opt.lidar_loss_weight = 0.0
+        if not hasattr(self.opt, "lidar_loss_type"):
+            self.opt.lidar_loss_type = "log_l1"
+        if not hasattr(self.opt, "lidar_scale_align"):
+            self.opt.lidar_scale_align = "median"
+        if not hasattr(self.opt, "lidar_scale_penalty_weight"):
+            self.opt.lidar_scale_penalty_weight = 0.0
+        if not hasattr(self.opt, "lidar_loss_min_depth"):
+            self.opt.lidar_loss_min_depth = 0.001
+        if not hasattr(self.opt, "lidar_loss_max_depth"):
+            self.opt.lidar_loss_max_depth = 80.0
+        if not hasattr(self.opt, "lidar_loss_warmup_epochs"):
+            self.opt.lidar_loss_warmup_epochs = 0.0
+        if not hasattr(self.opt, "lidar_loss_scales"):
+            self.opt.lidar_loss_scales = [0]
+        if not hasattr(self.opt, "lidar_loss_min_valid_pixels"):
+            self.opt.lidar_loss_min_valid_pixels = 500
         if self.opt.max_train_steps < 0:
             raise ValueError(
                 "--max_train_steps must be non-negative; "
                 "use 0 to run the full requested epochs")
         if self.opt.boundary_loss_weight < 0:
             raise ValueError("--boundary_loss_weight must be non-negative")
+        if self.opt.lidar_loss_weight < 0:
+            raise ValueError("--lidar_loss_weight must be non-negative")
+        if self.opt.lidar_loss_type not in {"log_l1", "l1"}:
+            raise ValueError("--lidar_loss_type must be 'log_l1' or 'l1'")
+        if self.opt.lidar_scale_align not in {"median", "none"}:
+            raise ValueError("--lidar_scale_align must be 'median' or 'none'")
+        if self.opt.lidar_scale_penalty_weight < 0:
+            raise ValueError("--lidar_scale_penalty_weight must be non-negative")
+        if self.opt.lidar_loss_min_depth <= 0:
+            raise ValueError("--lidar_loss_min_depth must be positive")
+        if self.opt.lidar_loss_max_depth <= self.opt.lidar_loss_min_depth:
+            raise ValueError("--lidar_loss_max_depth must be greater than --lidar_loss_min_depth")
+        if self.opt.lidar_loss_warmup_epochs < 0:
+            raise ValueError("--lidar_loss_warmup_epochs must be non-negative")
+        if self.opt.lidar_loss_min_valid_pixels < 1:
+            raise ValueError("--lidar_loss_min_valid_pixels must be at least 1")
+        self.opt.lidar_loss_scales = [int(scale) for scale in self.opt.lidar_loss_scales]
+        invalid_lidar_scales = [
+            scale for scale in self.opt.lidar_loss_scales if scale not in self.opt.scales
+        ]
+        if invalid_lidar_scales:
+            raise ValueError(
+                "--lidar_loss_scales must be a subset of --scales; "
+                "got invalid scales {}".format(invalid_lidar_scales))
         if self.opt.freeze_depth_steps < 0:
             raise ValueError(
                 "--freeze_depth_steps must be non-negative; "
@@ -254,11 +300,11 @@ class Trainer:
 
         if self.opt.dataset == "citrus":
             default_kitti_path = os.path.abspath(os.path.join(
-                os.path.dirname(__file__), "kitti_data"))
+                str(REPO_ROOT), "kitti_data"))
             current_data_path = os.path.abspath(os.path.expanduser(self.opt.data_path))
             if current_data_path == default_kitti_path:
                 self.opt.data_path = os.path.join(
-                    os.path.dirname(__file__), "citrus_project", "dataset_workspace")
+                    str(REPO_ROOT), "citrus_project", "dataset_workspace")
 
             if self.opt.split == "eigen_zhou":
                 self.opt.split = "citrus_prepared"
@@ -289,7 +335,7 @@ class Trainer:
         datasets_dict = {"kitti": datasets.KITTIRAWDataset,
                          "kitti_odom": datasets.KITTIOdomDataset}
         self.dataset = datasets_dict[self.opt.dataset]
-        fpath = os.path.join(os.path.dirname(__file__), "splits", self.opt.split, "{}_files.txt")
+        fpath = os.path.join(str(REPO_ROOT), "splits", self.opt.split, "{}_files.txt")
         train_filenames = readlines(fpath.format("train"))
         val_filenames = readlines(fpath.format("val"))
         img_ext = '.png' if self.opt.png else '.jpg'
@@ -304,7 +350,7 @@ class Trainer:
 
     def build_citrus_train_val_datasets(self):
         citrus_module_dir = os.path.join(
-            os.path.dirname(__file__), "citrus_project", "milestones", "02_citrus_integration")
+            str(REPO_ROOT), "citrus_project", "milestones", "02_citrus_integration")
         if citrus_module_dir not in sys.path:
             sys.path.insert(0, citrus_module_dir)
         from citrus_prepared_dataset import CitrusPreparedDataset
@@ -708,6 +754,27 @@ class Trainer:
                 losses["boundary_loss_weighted/{}".format(scale)] = (
                     self.opt.boundary_loss_weight * boundary_loss / (2 ** scale))
 
+            lidar_weight = self.current_lidar_loss_weight()
+            if (
+                lidar_weight > 0
+                and scale in self.opt.lidar_loss_scales
+                and "depth_gt" in inputs
+            ):
+                lidar_loss, lidar_stats = self.compute_lidar_supervision_loss(
+                    inputs, outputs, scale)
+                if lidar_loss is not None:
+                    weighted_lidar_loss = lidar_weight * lidar_loss / (2 ** scale)
+                    loss += weighted_lidar_loss
+                    losses["lidar_loss/{}".format(scale)] = lidar_loss
+                    losses["lidar_loss_weighted/{}".format(scale)] = weighted_lidar_loss
+                    losses["lidar_valid_fraction/{}".format(scale)] = (
+                        lidar_stats["valid_fraction"])
+                    losses["lidar_scale_ratio/{}".format(scale)] = (
+                        lidar_stats["scale_ratio"])
+                    if "scale_penalty" in lidar_stats:
+                        losses["lidar_scale_penalty/{}".format(scale)] = (
+                            lidar_stats["scale_penalty"])
+
             total_loss += loss
             losses["loss/{}".format(scale)] = loss
 
@@ -715,6 +782,93 @@ class Trainer:
         losses["loss"] = total_loss
         return losses
 
+    def current_lidar_loss_weight(self):
+        """Return the active LiDAR-supervision weight after optional warmup."""
+        if self.opt.lidar_loss_weight <= 0:
+            return 0.0
+        warmup_epochs = self.opt.lidar_loss_warmup_epochs
+        if warmup_epochs <= 0:
+            return self.opt.lidar_loss_weight
+        warmup_progress = min(1.0, float(self.epoch + 1) / float(warmup_epochs))
+        return self.opt.lidar_loss_weight * warmup_progress
+
+    def compute_lidar_supervision_loss(self, inputs, outputs, scale):
+        """Compute masked LiDAR depth supervision for the hybrid draft.
+
+        The first draft uses valid-mask-only pixels and optional median alignment
+        so the loss targets relative Citrus depth structure before forcing scale.
+        """
+        depth_key = ("depth", 0, scale)
+        if depth_key not in outputs:
+            depth_key = ("depth", 0, 0)
+
+        depth_pred = outputs[depth_key]
+        depth_gt = inputs["depth_gt"].to(device=depth_pred.device)
+        depth_height, depth_width = depth_gt.shape[-2:]
+        depth_pred = F.interpolate(
+            depth_pred,
+            [depth_height, depth_width],
+            mode="bilinear",
+            align_corners=False)
+
+        if "label_mask" in inputs:
+            label_mask = inputs["label_mask"].to(device=depth_gt.device)
+        elif "valid_mask" in inputs:
+            label_mask = inputs["valid_mask"].to(device=depth_gt.device)
+        else:
+            label_mask = torch.ones_like(depth_gt)
+
+        min_depth = self.opt.lidar_loss_min_depth
+        max_depth = self.opt.lidar_loss_max_depth
+        mask = (
+            torch.isfinite(depth_gt)
+            & torch.isfinite(depth_pred)
+            & (depth_gt >= min_depth)
+            & (depth_gt <= max_depth)
+            & (depth_pred > 0)
+            & (label_mask > 0)
+        )
+
+        valid_count = int(mask.sum().item())
+        valid_fraction = mask.float().mean().detach()
+        if valid_count < self.opt.lidar_loss_min_valid_pixels:
+            return None, {
+                "valid_fraction": valid_fraction,
+                "scale_ratio": torch.ones((), device=depth_pred.device),
+                "scale_penalty": torch.zeros((), device=depth_pred.device),
+            }
+
+        gt_valid = torch.clamp(depth_gt[mask], min=min_depth, max=max_depth)
+        pred_valid = torch.clamp(depth_pred[mask], min=min_depth, max=max_depth)
+        scale_ratio = torch.ones((), device=depth_pred.device)
+
+        gt_median = torch.median(gt_valid.detach())
+        pred_median = torch.median(pred_valid)
+        if self.opt.lidar_scale_align == "median":
+            if torch.isfinite(gt_median) and torch.isfinite(pred_median) and pred_median > 1e-6:
+                scale_ratio = gt_median / pred_median.detach()
+                pred_valid = torch.clamp(pred_valid * scale_ratio, min=min_depth, max=max_depth)
+
+        scale_penalty = torch.zeros((), device=depth_pred.device)
+        if self.opt.lidar_scale_penalty_weight > 0 and torch.isfinite(gt_median) and torch.isfinite(pred_median):
+            scale_penalty = torch.abs(
+                torch.log(torch.clamp(pred_median, min=1e-6))
+                - torch.log(torch.clamp(gt_median, min=1e-6)))
+
+        if self.opt.lidar_loss_type == "log_l1":
+            lidar_loss = torch.abs(torch.log(pred_valid) - torch.log(gt_valid)).mean()
+        elif self.opt.lidar_loss_type == "l1":
+            lidar_loss = torch.abs(pred_valid - gt_valid).mean()
+        else:
+            raise ValueError("Unknown lidar loss type {}".format(self.opt.lidar_loss_type))
+
+        lidar_loss = lidar_loss + self.opt.lidar_scale_penalty_weight * scale_penalty
+
+        return lidar_loss, {
+            "valid_fraction": valid_fraction,
+            "scale_ratio": scale_ratio.detach(),
+            "scale_penalty": scale_penalty.detach(),
+        }
     def compute_depth_losses(self, inputs, outputs, losses):
         """Compute depth metrics, to allow monitoring during training
 

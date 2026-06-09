@@ -2,727 +2,554 @@
 
 ## Purpose
 
-This file is the shared project context for the Lite-Mono + Citrus Farm research project.
-The project is not only a dataset-preparation task: the end goal is a publishable research paper on improving lightweight monocular depth estimation for vegetation-dense citrus/orchard environments, with a pest-killing robot deployment motivation.
+This file is the shared source-of-truth context for the Lite-Mono + Citrus Farm research project.
+The project goal is a publishable research paper on improving lightweight monocular depth estimation for vegetation-dense agricultural environments, with Citrus Farm as the current main benchmark/domain and a lightweight RGB-only pest-killing robot perception stack as motivation.
+
 All new chats should read this file first.
 
 ## Mandatory Context Workflow
 
 1. Read this file before starting any task.
-2. Treat this file as source of truth for project status, decisions, and next steps.
-3. If any code, config, data pipeline, or experiment setting changes, update this file in the same turn.
+2. Treat this file as source of truth for current project status, decisions, important paths, and next steps.
+3. If code, config, data-pipeline behavior, experiment defaults, milestone status, important paths, or research decisions change, update this file in the same turn.
 4. Do not mark a task complete until this file is updated when required.
 5. In every final response, include:
-   - Context file updated: Yes
-   - Short summary of what was updated in this file
+   - `Context file updated: Yes`
+   - short summary of what was updated in this file
 6. If no update is required, include:
-   - Context file updated: No
-   - Reason no update was required
+   - `Context file updated: No`
+   - reason no update was required
 
-## Startup Instruction For New Chats
+## Living Notes Rule
 
-Always read AGENTS.md first, then continue work.
-If project changes are made, update AGENTS.md before finishing.
+1. Treat project notes as living documents, not append-only logs.
+2. Keep this file compact and current: source-of-truth status, active decisions, important paths/commands, and next actions.
+3. Keep run-by-run evidence in the matching milestone README or research note, and point to it from here.
+4. When a newer result supersedes an older temporary result, update or mark the older wording instead of leaving conflicting notes.
+5. Prefer clarity for future chats over preserving every intermediate line in this file.
 
-## Context Document Roles
+## Document Roles
 
-Use the project documents with clear roles:
-
-1. `AGENTS.md` is the source of truth for project goal, current status, milestone progress, pipeline decisions, commands, and repo-impacting changes.
-2. `citrus_project/research/student_qna.md` is the beginner-friendly companion note for recurring questions, plain-language explanations, folder meanings, and stable definitions.
-3. `citrus_project/research/` notes such as dataset-audit summaries and baseline notes are paper-facing research records, not general onboarding notes.
+1. `AGENTS.md` is the current source of truth for project goal, milestone state, current decisions, canonical paths, and next actions.
+2. `citrus_project/research/student_qna.md` is the beginner-friendly companion note for recurring explanations and stable definitions.
+3. `citrus_project/research/dataset_notes.md` stores dataset-building, label-route, and quality evidence.
+4. `citrus_project/research/baseline_notes.md` stores model-behavior, baseline, adaptation, and comparison evidence.
+5. `citrus_project/research/paper_shortlist.md` tracks results that may later appear in the paper.
+6. `citrus_project/research/advisor_notes.md` tracks professor/advisor questions, recommendations, and follow-up directions.
+7. `citrus_project/milestones/*/README.md` files are teammate-facing handoffs for each milestone.
+8. `citrus_project/milestones/03_self_supervised_adaptation/artifact_inventory.md` classifies Milestone 3 run artifacts, helper scripts, generated outputs, and cleanup candidates.
+9. Folder-level `README.md` files are doorway maps. Use them to decide which deeper notes are relevant instead of reading every `.md` file in a folder.
+10. `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/00_plain_citrus_baseline/README.md` is the compact B0 plain Citrus baseline snapshot for Levinson's Milestone 4 workstream. It contains inference weights plus copied final result files, visual panels, and `config/opt.json`.
 
 Update policy:
 
-1. Update `AGENTS.md` whenever code, config, data-pipeline behavior, experiment defaults, milestone status, important paths, or research decisions change.
-2. Update `citrus_project/research/student_qna.md` whenever a new recurring confusion is explained in a way that future students will likely need again.
-3. If a change affects both project status and beginner understanding, update both files in the same turn.
-4. Keep `citrus_project/research/student_qna.md` simple and stable; do not use it as a scratchpad or temporary log.
-
-## Workspace Layout
-
-The repository now has a deliberate split between upstream Lite-Mono code and project-owned Citrus research work.
-
-1. Original/upstream-style Lite-Mono code remains at the repo root.
-2. Project-owned Citrus work lives under `citrus_project/`.
-3. `citrus_project/dataset_workspace/` is the active Citrus dataset pipeline workspace.
-4. `citrus_project/research/` stores project notes, paper shortlist material, and beginner-facing explanations.
-5. `citrus_project/milestones/` is reserved for milestone-specific code, notes, helpers, and outputs as milestone work begins.
-6. `citrus_project/README.md` and `citrus_project/milestones/README.md` describe this custom workspace layout.
-
-Team collaboration files:
-
-1. `citrus_project/TEAM_WORKFLOW.md` is the collaboration/onboarding guide for teammates and their AI assistants.
-2. `citrus_project/TASK_BOARD.md` is the short current-work board with owners, status, and next actions.
-3. `citrus_project/research/literature_tracker.md` is the working file for model-improvement scouting and related-work intake.
-4. `citrus_project/research/scene_taxonomy.md` is the working file for scene categories, example selection, and qualitative-support notes.
-5. `citrus_project/milestones/00_dataset_audit/sample_pack/` is the low-storage collaboration area for a small shared sample pack.
-
-Research-note workflow for future chats:
-
-1. If a result is mainly evidence for dataset quality or label generation, write or update `citrus_project/research/dataset_notes.md`.
-2. If a result is mainly evidence for model behavior or comparison, write or update `citrus_project/research/baseline_notes.md`.
-3. If a result might later appear in the paper, add or refresh a short entry in `citrus_project/research/paper_shortlist.md`.
-4. If the result changes project status, milestones, defaults, commands, or decisions, also update `AGENTS.md`.
-5. If the result answers a recurring beginner question, also update `citrus_project/research/student_qna.md`.
-
-Team-collaboration workflow for future chats:
-
-1. Tell teammates and their AI assistants to read `AGENTS.md`, then `citrus_project/TEAM_WORKFLOW.md`, then `citrus_project/TASK_BOARD.md`.
-2. Keep the active ownership list current in `citrus_project/TASK_BOARD.md`.
-3. Prefer low-overlap work division: one main integrator for fragile core code, bounded parallel work for research support.
-4. For low-storage collaborators, prefer `citrus_project/milestones/00_dataset_audit/sample_pack/` plus notes instead of requiring the full dataset workspace.
-5. When a teammate finishes meaningful work, update the task board and the relevant note file in the same turn if possible.
-
-Milestone workspace rule:
-
-1. If new code or notes belong clearly to one milestone, prefer placing them under the matching folder in `citrus_project/milestones/`.
-2. Keep cross-cutting dataset pipeline scripts in `citrus_project/dataset_workspace/`.
-3. Keep cross-cutting paper/support notes in `citrus_project/research/`.
-
-Current collaboration stance:
-
-1. The user is currently the main integrator for core Citrus pipeline and likely early baseline-code work.
-2. Teammates should avoid editing fragile shared pipeline/model code in parallel unless explicitly coordinated.
-3. Friend A is a good fit for literature scouting, improvement-idea ranking, and related-work intake.
-4. Friend B is a good fit for scene taxonomy, example selection, figure support, and paper/dataset communication support.
-5. The collaboration setup should reduce merge chaos, not create parallel overlapping implementations.
+1. Update `AGENTS.md` when project status, defaults, commands, paths, or research decisions change.
+2. Update `student_qna.md` when a recurring beginner confusion is explained in a stable way.
+3. Update `dataset_notes.md` for dataset quality or label-generation evidence.
+4. Update `baseline_notes.md` for model behavior or comparison evidence.
+5. Update `paper_shortlist.md` for results likely to support the paper.
+6. Update `advisor_notes.md` for advisor questions or recommendations.
+7. Update the relevant milestone README when milestone status, handoff guidance, or evidence ownership changes.
 
 ## User Collaboration Preference
 
-When the user is talking about the codebase, be careful and verify details before answering.
+When discussing codebase details, verify against actual files and recent project context before answering.
 
-1. Do not assume file importance, workflow relevance, or implementation behavior without checking the actual files or recent project context first.
-2. Look for edge cases and mismatches before speaking confidently about code, tests, scripts, folders, or pipeline behavior.
-3. If something is only a guess, say clearly that it is a guess.
-4. For ideas, brainstorming, or non-code discussion, it is okay to propose possibilities as long as assumptions are clearly labeled.
-5. Do not treat legacy or sidecar files as important to the active workflow unless that relevance is confirmed from the repository or current project notes.
+1. Do not assume file importance, workflow relevance, or implementation behavior without checking.
+2. Look for edge cases and mismatches before speaking confidently about scripts, tests, folders, or pipeline behavior.
+3. If something is a guess, label it clearly.
+4. For ideas or brainstorming, propose possibilities as possibilities.
+5. Do not treat legacy or sidecar files as important to the active workflow unless relevance is confirmed.
+6. When explaining AI/PyTorch/image-processing concepts, use concrete mental hooks, small examples, and project-specific artifacts.
+7. For deep model-algorithm work, slow down for mutual understanding: map formulas to tensors/code, ask concept checks, and correct misunderstandings gently but explicitly.
+
+## Workspace Layout
+
+Original/upstream-style Lite-Mono code remains at the repo root.
+Project-owned Citrus work lives under `citrus_project/`.
+
+Current local source-of-truth folder:
+
+1. Treat `C:/Proj/lite-Mono` as the main local Windows project folder for future work.
+2. Do not update the older `c:/Users/user/Documents/brgkuliah/sem6/ai apps/plantdepths/Lite-Mono-Main` copy; the user plans to delete it.
+3. Do not write to `C:/Proj/lite-mono-citrus-lab-transfer` unless the user explicitly asks for transfer-repo changes.
+
+Important folders:
+
+1. `citrus_project/dataset_workspace/` - active Citrus dataset pipeline workspace.
+2. `citrus_project/research/` - research notes, paper shortlist material, advisor notes, and beginner explanations.
+3. `citrus_project/milestones/` - milestone-specific code, notes, helpers, and outputs.
+4. `citrus_project/TEAM_WORKFLOW.md` - collaboration/onboarding guide for teammates and AI assistants.
+5. `citrus_project/TASK_BOARD.md` - current work board.
+6. `citrus_project/milestones/00_dataset_audit/sample_pack/` - low-storage sample pack area for collaborators.
+
+Team-collaboration rule:
+
+1. Teammates and their AI assistants should read `AGENTS.md`, then `citrus_project/TEAM_WORKFLOW.md`, then `citrus_project/TASK_BOARD.md`.
+2. Keep fragile pipeline/model-code work coordinated through the main integrator.
+3. Friend A is a good fit for literature scouting and related-work intake.
+4. Friend B is a good fit for scene taxonomy, example selection, and qualitative-support notes.
 
 ## Project Goal
 
-Publish an improved Lite-Mono-style monocular depth estimation method for vegetation-dense agricultural environments, especially citrus/orchard robot navigation for a lightweight RGB-only pest-killing robot perception stack.
+Publish an improved Lite-Mono-style monocular depth estimation method for vegetation-dense agricultural environments.
 
 Research objective:
 
 1. Use original Lite-Mono as the lightweight monocular depth baseline.
-2. Show and measure the domain gap between urban/KITTI-style Lite-Mono behavior and citrus/orchard scenes.
+2. Measure the domain gap between urban/KITTI-style behavior and vegetation-dense agricultural scenes.
 3. Build a reliable Citrus Farm RGB + depth-label evaluation/training pipeline.
 4. Improve Lite-Mono or its training objective for dense vegetation while keeping runtime inference monocular RGB-only and lightweight.
-5. Compare original Lite-Mono, Citrus-adapted Lite-Mono, and the proposed improved variant under the same Citrus data budget and splits.
+5. Compare original Lite-Mono, standard Citrus-adapted Lite-Mono, and the proposed improved variant under the same Citrus data budget and splits.
+6. Frame Citrus Farm as the current validation domain, not the only intended deployment domain.
 
 Dataset-preparation objective:
 
-1. Download correctly aligned Citrus Farm ROS bag files.
+1. Download aligned Citrus Farm ROS bag files.
 2. Extract ZED RGB/depth and Velodyne LiDAR point cloud data.
 3. Match RGB frames with LiDAR by timestamp.
 4. Project and densify LiDAR depth for evaluation labels and optional supervised/hybrid training.
-5. Export reproducible train/val/test split manifests, metrics, and quality diagnostics.
+5. Export reproducible train/val/test manifests, metrics, masks, and diagnostics.
 
-## Pipeline Overview
-
-1. Download base (LiDAR) bags.
-2. Download zed bags using overlap window from selected base bags.
-3. Extract zed RGB and depth from zed bags.
-4. Extract LiDAR point clouds from base bags.
-5. Audit LiDAR-to-ZED projection alignment on a small sample before trusting dense labels.
-6. Densify LiDAR into image-aligned depth.
-7. Build train/val/test-ready dataset artifacts.
-
-## Citrus Farm Dataset Source Understanding
-
-Official dataset intent:
+## Citrus Farm Dataset Understanding
 
 1. CitrusFarm is a multimodal agricultural robotics dataset for localization, mapping, and crop monitoring in citrus tree farms.
-2. It includes seven sequences from three citrus fields, multiple tree species/growth stages, different planting patterns, and varying daylight conditions.
-3. It provides nine sensing modalities: stereo RGB, ZED depth, monochrome, near-infrared, thermal, wheel odometry, LiDAR, IMU, and GPS-RTK.
-4. Raw data is released as modality-split ROS bag blocks. The authors state users can play bags from the same folder together and ROS will sequence messages by timestamps.
-5. Official tooling includes download_citrusfarm.py and bag2files.py. bag2files.py is a generic extractor to images, PCD, CSV, and text files; it is not a monocular-depth training pipeline.
+2. It includes seven sequences from three citrus fields, multiple tree species/growth stages, planting patterns, and daylight conditions.
+3. It provides stereo RGB, ZED depth, monochrome, near-infrared, thermal, wheel odometry, LiDAR, IMU, and GPS-RTK.
+4. Raw data is released as modality-split ROS bag blocks. Bags from the same folder can be played together by timestamp.
+5. Official tooling includes `download_citrusfarm.py` and `bag2files.py`; these are not a monocular-depth training pipeline.
+6. Our LiDAR-to-ZED projection and densification pipeline is a project-derived label pipeline, not an official Citrus Farm ground-truth product.
 
-How our pipeline relates to author intent:
+## Canonical Dataset Pipeline
 
-1. Download filtering by folder/modality is consistent with the official download script design.
-2. Selecting only Sequence 01, base bags, ZED bags, calibration, and ground truth is a research-scope reduction, not an official fixed split.
-3. Extracting `/zed2i/zed_node/left/image_rect_color`, `/zed2i/zed_node/depth/depth_registered`, and `/velodyne_points` is consistent with the official topic list.
-4. Saving RGB as PNG and arrays as NPZ differs from the official bag2files.py output format, but it is reasonable for lossless ML preprocessing.
-5. Projecting and densifying LiDAR into ZED image space is our own derived-label pipeline. It must be validated; it should not be assumed to be an official Citrus Farm ground-truth product.
+Script order:
 
-## Canonical Script Order
+1. `citrus_project/dataset_workspace/download_citrusfarm_seq_01_lidar.py`
+2. `citrus_project/dataset_workspace/download_citrusfarm_seq_01_rgb_depth.py`
+3. `citrus_project/dataset_workspace/extract_left_rgbd_from_raw.py`
+4. `citrus_project/dataset_workspace/extract_lidar_from_raw.py`
+5. `citrus_project/dataset_workspace/audit_projection_alignment.py`
+6. `citrus_project/dataset_workspace/densify_lidar.py`
+7. `citrus_project/dataset_workspace/build_training_dataset.py`
 
-1. citrus_project/dataset_workspace/download_citrusfarm_seq_01_lidar.py
-2. citrus_project/dataset_workspace/download_citrusfarm_seq_01_rgb_depth.py
-3. citrus_project/dataset_workspace/extract_left_rgbd_from_raw.py
-4. citrus_project/dataset_workspace/extract_lidar_from_raw.py
-5. citrus_project/dataset_workspace/audit_projection_alignment.py
-6. citrus_project/dataset_workspace/densify_lidar.py
-7. citrus_project/dataset_workspace/build_training_dataset.py
+Key decisions:
 
-## Current Status Snapshot (2026-03-31)
+1. RGB-LiDAR pairing uses timestamp matching with same-session preference and optional cross-session fallback under the same max delta.
+2. Split strategy defaults to time blocks to reduce adjacent-frame leakage.
+3. Final/default LiDAR-to-ZED transform is `exact_lidar_parent_child_inverted`.
+4. `production_current` remains runnable as an alternate comparison route.
+5. Final/default dense-label interpolation is `local_idw`, a conservative local inverse-distance weighted fill.
+6. Valid masks are saved and must be used for Citrus training/evaluation metrics.
 
-Implemented:
+## Current Data Snapshot
 
-1. Overlap-window bag selection for zed download based on selected base bag time window.
-2. Timestamp-ordered base bag selection.
-3. Safer RGB-LiDAR pairing and diagnostics in densification flow.
-4. Batch builder script to generate dense depth targets and split manifests.
-5. Pairing logic now supports same-session preference with optional cross-session fallback under the same max timestamp delta.
+Local dataset workspace:
 
-Validated:
+1. `citrus_project/dataset_workspace/Calibration/`
+2. `citrus_project/dataset_workspace/extracted_rgbd/`
+3. `citrus_project/dataset_workspace/extracted_lidar/`
+4. `citrus_project/dataset_workspace/prepared_training_dataset/`
+5. `citrus_project/dataset_workspace/projection_alignment_audit/` ignored diagnostics
 
-1. Overlap-window selection behavior was tested against official YAML list.
-2. build_training_dataset.py was tested with --max_samples 5 and produced expected outputs.
+Final prepared dataset:
 
-## Current Dataset Processing Review Verdict (2026-04-15)
+1. Built on 2026-04-23 with `exact_lidar_parent_child_inverted` and `local_idw`.
+2. Output root: `citrus_project/dataset_workspace/prepared_training_dataset/`.
+3. Total matched samples: 5282.
+4. Dense LiDAR depth labels: 5282 NPZ files.
+5. Valid masks: 5282 NPZ files.
+6. Time-block split counts:
+   - train: 4311
+   - val: 564
+   - test: 407
+7. Safe same-split temporal triplets under the 200 ms neighbor rule:
+   - train: 4275
+   - val: 560
+   - test: 399
 
-High-level verdict:
+Important prepared artifacts:
 
-1. Download and extraction are broadly aligned with the official dataset structure and topic intent.
-2. The processing layer that turns RGB + LiDAR into dense monocular depth labels is project-specific and needs stronger validation before paper experiments.
-3. The previous code is useful as a prototype, but it should not yet be treated as publication-grade without fixing reproducibility and calibration-quality gates.
+1. `prepared_training_dataset/splits/train_pairs.txt`
+2. `prepared_training_dataset/splits/val_pairs.txt`
+3. `prepared_training_dataset/splits/test_pairs.txt`
+4. `prepared_training_dataset/metrics/all_samples.csv`
+5. `prepared_training_dataset/dense_lidar_npz/`
+6. `prepared_training_dataset/dense_lidar_valid_mask_npz/`
+7. `prepared_training_dataset/manifest.json`
 
-Current concerns:
+## Dataset Evidence Summary
 
-1. The LiDAR-to-ZED transform convention in densify_lidar.py should be independently verified against calibration files and visual overlays.
-2. Dense interpolation can create plausible but unsupported depth in vegetation gaps; builder now saves valid masks, but confidence/distance handling still needs visual review.
-3. Extracted ZED depth is now available as optional builder sanity-check metrics, but actual full-run statistics have not been reviewed yet.
-4. build_training_dataset.py now rebuilds manifest rows for reused dense files, but reused rows only contain full projection/sparse metrics when dense labels are regenerated.
+Final route decision:
 
-Fixes completed on 2026-04-15:
-
-1. build_training_dataset.py now returns manifest/metrics rows when dense files already exist instead of exiting with "No new samples."
-2. Added `--no_skip_existing` so dense outputs can be force-regenerated when build parameters change.
-3. Added grouped split support with default `--split_strategy time_block` to reduce adjacent-frame train/val/test leakage; legacy random splitting remains available with `--split_strategy random`.
-4. Added `dense_lidar_valid_mask_npz/` outputs so downstream evaluation/training can use a valid-label mask.
-5. Added optional nearest ZED-depth sanity-check metrics in `all_samples.csv`.
-6. Added regression tests for pairing fallback, grouped split behavior, reused dense manifest rows, and ZED-depth metric computation.
-7. Added audit_projection_alignment.py to generate small RGB/LiDAR/ZED projection overlay panels before running full dense dataset generation.
-8. Added selectable LiDAR-to-ZED transform modes in densify_lidar.py: `production_current` and `exact_lidar_parent_child_inverted`.
-9. build*training_dataset.py now accepts `--transform_mode`; alternate transform runs default to a separate output folder named `prepared_training_dataset*<transform_mode>`unless`--output_dir` is explicitly provided.
-10. Builder metrics now record `transform_mode`, and regression tests cover transform availability plus manifest tagging.
-11. The default dense-label interpolation is now `local_idw`, a conservative local inverse-distance weighted fill that rejects candidate pixels when nearby LiDAR depths disagree too much. This replaced `linear` grid interpolation as the default because full 2D linear triangulation produced visually implausible surfaces in vegetation scenes.
-
-Manual projection-audit observation (2026-04-15):
-
-1. `production_current` and `exact_lidar_parent_child_inverted` both visually align well with vegetation/scene structure in the generated 3-sample audit.
-2. `current_chain_no_invert` and `exact_lidar_parent_child_direct` look clearly wrong; projected points form near-vertical bands and do not land on plants/scene structure.
-3. User observed little difference between the two plausible candidates, except `exact_lidar_parent_child_inverted` has slightly narrower purple scanline spacing than `production_current`.
-4. Historical decision at that point: keep `production_current` as the active/default densify_lidar transform, but make `exact_lidar_parent_child_inverted` runnable as an alternate comparison dataset because it may concentrate projected LiDAR more tightly on plant structures.
-5. The old mixed projection-audit output folder was removed and a clean 12-sample projection audit was regenerated under `projection_alignment_audit/`.
-6. User inspected the clean 12-sample audit and judged `production_current` versus `exact_lidar_parent_child_inverted` as mostly tied; the main visible difference remains narrower purple projected scanline spacing in `exact_lidar_parent_child_inverted`.
-7. Historical interpretation at that point: because the larger visual audit was a tie, keep `production_current` as the default label-generation transform unless later quantitative checks against ZED depth or model-evaluation behavior showed a clear advantage for the alternate transform.
-8. Superseded on 2026-04-17 by the final route decision: `exact_lidar_parent_child_inverted` is now the default/final label route.
-
-Legacy linear metrics probe result (2026-04-15):
-
-1. Generated two 50-sample metrics probes using the older `linear` interpolation method, not full datasets:
-   - `prepared_training_dataset_metrics_probe_50/` using `production_current`
-   - `prepared_training_dataset_metrics_probe_50_exact/` using `exact_lidar_parent_child_inverted`
-2. These probe outputs were later removed during workspace cleanup, but their summary numbers remain here as historical context for the older `linear` interpolation route comparison.
-3. Both probes used the first 50 matched RGB-LiDAR samples, so split validation is not meaningful yet: all 50 samples fall into one time block and therefore train=50, val=0, test=0.
-4. `production_current` legacy-linear probe summary:
-   - median RGB-LiDAR delta: 39.211 ms
-   - median dense fill ratio: 0.541213
-   - median sparse fill ratio: 0.009131
-   - median valid projected ratio: 0.402153
-   - median dense depth: 3.084715 m
-   - median ZED/LiDAR overlap ratio: 0.355920
-   - median ZED-vs-LiDAR absolute difference: 0.631544 m
-   - median ZED-vs-LiDAR relative difference: 0.379210
-5. `exact_lidar_parent_child_inverted` legacy-linear probe summary:
-   - median RGB-LiDAR delta: 39.211 ms
-   - median dense fill ratio: 0.439080
-   - median sparse fill ratio: 0.009071
-   - median valid projected ratio: 0.399315
-   - median dense depth: 3.400844 m
-   - median ZED/LiDAR overlap ratio: 0.297551
-   - median ZED-vs-LiDAR absolute difference: 0.205901 m
-   - median ZED-vs-LiDAR relative difference: 0.084877
-6. Initial interpretation from the legacy-linear probe: `exact_lidar_parent_child_inverted` appeared quantitatively closer to ZED depth on overlapping pixels, but produced lower dense fill/overlap. Treat this as old supporting evidence only; current decisions should prioritize `local_idw` audit/probe results.
-7. Observed risk in the legacy-linear probe: dense max values remained around 95-109 m because `max_interp_depth_m=28.0` clamped only interpolated pixels while preserving far measured LiDAR points. This may be acceptable for raw labels but should be capped or masked consistently for model evaluation.
-
-## Current local_idw projection audit result (2026-04-15)
-
-1. Regenerated the normal ignored `projection_alignment_audit/` with 12 samples using `interpolation_method=local_idw`.
-2. Audit parameters recorded in `projection_alignment_audit/audit_summary.json`:
-   - `distance_mask_px=25`
-   - `local_idw_k=4`
-   - `local_idw_power=2.0`
-   - `local_idw_max_depth_spread_m=1.25`
-   - `local_idw_max_relative_depth_spread=0.35`
-3. 12-sample median result for `production_current`:
-   - dense fill ratio: 0.433060
-   - ZED/LiDAR overlap ratio: 0.219531
-   - ZED-vs-LiDAR absolute difference: 0.569570 m
-   - ZED-vs-LiDAR relative difference: 0.278299
-4. 12-sample median result for `exact_lidar_parent_child_inverted`:
-   - dense fill ratio: 0.365558
-   - ZED/LiDAR overlap ratio: 0.214457
-   - ZED-vs-LiDAR absolute difference: 0.193937 m
-   - ZED-vs-LiDAR relative difference: 0.074806
-5. Current interpretation: `local_idw` intentionally creates more holes than linear interpolation because it refuses uncertain fills. This is preferable to fake dense vegetation surfaces for evaluation/training labels.
-
-## Time-spread local_idw metrics probe (2026-04-16)
-
-1. Added `--metrics_only` to `audit_projection_alignment.py` so larger route-comparison probes can write CSV/JSON metrics without generating hundreds of overlay/detail PNG panels.
-2. Hardened sparse and dense projection loops to skip non-finite projected points instead of crashing when a candidate transform produces infinite pixel coordinates.
-3. Ran a 200-sample time-spread metrics-only probe:
-   - `D:/Conda_Envs/lite-mono/python.exe citrus_project/dataset_workspace/audit_projection_alignment.py --max_samples 200 --metrics_only --output_dir projection_alignment_audit/time_spread_metrics_200`
-4. Probe scope:
-   - 200 samples selected across 5282 matched RGB-LiDAR pairs
-   - first sampled RGB: `zed_2023-07-18-14-26-49_0_bag_1689715609331936216.png`
-   - last sampled RGB: `zed_2023-07-18-14-35-27_18_bag_1689716137437974008.png`
-   - median RGB-LiDAR delta: 27.873 ms
-   - median RGB-ZED-depth delta: 12.710 ms
-5. `production_current` 200-sample median results:
-   - dense fill ratio: 0.424624
-   - ZED/LiDAR overlap ratio: 0.231256
-   - ZED-vs-LiDAR absolute difference: 0.538049 m
-   - ZED-vs-LiDAR relative difference: 0.221197
-   - valid projected ratio: 0.328247
-6. `exact_lidar_parent_child_inverted` 200-sample median results:
-   - dense fill ratio: 0.366310
-   - ZED/LiDAR overlap ratio: 0.212465
-   - ZED-vs-LiDAR absolute difference: 0.191620 m
-   - ZED-vs-LiDAR relative difference: 0.069013
-   - valid projected ratio: 0.329068
-7. Pairwise result across all 200 samples:
+1. Four transform candidates were audited.
+2. `current_chain_no_invert` and `exact_lidar_parent_child_direct` were visually rejected.
+3. `production_current` and `exact_lidar_parent_child_inverted` were both visually plausible.
+4. A 200-sample time-spread local-IDW route probe showed:
    - `production_current` had higher dense fill on 198/200 samples.
    - `exact_lidar_parent_child_inverted` had lower ZED absolute error on 200/200 samples.
    - `exact_lidar_parent_child_inverted` had lower ZED relative error on 200/200 samples.
-8. Interpretation: the time-spread probe strongly supports `exact_lidar_parent_child_inverted` as the cleaner label route despite lower dense coverage.
+5. Final choice: `exact_lidar_parent_child_inverted`, favoring cleaner overlap agreement over higher fill ratio.
 
-## Final label route decision (2026-04-17)
+Detailed evidence:
 
-1. Ran a final 12-sample time-spread visual spot-check:
-   - `D:/Conda_Envs/lite-mono/python.exe citrus_project/dataset_workspace/audit_projection_alignment.py --max_samples 12 --output_dir projection_alignment_audit/time_spread_visual_12`
-2. Visual outputs are local ignored diagnostics:
-   - `citrus_project/dataset_workspace/projection_alignment_audit/time_spread_visual_12/overlays/`
-   - `citrus_project/dataset_workspace/projection_alignment_audit/time_spread_visual_12/details_production_current/`
-   - `citrus_project/dataset_workspace/projection_alignment_audit/time_spread_visual_12/details_exact_lidar_parent_child_inverted/`
-3. Visual spot-check result:
-   - `exact_lidar_parent_child_inverted` remains visually plausible across time-spread samples.
-   - the two rejected direct/no-invert candidates remain visibly wrong.
-4. Final/default dense-label transform is now `exact_lidar_parent_child_inverted`.
-5. `production_current` remains available as an alternate comparison route via `--transform_mode production_current`.
-6. One-sample smoke build verified that build_training_dataset.py now uses `exact_lidar_parent_child_inverted` by default; the throwaway output folder was removed after validation.
-7. Full prepared dataset build has not been run in this cleanup commit because it is a large local artifact step. Next build command:
-   - `D:/Conda_Envs/lite-mono/python.exe build_training_dataset.py`
-8. Research note:
-   - `citrus_project/research/dataset_notes.md`
+1. `citrus_project/research/dataset_notes.md`
+2. `citrus_project/research/paper_shortlist.md`
+3. ignored visual/metrics diagnostics under `citrus_project/dataset_workspace/projection_alignment_audit/`
 
-## Original Lite-Mono Citrus Sanity Run (2026-04-16)
+## Milestone Status
 
-1. Ran original pretrained `weights/lite-mono` on one copied Citrus RGB image using `test_simple.py`.
-2. Keep Lite-Mono demo outputs out of extracted dataset folders. The RGB image should be copied to an ignored demo/output folder before running `test_simple.py`, because `test_simple.py` writes `*_disp.jpeg` and `*_disp.npy` next to the input image.
-3. Command used:
-   - `D:/Conda_Envs/lite-mono/python.exe test_simple.py --load_weights_folder weights/lite-mono --image_path citrus_project/research/generated/lite_mono_single_image_demo/zed_2023-07-18-14-26-49_0_bag_1689715609331936216.png --model lite-mono --no_cuda`
-4. Output files were generated under ignored `citrus_project/research/generated/lite_mono_single_image_demo/`, not under the dataset folder:
-   - `citrus_project/research/generated/lite_mono_single_image_demo/zed_2023-07-18-14-26-49_0_bag_1689715609331936216_disp.jpeg`
-   - `citrus_project/research/generated/lite_mono_single_image_demo/zed_2023-07-18-14-26-49_0_bag_1689715609331936216_disp.npy`
-5. Interpretation: this is a qualitative baseline sanity/demo run only. It starts the Citrus baseline milestone but does not complete it, because Milestone 1 still requires validation/test-set evaluation against LiDAR-densified labels, masks, runtime/size reporting, and failure-case analysis.
+Milestone 0 - Dataset audit and build:
 
-## Current Local Data Snapshot (2026-04-01)
+1. Complete through full prepared dataset build.
+2. Final label route and split policy are materialized under `prepared_training_dataset/`.
+3. Detailed handoff: `citrus_project/milestones/00_dataset_audit/README.md`.
 
-Observed after recent local script/data changes:
+Milestone 1 - Original Lite-Mono baseline:
 
-1. Download scope set to one base block (max_blocks=1), with overlap-window zed download yielding 21 zed bag chunks for that base time window.
-2. Extracted outputs increased substantially:
-   - extracted_rgbd RGB frames: 6047 PNG
-   - extracted_rgbd depth dataset: 6049 NPZ
-   - extracted_lidar scans: 5235 NPZ
-3. Local storage footprint now reflects this larger pull:
-   - extracted_rgbd: ~16.42 GB
-   - extracted_lidar: ~1.46 GB
-4. Unique extracted bag prefixes currently indicate expected ratio:
-   - zed prefixes: 21
-   - base prefixes: 1
-5. Current local workspace does not currently contain extracted_dense_lidar/ or prepared_training_dataset/ outputs (needs rerun if required for next stage).
-6. build_training_dataset.py now includes parallel processing and optimized timestamp pairing (find_closest_optimized) for faster conversion runs.
+1. Core evidence complete.
+2. Full original Lite-Mono validation/test runs are saved under `citrus_project/milestones/01_original_lite_mono_baseline/results/`.
+3. Visual good/typical/bad panels are saved under `citrus_project/milestones/01_original_lite_mono_baseline/visuals/`.
+4. Validation result:
+   - samples: 564/564
+   - mean valid-label coverage: 37.2272%
+   - raw `abs_rel=0.7128`, `a1=0.0195`
+   - median-scaled `abs_rel=0.4176`, `a1=0.4629`
+   - model-forward FPS: 28.478
+5. Test result:
+   - samples: 407/407
+   - mean valid-label coverage: 36.7190%
+   - raw `abs_rel=0.7273`, `a1=0.0149`
+   - median-scaled `abs_rel=0.3836`, `a1=0.4989`
+   - model-forward FPS: 29.529
+6. Depth-inference model metadata:
+   - total parameters: 3,074,747
+   - encoder parameters: 2,848,120
+   - depth-decoder parameters: 226,627
+   - checkpoint size: about 11.94 MiB
+   - pose network is training-only and not counted for RGB-only inference.
+7. Detailed evidence: `citrus_project/research/baseline_notes.md`.
 
-## Important Pairing Rule
+Milestone 2 - Citrus trainer integration:
 
-Do not pair modalities by filename order only.
-Use this two-stage rule:
+1. Core integration complete.
+2. Added `CitrusPreparedDataset`, temporal triplet loading, same-split neighbor diagnostics, trainer-compatible metadata-free batches, Citrus-safe depth metric behavior, root `--dataset citrus` wiring, one-step optimizer smoke, CUDA one-step smoke, and train-only Citrus color augmentation.
+3. Root trainer safety/config additions include:
+   - `--dataset citrus`
+   - `--split citrus_prepared`
+   - `--citrus_prepared_name`
+   - `--citrus_max_neighbor_delta_ms`
+   - `--depth_metric_crop auto|kitti_eigen|none`
+   - `--citrus_color_aug_probability`
+4. Citrus defaults resolve to `split=citrus_prepared`, `data_path=citrus_project/dataset_workspace`, and `depth_metric_crop=none`.
+5. Detailed handoff: `citrus_project/milestones/02_citrus_integration/README.md`.
 
-1. Bag level: overlap-window selection (coarse filtering).
-2. Frame level: nearest timestamp matching with max delta and same-session preference, then fallback-to-any-session when enabled.
+Milestone 3 - Standard self-supervised Citrus adaptation:
 
-## Key Data Locations
+1. Closed as documented weak/negative adapted-baseline evidence.
+2. Training, checkpoint saving, continuation-style loading, diagnostics, and evaluation all work.
+3. Tested standard recipe family did not beat untouched original Lite-Mono on first-100 validation relative-depth metrics.
+4. Key failure pattern:
+   - photo/reprojection loss can decrease
+   - raw-scale depth can sometimes move closer
+   - median-scaled relative-depth structure gets worse
+   - adapted outputs become smoother and less structurally specific
+5. Do not launch another longer/full Milestone 3 run without a new technical reason and explicit confirmation.
+6. On 2026-05-11, local ignored smoke/pilot/VRAM run folders were deleted after their results had been summarized; important evidence and diagnostic runs remain under `runs/`.
+7. Detailed evidence and artifact classification:
+   - `citrus_project/milestones/03_self_supervised_adaptation/README.md`
+   - `citrus_project/milestones/03_self_supervised_adaptation/professor_loading_and_train_eval_check.md`
+   - `citrus_project/milestones/03_self_supervised_adaptation/artifact_inventory.md`
+   - `citrus_project/research/baseline_notes.md`
+   - `citrus_project/research/advisor_notes.md`
+   - `citrus_project/research/paper_shortlist.md`
 
-1. Raw/extracted workspace: citrus_project/dataset_workspace/
-2. Extracted RGB: citrus_project/dataset_workspace/extracted_rgbd/zed2i_zed_node_left_image_rect_color/
-3. Extracted LiDAR: citrus_project/dataset_workspace/extracted_lidar/velodyne_points/
-4. Dense outputs: citrus_project/dataset_workspace/extracted_dense_lidar/
-5. Prepared dataset output: citrus_project/dataset_workspace/prepared_training_dataset/
-6. Projection audit output: citrus_project/dataset_workspace/projection_alignment_audit/ (generated diagnostics; ignored by git)
+Milestone 4 - Lightweight vegetation improvement:
 
-## Prepared Dataset Artifacts
+1. Active stage after the cleanup pass.
+2. Goal: choose one lightweight vegetation-focused improvement that targets the Milestone 3 and plain-Citrus-baseline failure patterns.
+3. Compare against:
+   - original Lite-Mono baseline
+   - documented weak/negative Milestone 3 adapted baseline
+   - plain Lite-Mono trained on Citrus from ImageNet encoder pretrain
+   - the Milestone 4 proposed variant
+4. Initial target: preserve or improve Citrus relative depth structure while adapting to vegetation scenes.
+5. Milestone folder: `citrus_project/milestones/04_lightweight_vegetation_improvement/`.
+6. Milestone 4 workstream folders:
+   - `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/` for Levinson's current Milestone 4 results/progress.
+   - `citrus_project/milestones/04_lightweight_vegetation_improvement/Marvel/` for Marvel's active hybrid-supervised and RGB-edge Milestone 4 work.
+7. The current B0 plain Citrus baseline snapshot is `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/00_plain_citrus_baseline/`; it contains inference weights, a no-code-changes marker, command scripts, copied val/test result CSV/JSON files, copied visual comparison panels, and copied `config/opt.json`.
+8. Future Levinson improvement code snapshots should live under `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/` once an improvement is implemented and tested.
+9. Use descriptive numeric future snapshot names such as `01_photometric_confidence_masking/` and `02_confidence_masking_plus_structure_loss/`; record paper-style labels such as `A` or `A+B` inside the stage README only if useful.
+10. Each completed improvement-stage snapshot should include one compact `README.md`, copies of changed code files when the stage is tested, optional small command/config/patch notes, and pointers to checkpoints, results, visuals, metric summary, and continue/stop/uncertain conclusion.
+11. Whenever a Milestone 4 improvement changes `.py` files such as `trainer.py`, `options.py`, `layers.py`, `networks/*.py`, or helper scripts, duplicate the tested versions into the relevant stage snapshot under `code/`, preserving clear relative paths when useful. If a completed stage has no code changes, keep a simple marker such as `code/NO_CODE_CHANGES.txt`.
+12. Milestone 4 collaborators should keep work inside their own workstream folder, update the shared Milestone 4 README when paths or collaboration rules change, and avoid editing another person's snapshots without explicit coordination.
 
-Generated by build_training_dataset.py:
+Milestone 4 plain Lite-Mono Citrus baseline planning:
 
-1. prepared_training_dataset/dense_lidar_npz/
-2. prepared_training_dataset/dense_lidar_valid_mask_npz/
-3. prepared_training_dataset/metrics/all_samples.csv
-4. prepared_training_dataset/metrics/summary.json
-5. prepared_training_dataset/splits/train_pairs.txt
-6. prepared_training_dataset/splits/val_pairs.txt
-7. prepared_training_dataset/splits/test_pairs.txt
+1. User agreed that the fair plain Lite-Mono Citrus baseline should start from the Lite-Mono ImageNet encoder pretrain, not from KITTI depth-trained `encoder.pth`/`depth.pth`.
+2. This means "Citrus-only depth training from ImageNet visual features," not true random-weight scratch training.
+3. The run should use `--mypretrain weights/lite-mono/lite-mono-pretrain.pth` and should not use `--load_weights_folder weights/lite-mono` when the purpose is the plain Citrus training baseline.
+4. Confirmed paper/README-matching baseline recipe: `batch_size=12`, `num_epochs=30`, `lr=0.0001 5e-6 31 0.0001 1e-5 31`, AdamW, `weight_decay=1e-2`, `drop_path=0.2`, input size `640x192`, monocular temporal frames `[0,-1,1]`, and 50% flip/color augmentation.
+5. Use `--weights_init pretrained` for the pose ResNet encoder, consistent with the Lite-Mono paper's PoseNet setup.
+6. Use `--num_workers 0` for the first overnight run for Windows stability and because previous controlled Citrus runs used it; this is an engineering/data-loading setting, not a research hyperparameter.
+7. The RTX 4060 Laptop GPU already passed true batch-size-12 one-step smoke and completed a batch-size-12 one-epoch control in Milestone 3, so this recipe is technically feasible.
+8. Expected runtime for the 30-epoch run is roughly 10-15 hours, based on the previous batch-size-12 one-epoch timing.
+9. Confirmed output folder:
+   `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/runs/plain_litemono_citrus_imagenet_pretrain_b12_30ep_lr1e-4/`.
+10. Run completed successfully on 2026-05-10; originally saved checkpoints `weights_0` through `weights_29`.
+11. Historical mid-run `weights_15` CPU first-100 validation probe: raw `abs_rel=0.7807`, raw `a1=0.0055`, median-scaled `abs_rel=0.4478`, median-scaled `a1=0.6720`. This was a mixed signal versus the original first-100 reference (`abs_rel=0.3680`, `a1=0.4807`): `a1` improved, `abs_rel` worsened.
+12. Final epoch `weights_29` full validation: raw `abs_rel=0.7736`, `a1=0.0074`; median-scaled `abs_rel=0.5100`, `a1=0.6107`.
+13. Final epoch `weights_29` full test: raw `abs_rel=0.7787`, `a1=0.0077`; median-scaled `abs_rel=0.4889`, `a1=0.6582`.
+14. Interpretation: final epoch improves median-scaled `a1` over original Lite-Mono on val/test, but worsens raw-scale metrics and median-scaled `abs_rel`. This is useful positive signal but not a clean improvement.
+15. Saved final evaluation:
+    `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/`.
+16. Saved comparison panels:
+    `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/visual_compare_original_vs_final_val_full/`.
+17. The full training run folder is local/ignored. On 2026-05-11, old epoch checkpoints `weights_0` through `weights_28` were deleted locally; full `weights_29` remains for unlikely exact-resume/debug needs.
+18. Final B0 baseline package:
+    `citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapshots/00_plain_citrus_baseline/`.
+19. The old `baseline_checkpoint/` inference-only copy was removed after B0 was migrated into the agreed snapshot structure.
+20. A checkpoint sweep was tried after final evaluation but discarded from committed evidence after visual review; do not use sweep-derived checkpoints as representative Milestone 4 baselines unless a later explicitly approved selection rule reintroduces them.
 
-Depth-label storage versus visualization:
+## Reconstructed Late Milestone 4 Context
 
-1. The actual LiDAR-densified labels are numeric `.npz` arrays, not PNG/JPG images. Each stored value represents depth in meters, and invalid/untrusted pixels are represented as 0 or excluded by the valid mask.
-2. The valid masks are numeric `.npz` arrays with 1 for trusted depth pixels and 0 for pixels that should not be scored/trained as valid depth.
-3. PNG panels generated by audit_projection_alignment.py or densify_lidar.py are visual diagnostics only. They are useful for human inspection and paper figures, but they are not the source labels used for metric computation.
-4. Paper-style depth images should be generated later from numeric predictions and numeric labels using a consistent colormap and depth range.
-5. In audit detail panels, "LiDAR label visual (near bright)" is the human-facing depth-label visualization. "Support distance, not depth" is only a confidence/support-distance diagnostic and must not be interpreted as the depth label.
-6. In audit detail panels, the "Sparse LiDAR depth" subplot uses display-only brightening and light dilation for visibility. It does not change the sparse LiDAR depth array, dense labels, valid masks, or metrics.
-7. Current `projection_alignment_audit/overlays/` panels compare all transform candidates. Current detail panels are split by the two plausible dense-label routes:
-   - `projection_alignment_audit/details_production_current/`
-   - `projection_alignment_audit/details_exact_lidar_parent_child_inverted/`
-     These detail folders provide human-facing dense-label visuals for both candidate routes.
+This section was rebuilt from chat/action history and the 2026-06-04 recovery backup after a duplicate-folder context-file mistake. It is not guaranteed to be byte-for-byte identical to the lost uncommitted notes, but it captures the project decisions needed going forward.
 
-Alternate transform comparison:
+Phase/order decisions:
 
-1. `exact_lidar_parent_child_inverted` is now the default/final transform and writes to `prepared_training_dataset/` when no explicit `--output_dir` is provided.
-2. Running build_training_dataset.py with `--transform_mode production_current` and no explicit `--output_dir` writes to `prepared_training_dataset_production_current/`.
-3. Metrics and summary files include `transform_mode` so final and alternate-transform dense labels can be compared without relying only on folder names.
+1. Milestone 4 originally had two planned method phases: Phase 1 occlusion masking and Phase 2 boundary-aware loss.
+2. The user chose to start with Phase 2/boundary awareness first, before implementing Phase 1 occlusion masking.
+3. The early direct boundary-loss/self-supervised direction was treated cautiously because photometric loss could improve while depth metrics did not reliably improve.
+4. The project then pivoted toward hybrid supervised training with dense LiDAR labels as a training-only teacher while preserving RGB-only inference.
 
-## Research Artifacts And Communication Notes
+Hybrid supervised method status:
 
-Paper/research notes:
+1. Hybrid training arrangement: RGB frames go into Lite-Mono; dense LiDAR depth and valid masks are separate supervision tensors used only during training.
+2. The selected hybrid recipe uses pretrained Lite-Mono initialization, batch size 12, masked log-L1 LiDAR depth loss, LiDAR loss weight 0.1, no LiDAR scale alignment, and scale-0 LiDAR supervision.
+3. The previous 30-epoch hybrid run `hybrid_supervised_b12_30ep_logl1_abs_w01_fresh_sched` was checkpoint-scanned; `weights_13` beat final `weights_29` on validation and top-candidate test confirmation.
+4. Selected `weights_13` metrics: validation raw abs_rel/a1=`0.1716`/`0.8131`, validation median-scaled abs_rel/a1=`0.1746`/`0.8160`; test raw abs_rel/a1=`0.1620`/`0.8149`, test median-scaled abs_rel/a1=`0.1677`/`0.8159`.
+5. Lesson: never assume the final epoch is best; checkpoint sweep is required before claiming a 30-epoch result.
+6. Direct visual comparisons support `weights_13` on typical/good selected samples, while some bad selected samples still favor `weights_29`.
 
-1. citrus_project/research/README.md
-2. citrus_project/research/student_qna.md
-3. citrus_project/research/paper_shortlist.md
-4. citrus_project/research/dataset_notes.md
-5. citrus_project/research/baseline_notes.md
-6. citrus_project/research/literature_tracker.md
-7. citrus_project/research/scene_taxonomy.md
+Presentation/package status:
 
-Generated local research artifacts:
+1. A progress-presentation package for the 2026-05-26 presentation exists under `citrus_project/milestones/04_lightweight_vegetation_improvement/Marvel/presentation_2026_05_26_hybrid_progress/`.
+2. It includes slide bullets/script, metric graphs, checkpoint-sweep graphs, selected Plain Citrus versus Hybrid `weights_13` panels, epoch-29-versus-epoch-13 panels, and a LiDAR-aware edge-loss roadmap.
+3. The script explains why the project moved from pure self-supervised training to hybrid supervised training: vegetation texture, shadows, occlusions, and weak absolute-scale control made RGB photometric loss unreliable, while masked LiDAR supervision stabilizes scale during training only.
+4. `graph_metric_summary_table.png` was simplified to median-scaled validation/test rows only for presentation clarity.
+5. `PRESENTATION_6_MIN_SCRIPT.md` and `PRESENTATION_6_MIN_SCRIPT_GOOGLE_DOCS.docx` were created for a compact presentation delivery.
 
-1. citrus_project/research/generated/ (ignored by git)
+Lab-transfer and current lab-run status:
 
-Current communication stance:
+1. `LAB_COMPUTER_SETUP.md` documents the lab-computer transfer workflow, tmux usage, environment setup, dataset preparation order, and the reminder not to commit datasets/weights/runs.
+2. The clean transfer repo was prepared to include project code/docs/READMEs/AGENTS while excluding local datasets, weights, caches, checkpoints, runs, results, snapshots, and log files.
+3. The initial transfer missed full `Marvel/hybrid_supervised_draft` code; it was later patched to include `train_hybrid_supervised.py`, milestone-local `trainer.py`, `options.py`, `layers.py`, and hybrid run/postprocess scripts. The pretrain weight remains intentionally separate.
+4. Lab prepared dataset build completed with 4918 total samples under `~/lite-mono-citrus-lab-transfer`: train=3947, val=564, test=407; trainer later reports 3911 train and 560 validation items after temporal-neighbor filtering.
+5. Lab half-epoch gate (`--max_train_steps=164`) trained cleanly on CUDA and evaluated successfully. Test raw abs_rel/a1=`0.2588`/`0.5573`; test median-scaled abs_rel/a1=`0.2462`/`0.6609`.
+6. The valid focused lab 30-epoch archive was later received under `C:/Proj/lite-Mono/citrus_project/dataset_workspace/labresults/hybrid_30ep_minimal/`; it contains all 30 encoder/depth checkpoints plus scalar logs and `opt.json`.
+7. Full validation checkpoint sweep outputs were copied under `C:/Proj/lite-Mono/citrus_project/dataset_workspace/labresults/val/val/`. Validation selects `weights_9`, not final `weights_29`: `weights_9` val raw abs_rel/a1=`0.1765`/`0.8083`, median-scaled abs_rel/a1=`0.1832`/`0.8032`; `weights_29` val raw abs_rel/a1=`0.1945`/`0.7969`, median-scaled abs_rel/a1=`0.1963`/`0.7842`.
+8. Lab test confirmation outputs were copied under `C:/Proj/lite-Mono/citrus_project/dataset_workspace/labresults/hybrid_lab_30epoch_b12_w01_logl1_fresh_test_/`. On test, `weights_9` wins raw/median abs_rel and median a1: raw abs_rel/a1=`0.1648`/`0.8108`, median abs_rel/a1=`0.1755`/`0.8051`. Final `weights_29` has slightly higher raw a1 and lower RMSE: raw abs_rel/a1=`0.1767`/`0.8134`, median abs_rel/a1=`0.1809`/`0.7979`. Current interpretation: lab `weights_9` is the validation-selected confirmed checkpoint, but earlier local Hybrid `weights_13` remains slightly stronger overall.
+9. Future two-model visual comparisons should use same-image side-by-side panels, not separately selected good/typical/bad panels. Added `citrus_project/milestones/04_lightweight_vegetation_improvement/Marvel/compare_two_checkpoints_raw_and_scaled.py` for this purpose; it renders RGB, LiDAR label, valid mask, both raw predictions, both median-scaled predictions, scaled error maps, and delta maps for the same selected samples. On 2026-06-08 it was patched to run locally without `torchvision`/`timm` by directly loading Lite-Mono files and using a small local `timm.models.layers` shim.
+10. Local same-image raw-plus-scaled comparison panels for lab `weights_9` versus `weights_29` were generated under `C:/Proj/lite-Mono/citrus_project/dataset_workspace/labresults/raw_scaled_same_image_compare/`. Visual finding: `weights_29` often has a more plausible full-frame sky/far-background prior, but `weights_9` still wins more of the LiDAR-valid relative-depth metrics; this confirms that LiDAR-masked metrics and full-frame visual plausibility can disagree.
 
-1. The old reports/professor folder was removed because the research structure is being refreshed.
-2. The reports/ presentation folder was removed after the presentation was completed.
-3. Keep paper-useful evidence, experiment summaries, and paper content candidates under citrus_project/research/.
-4. Keep bulky generated images/NPY artifacts under ignored citrus_project/research/generated/.
-5. Explain interpolation as a useful initial gap-filling method, not as perfect ground truth. Use "LiDAR-densified depth labels with valid masks" for paper-facing language.
+Next method direction:
 
-Research workspace map:
+1. Before starting LiDAR-aware edge-loss training, compare visual panels and practical availability for lab `weights_9`, lab `weights_29`, and the earlier selected hybrid `weights_13`; do not select by test alone.
+2. The next planned method direction has shifted from pure LiDAR-aware edge loss toward `RGB-edge + LiDAR + prior-distillation` hybrid training, because LiDAR labels anchor metric depth but do not consistently trace clean vegetation boundaries, while RGB provides clearer boundary cues and teacher/prior preservation can protect unlabelled sky/background regions.
+3. Keep the method goal narrow: improve boundary/structure behavior in vegetation while keeping inference RGB-only and lightweight.
+4. Treat LiDAR depth-change/edge cues carefully: dense LiDAR labels do not draw clean plant outlines everywhere, so edge supervision should use valid masks/confidence and should not force unsupported edges.
+5. For model-to-model qualitative comparison, use the same input indices for both models and include raw depth as well as median-scaled depth. Raw full-frame maps expose visual priors such as sky/far-background behavior that LiDAR-masked metrics may ignore.
+6. New plan file: `citrus_project/milestones/04_lightweight_vegetation_improvement/Marvel/rgb_edge_prior_distillation_experiment/PLAN.md`. It proposes staged ablations: LiDAR-only continued-training control, RGB edge-aware smoothness only, teacher prior outside LiDAR mask only, then the combined objective. The plan explicitly classifies this as supervised/hybrid training, not a pure self-supervised/unsupervised development path. After external critique on 2026-06-09, the teacher prior is treated as a risky candidate ablation, not as ground truth; the plan now requires per-loss active-pixel normalization, raw and scale-aligned teacher-prior variants, and fixed visual sanity/rejection checks.
+7. Active first execution pass: raw teacher Branch D is deferred/removed for now. Prepare and test Branch B (`LiDAR-only continued training`) and Branch C (`LiDAR + RGB edge-aware smoothness`) first. Branch C code prep lives under `citrus_project/milestones/04_lightweight_vegetation_improvement/Marvel/branch_c/branch_c_rgb_edge_smoothness/`.
+8. Branch C prep status on 2026-06-09: `--disable_photometric_loss` now also skips pose/reprojection work, `--skip_optimizer_load` lets `weights_13` initialize encoder/depth without inheriting old Adam state, and laptop 300-step Branch B/C pilot scripts are available in the Branch C folder.
 
-1. `citrus_project/research/paper_shortlist.md` = shortlist of results that may later appear in the paper.
-2. `citrus_project/research/dataset_notes.md` = evidence and decisions about dataset building, alignment, and label quality.
-3. `citrus_project/research/baseline_notes.md` = evidence and notes about original-model and baseline runs.
-4. `citrus_project/research/student_qna.md` = simple recurring explanations for students/team members.
-5. `citrus_project/research/literature_tracker.md` = Friend A working file for paper reading and idea scouting.
-6. `citrus_project/research/scene_taxonomy.md` = Friend B working file for scene categories and qualitative-support preparation.
-7. `citrus_project/research/generated/` = ignored local outputs such as images, NPY files, and quick demo artifacts.
+Later milestones:
 
-Team workspace map:
+1. Milestone 5: optional supervised or hybrid training with dense LiDAR labels, unless Milestone 4 continues to own the hybrid-supervised branch for the paper contribution.
+2. Milestone 6: paper package, tables, figures, and writing support.
 
-1. `citrus_project/TEAM_WORKFLOW.md` = teammate and AI onboarding guide plus edit-boundary rules.
-2. `citrus_project/TASK_BOARD.md` = short owner/status/next-action board.
-3. `citrus_project/milestones/00_dataset_audit/sample_pack/` = small shared sample area for low-storage collaborators.
+## Milestone 3 Evidence Snapshot
 
-## Core Tunables
+Professor-facing names should describe experiment purpose, not internal run-folder names.
+Internal folder names belong in technical mapping sections.
 
-Download and pairing:
+Important first-100 validation reference:
 
-1. max_blocks in download scripts.
-2. max_time_delta_sec for frame-level matching.
-3. require_same_session preference.
-4. fallback_to_any_session (keep preference behavior but recover coverage when session IDs differ).
+1. Untouched original Lite-Mono: median-scaled `abs_rel=0.3680`, `a1=0.4807`.
+2. Conservative control after 1000 updates: median-scaled `abs_rel=0.6615`, `a1=0.1827`.
+3. No-color-augmentation control after 250 updates: median-scaled `abs_rel=0.4108`, `a1=0.4568`.
+4. No-color-augmentation control after 500 updates: median-scaled `abs_rel=0.5300`, `a1=0.3513`.
+5. Normal batch-size-12 one-epoch control final: median-scaled `abs_rel=3.0501`, `a1=0.2473`.
 
-Densification quality:
+Advisor-requested checks:
 
-1. transform_mode (`exact_lidar_parent_child_inverted` default/final route; `production_current` for alternate comparison)
-2. interpolation_method (`local_idw` default; `linear`, `nearest`, and `cubic` remain available for comparison)
-3. distance_mask_px
-4. local_idw_k
-5. local_idw_power
-6. local_idw_max_depth_spread_m
-7. local_idw_max_relative_depth_spread
-8. enable_sparse_morph
-9. sparse_morph_kernel
-10. sparse_morph_iters
-11. max_interp_depth_m
-12. clamp_only_interpolated
+1. Parameter loading:
+   - original encoder/depth tensors load with no missing model tensors
+   - fully depth-frozen checkpoint matches original encoder/depth tensors exactly on common model tensors
+2. Training-image evaluation:
+   - adapted checkpoints do not become high-accuracy on first-100 training images
+   - train-image behavior mirrors validation behavior
+3. Sparse LiDAR-only evaluation:
+   - first-100 validation, raw projected sparse LiDAR only, no `local_idw`
+   - original median-scaled `abs_rel=0.6072`, `a1=0.3724`
+   - conservative final1000 median-scaled `abs_rel=0.8445`, `a1=0.1441`
+   - no-augmentation 250-step median-scaled `abs_rel=0.6712`, `a1=0.3234`
+4. Batch-size feasibility:
+   - true batch sizes 8 and 12 pass one-step CUDA smokes on the RTX 4060 Laptop GPU
+   - batch size 12 did not fix the one-epoch control
 
-Builder filters and split:
+Interpretation:
 
-1. min_dense_fill_ratio
-2. train_ratio / val_ratio / test remainder
-3. seed
-4. split_strategy (default: time_block; random keeps legacy frame-shuffle behavior)
-5. time_block_sec
-6. max_zed_depth_delta_sec and zed_uint16_scale for ZED-depth sanity metrics
+1. Current evidence does not support wrong depth-weight loading, validation-only generalization failure, `local_idw` densification alone, or small batch size alone as the Milestone 3 failure cause.
+2. The standard self-supervised photo objective is not aligned enough with LiDAR-valid Citrus relative-depth quality under the tested recipe family.
+3. Milestone 4 should target depth-structure preservation or vegetation-aware cues, not blind scaling of the same recipe.
+
+## Artifact Policy
+
+Do not delete experiment evidence, checkpoints, generated panels, scripts, or notes without first classifying them and getting explicit user approval.
+
+Current categories:
+
+1. Source-of-truth notes:
+   - `AGENTS.md`
+   - milestone README files
+   - `citrus_project/research/*.md`
+2. Evidence-bearing outputs:
+   - full prepared dataset
+   - projection audit diagnostics
+   - Milestone 1 results/visuals
+   - Milestone 3 important run folders/checkpoints/evaluations/diagnostics
+3. Helper scripts:
+   - dataset scripts in `citrus_project/dataset_workspace/`
+   - milestone helpers under `citrus_project/milestones/*/`
+4. Generated/ignored outputs:
+   - `citrus_project/dataset_workspace/projection_alignment_audit/`
+   - `citrus_project/research/generated/`
+   - `citrus_project/milestones/03_self_supervised_adaptation/runs/`
+   - `tmp_trainer_wiring_smoke/`
+   - `__pycache__/`
+5. Possible cleanup candidates after approval:
+   - disposable smoke-test checkpoints whose results are already summarized
+   - small local smoke folders such as `tmp_trainer_wiring_smoke/`
+   - Python cache folders
+
+Milestone 3 run-specific classification lives in:
+
+```text
+citrus_project/milestones/03_self_supervised_adaptation/artifact_inventory.md
+```
 
 ## Known Risks
 
-1. Bag filename timestamp is chunk start time only, not all frame timestamps inside.
-2. base and zed chunk durations differ; exact filename timestamp equality is not expected.
-3. Calibration misuse can create projection artifacts that look like interpolation problems.
-4. The official dataset does not define our dense LiDAR label generation procedure; this is a derived research artifact and needs documentation.
-5. Random frame-level splits can overestimate performance if adjacent frames from the same robot pass appear in different splits.
-6. ZED rolling shutter, vegetation motion, lighting shifts, and software timestamp synchronization can all affect RGB/depth/LiDAR alignment.
-7. LiDAR-densified labels should be evaluated with valid/support masks; dense pixels far from true LiDAR support should not be blindly trusted.
+1. LiDAR-derived dense labels are project-generated, not official Citrus Farm ground truth.
+2. Dense interpolation can create plausible but unsupported depth in vegetation gaps; valid masks and conservative fill settings are mandatory.
+3. Citrus Farm Sequence 01 is only the current validation domain. Broader agricultural claims need more data or careful wording.
+4. Standard self-supervised adaptation can reduce photo loss while damaging depth structure.
+5. Long training runs should use planned checkpoints, monitoring, and clear stop criteria.
+6. TensorBoard logs and checkpoints can consume several GB; classify before cleanup.
 
-## Terminology For This Project
+## Terminology
 
-Use these names consistently in notes and reports:
-
-1. dense LiDAR labels / LiDAR-densified depth labels: LiDAR-derived dense depth labels produced in prepared_training_dataset/dense_lidar_npz.
-2. depth dataset: extracted ZED depth maps produced from /zed2i/zed_node/depth/depth_registered.
-
-Important clarification:
-
-1. Current repository contains LiDAR densification only (densify_lidar.py).
-2. There is no implemented ZED-depth densification pipeline in the current scripts.
-3. Older notes may say "densed lidar dataset"; prefer "dense LiDAR labels" or "LiDAR-densified depth labels" in new paper-facing text.
-
-## Training Strategy Notes (Research Direction Locked - 2026-04-27)
-
-**Core hypothesis (Focused Strategy):**
-Vegetation depth fails due to: occlusion + thin structures + weak textures + boundary confusion.  
-Solution: Lightweight self-supervised depth with occlusion-aware loss + boundary-aware training.
-
-**Paper story:**
-"Occlusion-Aware Lightweight Depth for Vegetation-Dense Orchards: Self-Supervised Monocular Depth in Citrus Scenes"
-
-**Implementation plan:**
-1. Phase 1: Occlusion-aware masking (detects boundaries from depth gradients, masks photometric loss)
-2. Phase 2: Boundary-aware loss refinement (explicit edge preservation)
-3. (Optional) Phase 3: Architecture comparison (RTS-Mono vs improved Lite-Mono)
-
-**Core papers (4 only):**
-- Occlusion-Aware SSL (endoscopy): Loss design with occlusion masking
-- BoRe-Depth: Boundary refinement approach
-- Sharper Object Boundaries: Alternative edge preservation
-- RTS-Mono: Lightweight baseline comparison
-
-**What we're NOT doing:**
-- Language-guided depth (too complex)
-- Diffusion models (too heavy)
-- Architecture searches (MambaDepth, kernels)
-- Multi-task learning (detection + depth)
-
-**Previous strategy notes (superseded):**
-1. Current Lite-Mono training path in this repository is self-supervised RGB photometric optimization.
-2. depth_gt is currently used for monitoring metrics/logging in trainer.py, not as the primary optimization loss.
-3. Current working preference is self-supervised-first with architecture exploration to reduce over-specialization risk and preserve broader cross-farm deployment potential.
-4. Dense LiDAR labels are the preferred supervision source when adding supervised or hybrid training for Citrus Farm.
-5. For publication fairness, compare methods under the same Citrus data budget and splits:
-   - self-supervised baseline (RGB-only)
-   - self-supervised variant with occlusion-aware loss
-   - self-supervised variant with occlusion + boundary-aware loss
-   - optional stage-2 supervised variant using dense LiDAR labels (lower priority now)
-6. Deployment note: LiDAR is required for label creation during training pipeline only; runtime inference remains RGB-only.
-7. Strategy locked in after ChatGPT review; no further research direction changes without team consensus.
-
-## Verification Checklist
-
-Before declaring dataset ready:
-
-1. Timestamp overlap exists between extracted RGB and LiDAR.
-2. Pairing delta statistics are acceptable.
-3. Projection alignment looks correct on random visual samples.
-4. Dense fill ratio and roughness metrics are stable across many frames.
-5. train/val/test splits are generated and non-empty.
-6. LiDAR-to-ZED transform convention is verified using calibration files and overlay panels.
-7. Split policy is sequence/block/time-aware enough to avoid adjacent-frame leakage.
-8. Existing dense outputs can be rerun or reused without losing split/metrics reproducibility.
-9. ZED depth is used at least as a sanity-check reference against LiDAR-derived labels where valid.
-
-## Research Reframing Snapshot (2026-04-15)
-
-Working paper direction:
-
-1. Target contribution should be framed as lightweight monocular depth estimation for vegetation-dense citrus/orchard environments, not as a broad global SOTA monocular depth claim.
-2. Lite-Mono remains the main efficiency baseline because it is a compact CVPR 2023 self-supervised monocular depth model originally validated mostly around urban/KITTI-style driving data.
-3. The research gap is domain shift: vegetation, repetitive canopy texture, thin branches/leaves, partial occlusion, non-planar ground, lighting variation, and robot-scale agricultural navigation needs.
-4. Runtime requirement remains RGB-only monocular inference for a pest-killing robot; LiDAR and ZED depth are offline training/evaluation assets only.
-5. Paper-facing terminology should prefer "LiDAR-densified depth labels" or "dense LiDAR depth labels"; legacy project notes may still refer to the "densed lidar dataset" for continuity.
-
-## Codebase Review Snapshot (2026-04-15)
-
-Observed from current repository review:
-
-1. Citrus data preparation is mostly separate from the original Lite-Mono training stack.
-2. trainer.py and evaluate_depth.py are still KITTI-centered; no Citrus Dataset class, Citrus evaluation script, or supervised/hybrid depth loss is wired into training yet.
-3. Current prepared_training_dataset/ output is absent locally; a fresh full builder run is required before training/evaluation milestones depend on it.
-4. build_training_dataset.py now rebuilds manifest rows when dense files already exist and can force-regenerate dense outputs with `--no_skip_existing`.
-5. Current builder default uses time-block grouped splitting; paper experiments should still confirm the split does not leak near-duplicate frames across train/val/test.
-6. Densification quality must be treated as a first-class validation target before supervised/hybrid training, especially calibration correctness, support masks, fill ratio, and visual projection alignment.
-7. The original Lite-Mono code still computes KITTI-shaped monitoring crops in compute_depth_losses; Citrus metrics should use Citrus image geometry and masks instead of KITTI Eigen crop assumptions.
-
-## Proposed Paper Milestones (Quality Targets)
-
-Milestone 0 - Dataset and calibration audit:
-
-1. Regenerate prepared_training_dataset/ from the current extracted RGB/LiDAR data.
-2. Produce pairing delta statistics, dense-label quality histograms, and random visual alignment panels.
-3. Lock dataset version, build parameters, and split policy.
-
-Milestone 1 - Baseline on Citrus:
-
-1. Run original Lite-Mono pretrained weights on Citrus validation/test frames.
-2. Evaluate against LiDAR-densified depth labels with Citrus-specific masks and metrics.
-3. Record runtime, parameter count, FLOPs, and failure cases in vegetation-heavy scenes.
-
-Milestone 2 - Citrus training integration:
-
-1. Add a Citrus Dataset/DataLoader path that consumes prepared split manifests.
-2. Add Citrus-specific evaluation independent of KITTI crops and file formats.
-3. Keep original KITTI behavior available for comparison and regression safety.
-
-Milestone 3 - Self-supervised Citrus adaptation:
-
-1. Train/fine-tune Lite-Mono self-supervised on Citrus RGB sequences under fixed splits.
-2. Compare against untouched original Lite-Mono using the same evaluation budget.
-3. Analyze whether adaptation improves vegetation geometry without overfitting to one field/session.
-
-Milestone 4 - Lightweight vegetation-focused architecture improvement:
-
-1. Add one clearly motivated lightweight module or loss targeted at vegetation-dense failure modes.
-2. Keep parameter/FLOP/runtime changes small enough to support the robot deployment story.
-3. Run ablations against original Lite-Mono and self-supervised Citrus adaptation.
-
-Milestone 5 - Optional supervised/hybrid extension:
-
-1. Add LiDAR-densified depth supervision or a hybrid photometric + depth loss.
-2. Treat this as stage-2 evidence unless professor feedback changes the paper direction.
-3. Compare under the same split and data budget as self-supervised variants.
-
-Milestone 6 - Paper package:
-
-1. Report accuracy, robustness/failure cases, efficiency, and deployment relevance.
-2. Include qualitative examples in canopy, aisle, trunk, ground, and high-occlusion scenes.
-3. Document dataset construction enough for reproducibility.
-
-## Timeline Snapshot (2026-04-21)
-
-Done:
-
-1. Extracted the current local Citrus RGB, ZED depth, and LiDAR subset.
-2. Verified timestamp-based RGB-LiDAR pairing logic with same-session preference and optional fallback.
-3. Audited four LiDAR-to-camera transform candidates and rejected the two clearly wrong routes.
-4. Replaced the old default linear fill with conservative `local_idw` densification.
-5. Ran small visual audits plus a 200-sample time-spread metrics probe.
-6. Locked `exact_lidar_parent_child_inverted` as the final/default dense-label route.
-7. Ran one original Lite-Mono qualitative sanity prediction on a Citrus RGB image.
-
-Current:
-
-1. Milestone 0 is logically complete from an audit/decision perspective, but the full `prepared_training_dataset/` build has not been run yet as a large local artifact step.
-2. Milestone 1 has only started as a qualitative demo; full baseline evaluation on Citrus splits is still pending.
-3. We now need cleaner, reusable research communication notes for both paper-facing evidence and beginner-facing explanations.
-
-Next:
-
-1. Run the full `build_training_dataset.py` build with the final/default route.
-2. Record final sample counts plus train/val/test split counts for paper use.
-3. Run original Lite-Mono on the built Citrus validation/test split and evaluate against dense labels with valid masks.
-
-Later:
-
-1. Add Citrus-specific training/evaluation integration into the Lite-Mono codebase.
-2. Fine-tune/self-supervise Lite-Mono on Citrus RGB sequences.
-3. Propose and test one lightweight vegetation-focused improvement.
-4. Optionally test supervised or hybrid training with dense LiDAR labels.
-5. Assemble the paper package.
+1. Pairing: matching RGB frames and LiDAR scans by timestamp.
+2. Projection: mapping LiDAR 3D points into the ZED image plane using calibration.
+3. Densification: turning sparse projected LiDAR into a semi-dense depth map.
+4. Valid mask: pixels where the depth label should be trusted for metrics/training.
+5. Raw metrics: depth metrics before scale correction.
+6. Median-scaled metrics: metrics after one per-image scale correction; useful for judging relative near/far structure.
+7. Photo loss: self-supervised image reconstruction loss used during Lite-Mono-style training.
+8. Pose network: training-time helper for camera motion; not used for RGB-only depth inference.
 
 ## Quick Commands
 
-From citrus_project/dataset_workspace directory:
+Use `D:/Conda_Envs/lite-mono/python.exe` as the current project Python.
 
-Download:
+Dataset build from `citrus_project/dataset_workspace/`:
 
-1. D:/Conda_Envs/lite-mono/python.exe download_citrusfarm_seq_01_lidar.py
-2. D:/Conda_Envs/lite-mono/python.exe download_citrusfarm_seq_01_rgb_depth.py
+```powershell
+D:/Conda_Envs/lite-mono/python.exe build_training_dataset.py
+```
 
-Extract:
+Projection audit from `citrus_project/dataset_workspace/`:
 
-1. D:/Conda_Envs/lite-mono/python.exe extract_left_rgbd_from_raw.py 01_13B_Jackal extracted_rgbd
-2. D:/Conda_Envs/lite-mono/python.exe extract_lidar_from_raw.py 01_13B_Jackal extracted_lidar
+```powershell
+D:/Conda_Envs/lite-mono/python.exe audit_projection_alignment.py --max_samples 12 --output_dir projection_alignment_audit/time_spread_visual_12
+```
 
-Build:
+Milestone 1 full baseline from repo root:
 
-1. D:/Conda_Envs/lite-mono/python.exe build_training_dataset.py
-2. Optional debug run: D:/Conda_Envs/lite-mono/python.exe build_training_dataset.py --max_samples 5
-3. Alternate production-current debug run: D:/Conda_Envs/lite-mono/python.exe build_training_dataset.py --transform_mode production_current --max_samples 5 --no_skip_existing
+```powershell
+D:/Conda_Envs/lite-mono/python.exe citrus_project/milestones/01_original_lite_mono_baseline/evaluate_lite_mono_citrus.py --split val --max_samples 0 --run_model --summary_only --progress_interval 50 --output_dir citrus_project/milestones/01_original_lite_mono_baseline/results
+D:/Conda_Envs/lite-mono/python.exe citrus_project/milestones/01_original_lite_mono_baseline/evaluate_lite_mono_citrus.py --split test --max_samples 0 --run_model --summary_only --progress_interval 50 --output_dir citrus_project/milestones/01_original_lite_mono_baseline/results
+```
 
-Audit:
+Milestone 2 core smokes from repo root:
 
-1. D:/Conda_Envs/lite-mono/python.exe audit_projection_alignment.py --max_samples 3
-2. Inspect generated overlays/details under projection_alignment_audit/ before trusting LiDAR-densified labels.
-3. D:/Conda_Envs/lite-mono/python.exe densify_lidar.py --compare_transform_modes
-4. Time-spread metrics-only route probe: D:/Conda_Envs/lite-mono/python.exe audit_projection_alignment.py --max_samples 200 --metrics_only --output_dir projection_alignment_audit/time_spread_metrics_200
-5. Final time-spread visual spot-check: D:/Conda_Envs/lite-mono/python.exe audit_projection_alignment.py --max_samples 12 --output_dir projection_alignment_audit/time_spread_visual_12
+```powershell
+D:/Conda_Envs/lite-mono/python.exe citrus_project/milestones/02_citrus_integration/inspect_citrus_prepared_dataset.py --temporal --samples_per_split 2 --batch_size 2 --splits train val
+D:/Conda_Envs/lite-mono/python.exe citrus_project/milestones/02_citrus_integration/inspect_temporal_neighbors.py
+D:/Conda_Envs/lite-mono/python.exe citrus_project/milestones/02_citrus_integration/smoke_root_citrus_one_step_train.py --use_cuda
+```
 
-One-image original Lite-Mono Citrus sanity run:
+Milestone 3 status:
 
-1. Copy the selected RGB image into `citrus_project/research/generated/lite_mono_single_image_demo/` first, because this folder is ignored and not part of the dataset.
-2. D:/Conda_Envs/lite-mono/python.exe test_simple.py --load_weights_folder weights/lite-mono --image_path citrus_project/research/generated/lite_mono_single_image_demo/zed_2023-07-18-14-26-49_0_bag_1689715609331936216.png --model lite-mono --no_cuda
-3. Output appears next to the copied input image as `*_disp.jpeg` and `*_disp.npy`.
+1. Do not run another long Milestone 3 adaptation by default.
+2. Use `artifact_inventory.md`, the Milestone 3 README, and `baseline_notes.md` before deciding whether any run folder is needed.
 
-## Change Log
+## Next Actions
 
-- 2026-03-31: Created AGENTS.md with mandatory read/update workflow and Citrus pipeline context.
-- 2026-03-31: Captured overlap-window pairing policy and prepared dataset artifact contract.
-- 2026-03-31: Added terminology contract (densed lidar dataset vs depth dataset), clarified no ZED densification script, and documented research strategy/fair-comparison guidance.
-- 2026-03-31: Added professor report package (strategy report, 90-second script, Q&A sheet) under reports/professor for structured advisor feedback.
-- 2026-03-31: Updated strategy framing to self-supervised-first (discussion-stage), with supervised/hybrid positioned as optional stage-2 comparisons pending professor feedback; refreshed professor-facing report tone to casual update style.
-- 2026-04-01: Updated context paths after citrus-farm-dataset rename pass (extract scripts, densify script, and prepared dense label folder naming).
-- 2026-04-01: Synced renamed citrus paths in code artifacts (builder import now uses densify_lidar, builder output uses dense_lidar_npz, and prepared split/metrics manifests now reference dense_lidar_npz consistently).
-- 2026-04-01: Added latest local data snapshot after one-base/21-zed pull; captured expanded extracted_rgbd/extracted_lidar counts and storage impact, plus note that prepared outputs are currently not present locally.
-- 2026-04-11: Added .github/copilot-instructions.md with verified run commands, cross-file architecture overview, and repository-specific conventions for future Copilot sessions.
-- 2026-04-14: Updated densify_lidar/build_training_dataset pairing policy to support same-session preference plus optional any-session fallback within max delta; added CLI toggles and regression tests for fallback behavior.
-- 2026-04-15: Added paper-oriented research reframing, codebase review findings, and proposed quality-target milestones for Citrus/Lite-Mono publication planning.
-- 2026-04-15: Reworked project context to state the publishable research-paper goal, document official Citrus Farm dataset intent, distinguish author-intended extraction from our derived LiDAR-densified label pipeline, and record dataset-processing quality concerns.
-- 2026-04-15: Fixed build_training_dataset reproducibility issues: reused dense outputs now still generate manifest rows, added force-regeneration toggle, time-block grouped splitting, valid-mask artifacts, optional ZED-depth sanity metrics, and regression tests.
-- 2026-04-15: Added projection alignment audit script and generated a 3-sample diagnostic audit for manual review; audit outputs are ignored by git.
-- 2026-04-15: Recorded manual projection-audit result: production_current and exact_lidar_parent_child_inverted look visually plausible, while the other two transform candidates are clearly wrong; production_current remains active for now.
-- 2026-04-15: Integrated exact_lidar_parent_child_inverted as a selectable densification/build transform mode for side-by-side dense-label comparison; alternate builder runs default to a separate prepared_training_dataset_exact_lidar_parent_child_inverted folder.
-- 2026-04-15: Removed mixed old projection_alignment_audit outputs and regenerated a clean 12-sample projection alignment audit for manual comparison of production_current versus exact_lidar_parent_child_inverted before full dataset generation.
-- 2026-04-15: Recorded user review of the clean 12-sample audit as a visual tie between production_current and exact_lidar_parent_child_inverted; production_current remains the default pending quantitative ZED/model checks.
-- 2026-04-15: Clarified that LiDAR-densified labels and valid masks are numeric NPZ artifacts for training/evaluation, while PNG depth panels are human-facing diagnostics or future paper figures.
-- 2026-04-15: Updated audit detail visualizations so LiDAR labels include a paper-style inverse-depth view ("near bright") and support-distance maps are clearly labeled as not depth; regenerated the 12-sample audit outputs.
-- 2026-04-15: Ran 50-sample metrics probes for production_current and exact_lidar_parent_child_inverted; exact_inverted had much lower ZED-vs-LiDAR median error on overlap but lower dense fill/overlap, so transform choice remains open pending a time-spread probe.
-- 2026-04-15: Added reports/professor/citrus_farm_projection_progress_script.md as a digestible presentation script and screen-share guide for explaining overlay checks, LiDAR-densified labels, interpolation risk, and metrics tradeoffs.
-- 2026-04-15: Updated audit_projection_alignment.py so 12-sample audit outputs include separate dense-label detail folders for both plausible routes: details_production_current and details_exact_lidar_parent_child_inverted.
-- 2026-04-15: Reworked reports/professor/citrus_farm_projection_progress_script.md into a slide-oriented, layman-friendly presentation guide with simpler terms and explicit visual assets to show.
-- 2026-04-15: Removed the old reports/professor folder and replaced it with reports/citrus_farm_dataset_processing_presentation.md as the current slide/script guide for explaining calibration/line-up checks, densification, interpolation limits, metrics probes, and why the final dataset is not locked yet.
-- 2026-04-15: Added reports/citrus_farm_dataset_processing_presentation_concise.md as a 2-3 slide version focused on calibration, densification, and the early route-selection decision; kept the longer script as a backup for deeper discussion.
-- 2026-04-15: Fixed audit sparse-depth subplot visibility in audit_projection_alignment.py by using nearest-neighbor rendering and a non-transparent masked color (black) so projected sparse LiDAR scanlines no longer disappear against white panel backgrounds.
-- 2026-04-15: Brightened sparse LiDAR depth scanline colors in audit_projection_alignment.py (display-only) by using a brightened turbo colormap for the sparse-depth subplot so projected lines are easier to see while preserving the same underlying depth values and metrics.
-- 2026-04-15: Further enhanced sparse LiDAR depth readability in audit_projection_alignment.py by using percentile-normalized inverse-depth coloring plus light display-only line dilation so sparse scanlines appear visibly brighter/thicker on the black background.
-- 2026-04-15: Replaced default dense-label interpolation from global `linear` grid interpolation to conservative `local_idw` in densify_lidar.py, build_training_dataset.py, and audit_projection_alignment.py; local_idw fills near sparse LiDAR support but rejects pixels where nearby measured depths disagree, reducing fake vegetation/ground surfaces at the cost of lower coverage.
-- 2026-04-16: Verified AGENTS.md against current workspace after outside edits; marked the 50-sample metrics probes as legacy `linear` artifacts, added the current 12-sample `local_idw` audit metrics, and removed the stale current-artifact reference to the deleted concise presentation guide.
-- 2026-04-16: Reworked reports/citrus_farm_dataset_processing_presentation.md into a 4-slide guide for the user's presentation section, with more slide-ready text and simple speaker notes covering line-up checks, sparse-to-semidense labels, valid masks, route metrics, and the next validation step.
-- 2026-04-16: Added reports/slide4_route_comparison_table.html as a screenshot-friendly Route A versus Route B metrics table for Slide 4, and updated the presentation guide with simple explanations for each metric.
-- 2026-04-16: Removed the temporary Slide 4 HTML screenshot helper after use; kept the slide guide's metric explanations and table guidance.
-- 2026-04-16: Extended reports/citrus_farm_dataset_processing_presentation.md to a 5-slide guide with a closing "next stage" slide that links the dataset audit to the proposed research milestones and clarifies that milestones are proposed targets pending advisor feedback.
-- 2026-04-16: Ran one original Lite-Mono pretrained sanity prediction on an extracted Citrus RGB frame, recorded the command/output files, and clarified that this starts but does not complete the Citrus baseline milestone.
-- 2026-04-16: Removed the generated original Lite-Mono `*_disp` outputs from the extracted RGB dataset folder, reran the one-image demo from an ignored generated-artifact folder, and kept demo artifacts separate from dataset artifacts.
-- 2026-04-16: Added metrics-only projection audit support, hardened projection against non-finite projected points, and ran a 200-sample time-spread local_idw route probe; `exact_lidar_parent_child_inverted` had lower ZED absolute and relative error on all 200 paired comparisons while `production_current` kept higher dense coverage.
-- 2026-04-16: Added the readable Markdown summary for the 200-sample metrics-only route probe, because the raw output is CSV/JSON rather than paper-friendly Markdown.
-- 2026-04-16: Tidied research artifacts by moving paper-useful notes out of reports/ into citrus_project/research/, adding citrus_project/research/paper_shortlist.md, and moving ignored Lite-Mono demo outputs to citrus_project/research/generated/.
-- 2026-04-17: Ran a final 12-sample time-spread visual spot-check and locked `exact_lidar_parent_child_inverted` as the default/final dense-label transform route; `production_current` remains available as an alternate comparison route.
-- 2026-04-17: Smoke-tested build_training_dataset.py with one sample to confirm the final/default transform is used by the builder; removed the throwaway smoke-check output afterward.
-- 2026-04-17: Removed the completed presentation-only reports/ folder and GEMINI.md from the tracked workspace as part of research-focused cleanup.
-- 2026-04-21: Added explicit document-role rules so AGENTS.md remains the project source of truth while `citrus_project/research/student_qna.md` stores recurring beginner-facing explanations; also added a clearer timeline snapshot for done/current/next work.
-- 2026-04-21: Renamed research-note files to simpler names and added an explicit research-note workflow plus workspace map so future chats can place notes consistently.
-- 2026-04-21: Simplified the research-note structure again by merging the small dataset-audit and baseline evidence files into `citrus_project/research/dataset_notes.md` and `citrus_project/research/baseline_notes.md`, keeping only the paper shortlist, student Q&A, and ignored generated outputs alongside them.
-- 2026-04-21: Removed the legacy 50-sample prepared-dataset probe output folders from `citrus_project/dataset_workspace/` after their results were already captured in notes, to reduce workspace clutter.
-- 2026-04-22: Added an explicit user-collaboration preference to verify codebase details before answering, check edge cases instead of assuming file/workflow importance, and label guesses clearly when discussing ideas versus confirmed repository behavior.
-- 2026-04-22: Moved the project-owned Citrus dataset workspace and research notes under `citrus_project/`, separating them more clearly from the original Lite-Mono code at repo root.
-- 2026-04-22: Added `citrus_project/milestones/` with per-milestone folders plus workspace README files so future milestone-specific work can live in one consistent place.
-- 2026-04-22: Updated the Citrus download/extract/verify helper scripts so relative paths resolve from `citrus_project/dataset_workspace/`, making the moved workspace less dependent on the caller's current working directory.
-- 2026-04-22: Added team-collaboration docs (`TEAM_WORKFLOW.md`, `TASK_BOARD.md`, `literature_tracker.md`, `scene_taxonomy.md`, and the Milestone 0 `sample_pack/` scaffold) so teammates and their AI assistants can stay aligned without needing the full dataset workspace.
+Immediate:
 
-## Update Template (Append On Future Changes)
+1. Treat `C:/Proj/lite-Mono` as the working source-of-truth folder; do not update the older sem6 copy or the lab-transfer repo unless explicitly asked.
+2. Use the earlier local Hybrid `weights_13` as the preferred Branch B/C starting checkpoint when available; use lab `weights_9` only as the lab-machine fallback if the earlier checkpoint is unavailable.
+3. Treat Branch C `weights_24` as the recommended checkpoint to carry forward for metric-depth reporting, while recording `weights_22` as the strict validation-raw winner and `weights_29` as the strong final-epoch comparison.
+4. Keep professor-facing names descriptive and keep internal run-folder names in technical mappings.
+5. Do not delete generated evidence or checkpoints unless the user explicitly approves a specific cleanup list.
+
+Milestone 4 planning questions:
+
+1. Did the lab 30-epoch hybrid run reproduce, beat, or underperform the earlier selected Hybrid `weights_13` result?
+2. Should the LiDAR-aware edge-loss experiment start from the selected hybrid checkpoint or from pretrained Lite-Mono initialization?
+3. What edge target is safest: LiDAR depth-gradient edges, RGB-image edges gated by LiDAR validity, or a confidence-weighted blend?
+4. How should we report cases where metrics improve but visual panels look only subtly better than Plain Citrus?
+
+## Recent Change Log
+
+1. 2026-04-17: Final/default dense-label transform locked to `exact_lidar_parent_child_inverted`.
+2. 2026-04-23: Full `prepared_training_dataset/` build completed with 5282 samples and time-block splits.
+3. 2026-04-28: Full original Lite-Mono Citrus validation/test baseline completed and saved.
+4. 2026-05-05: Milestone 2 core Citrus trainer integration completed, including CUDA one-step smoke.
+5. 2026-05-07: Milestone 3 standard self-supervised adaptation closed as weak/negative evidence.
+6. 2026-05-08: Advisor checks completed for parameter loading, train-image evaluation, sparse LiDAR-only evaluation, and batch-size-12 control.
+7. 2026-05-09: Workspace cleanup pass compacted this file and moved Milestone 3 artifact classification into the milestone workspace.
+8. 2026-05-09: Milestone 4 baseline planning recorded ImageNet-encoder initialization for the plain Lite-Mono Citrus baseline.
+9. 2026-05-10: Plain Lite-Mono Citrus ImageNet-pretrained 30-epoch run completed; final `weights_29` val/test evaluation and original-vs-final comparison panels saved under the Milestone 4 results folder.
+10. 2026-05-10: Checkpoint-sweep interpretation was reverted after visual review; final-epoch `weights_29` remains the current inspected plain Lite-Mono Citrus baseline evidence, with the full run ignored and an inference-only checkpoint copy tracked.
+11. 2026-05-11: Local cleanup deleted Milestone 4 old epoch checkpoints `weights_0` through `weights_28` and Milestone 3 smoke/pilot/VRAM run folders; committed metrics, visuals, inference weights, final `weights_29`, and Milestone 3 evidence runs were preserved.
+12. 2026-05-12: Task board refreshed for Milestone 4 handoff readiness.
+13. 2026-05-13: Added folder-level README maps and migrated B0 inference weights, command scripts, no-code-changes marker, result files, visual panels, and `opt.json` into Levinson's agreed Milestone 4 snapshot structure under `levinson/snapshots/00_plain_citrus_baseline/`; removed the old `baseline_checkpoint/` copy.
+14. 2026-05-13: Added Milestone 4 workstream folders for `levinson/` and `Marvel/`, moved the Milestone 4 `results/` and local ignored `runs/` folders under `levinson/`, and recorded the rule that tested `.py` improvements must be duplicated into the matching stage snapshot.
+15. 2026-05-22: Completed the Milestone 4 hybrid supervised checkpoint scan for `hybrid_supervised_b12_30ep_logl1_abs_w01_fresh_sched`; `weights_13` beat final `weights_29` on validation and top-candidate test confirmation, so `weights_13` is the selected hybrid checkpoint for comparison and future LiDAR-aware edge-loss planning.
+16. 2026-05-25: Prepared the 2026-05-26 progress-presentation package with slide bullets/script, metric graphs, checkpoint-sweep plots, Plain Citrus versus Hybrid `weights_13` panels, and the next LiDAR-aware edge-loss roadmap; the script explains the switch from pure self-supervised training to masked LiDAR-supervised hybrid training.
+17. 2026-06-02: Prepared the lab-computer transfer workflow and clean GitHub-transfer repo, excluding datasets, weights, caches, checkpoints, runs, results, snapshots, and log files from source control.
+18. 2026-06-03: Lab prepared dataset build completed under `~/lite-mono-citrus-lab-transfer` with `build_training_dataset.py --workers 8`: 4918 RGB-LiDAR samples, split counts train=3947, val=564, test=407, final/default transform `exact_lidar_parent_child_inverted`.
+19. 2026-06-03: Lab half-epoch hybrid supervised gate completed and evaluated. Validation raw abs_rel/a1=`0.2753`/`0.5282`, validation median-scaled abs_rel/a1=`0.2610`/`0.6381`; test raw abs_rel/a1=`0.2588`/`0.5573`, test median-scaled abs_rel/a1=`0.2462`/`0.6609`. Interpretation: the short lab run strongly improves raw scale over Plain Citrus but remains behind selected Hybrid `weights_13`.
+20. 2026-06-03: User launched a complete 30-epoch lab hybrid supervised run using the same recipe: batch size 12, LiDAR loss weight 0.1, log-L1 LiDAR loss, no LiDAR scale alignment, scale-0 LiDAR supervision, pretrained Lite-Mono initialization, save every epoch. Checkpoint sweep is required after completion because final epoch may not be best.
+21. 2026-06-04: Inspected `C:/Proj/lite-Mono/citrus_project/dataset_workspace/labresults/marvel.zip`; the archive is damaged/incomplete and recoverable contents only show `hybrid_lab_halfepoch_b12_w01_164steps`, not the 30-epoch run. Request a new focused archive containing 30-epoch scalar logs plus `weights_*/encoder.pth` and `weights_*/depth.pth`.
+22. 2026-06-04: Repaired context-file direction after duplicate-folder confusion. `C:/Proj/lite-Mono` is now the local source-of-truth folder; the older sem6 `Lite-Mono-Main` copy should not receive future updates.
+23. 2026-06-06: Received and inspected the valid `hybrid_30ep_minimal` lab archive. It contains all 30 `weights_0` through `weights_29` encoder/depth checkpoints plus train/val scalar CSVs and `opt.json`. Generated scalar plots under `citrus_project/dataset_workspace/labresults/hybrid_30ep_minimal_analysis_plots/`. Scalar logs show train loss continues down to epoch 29, validation loss is lowest around epoch 16, validation scalar `abs_rel` is lowest at epoch 13, and scalar `a1` peaks around epoch 6; full val/test checkpoint sweep is still required before selecting the model.
+24. 2026-06-06: Inspected the copied lab validation checkpoint sweep under citrus_project/dataset_workspace/labresults/val/val/. All 30 checkpoints were evaluated on validation. weights_9 is the current lab validation-selected checkpoint: raw abs_rel/a1=0.1765/0.8083, median-scaled abs_rel/a1=0.1832/0.8032. Final weights_29 is usable but weaker on validation: raw abs_rel/a1=0.1945/0.7969, median-scaled abs_rel/a1=0.1963/0.7842.
+25. 2026-06-06: Inspected copied lab test confirmation for weights_9 and weights_29. weights_9 test raw abs_rel/a1=0.1648/0.8108 and median abs_rel/a1=0.1755/0.8051. weights_29 test raw abs_rel/a1=0.1767/0.8134 and median abs_rel/a1=0.1809/0.7979. weights_9 remains the selected lab checkpoint by validation and abs_rel; weights_29 is slightly better only on raw a1/RMSE.
+26. 2026-06-06: Added `compare_two_checkpoints_raw_and_scaled.py` under Marvel to generate same-image raw plus median-scaled visual comparisons for two checkpoints. This was added after observing that LiDAR-masked metrics can prefer one checkpoint while another may look more plausible in unlabelled full-frame regions such as sky.
+27. 2026-06-08: Extracted `some.zip` and `thing.zip` into `labresults/some_extracted/` and `labresults/thing_extracted/`. Generated local raw-plus-median-scaled same-image comparisons for lab `weights_9` versus `weights_29` under `labresults/raw_scaled_same_image_compare/`. The panels show `weights_29` can look more visually plausible in sky/background, while `weights_9` remains stronger on several LiDAR-valid metric regions.
+28. 2026-06-08: Added `rgb_edge_prior_distillation_experiment/PLAN.md` under Marvel. The plan objectively proposes a staged next experiment combining masked LiDAR metric supervision, RGB edge-aware smoothness, and teacher/prior preservation outside the LiDAR-valid mask, with literature support and explicit risks. It now states that the experiment is supervised/hybrid, and that the expected heat-map outcome is improved full-frame sanity rather than guaranteed perfect depth.
+29. 2026-06-09: Revised `rgb_edge_prior_distillation_experiment/PLAN.md` after critique. Important changes: `weights_29` is no longer framed as a strong teacher, only a candidate outside-mask prior; teacher loss must be normalized by active pixels, tested raw and scale-aligned, and compared against no-teacher controls; LiDAR-only continued training is now a required ablation; visual sanity must use a fixed image set and predefined rejection rules rather than subjective post-hoc selection.
+30. 2026-06-09: Prepared local Branch C workspace by copying `hybrid_supervised_draft` to `branch_c_rgb_edge_smoothness/`, adding `--disable_photometric_loss`, and documenting Branch B/C commands in `BRANCH_C_PREP.md`. The active first-pass plan now prioritizes Branch B and Branch C, with raw teacher Branch D deferred.
+31. 2026-06-09: Finished laptop Branch C prep: photometric-disabled training now skips pose/reprojection, `--skip_optimizer_load` was added for fresh optimizer state from `weights_13`, and two 300-step laptop pilot scripts were added for Branch B and Branch C under `branch_c_rgb_edge_smoothness/`.
+32. 2026-06-09: Completed Branch C 2-epoch smoke and 30-epoch laptop run from earlier Hybrid `weights_13`. Final Branch C `weights_29` is the strongest result so far by final metrics: val raw abs_rel/a1=`0.1561`/`0.8668`, val median abs_rel/a1=`0.1581`/`0.8640`; test raw abs_rel/a1=`0.1399`/`0.8733`, test median abs_rel/a1=`0.1436`/`0.8675`. Visual panels and loss plots are saved under `branch_c_rgb_edge_smoothness/results/branch_c_rgb_edge_from_w13_b12_30ep_s001_laptop/`; validation checkpoint sweep remains the next selection step.
+33. 2026-06-09: Completed Branch C checkpoint sweep. Validation raw `abs_rel` winner is `weights_22` with val raw abs_rel/a1=`0.1530`/`0.8664`; validation median `abs_rel` winner is `weights_24` with val median abs_rel/a1=`0.1562`/`0.8641`. Test confirmation favors `weights_24` for raw metric depth: test raw abs_rel/a1=`0.1384`/`0.8694`; final `weights_29` remains best among confirmed candidates for test median-scaled abs_rel/a1=`0.1436`/`0.8675`. Recommended checkpoint to carry forward is `weights_24`, with `weights_22` and `weights_29` retained as comparison points. Generated selected-checkpoint Plain Citrus comparison panels under `branch_c_rgb_edge_smoothness/results/branch_c_rgb_edge_from_w13_b12_30ep_s001_laptop/checkpoint_sweep/visuals/weights_24_baseline_vs_branch_c_val/` and `.../weights_24_baseline_vs_branch_c_test/`.
+34. 2026-06-09: Generated same-image raw plus median-scaled comparison panels for Branch C `weights_24` versus final `weights_29` under `checkpoint_sweep/visuals/weights24_vs_weights29_val/` and `checkpoint_sweep/visuals/weights24_vs_weights29_test/`. Visual interpretation: the two checkpoints are very close; `weights_24` remains preferred for aggregate raw metric depth, while `weights_29` remains a strong final-epoch comparison.
+
+## Update Template
 
 Date:
 Changed files:
@@ -731,3 +558,4 @@ Why:
 Validation run:
 Open risks:
 Next step:
+Note-maintenance action:

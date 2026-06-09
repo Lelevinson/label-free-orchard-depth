@@ -4,7 +4,6 @@ from __future__ import absolute_import, division, print_function
 import time
 import sys
 import random
-import csv
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
@@ -165,17 +164,8 @@ class Trainer:
         self.val_iter = iter(self.val_loader)
 
         self.writers = {}
-        self.scalar_log_files = {}
-        self.scalar_log_writers = {}
         for mode in ["train", "val"]:
             self.writers[mode] = SummaryWriter(os.path.join(self.log_path, mode))
-            scalar_log_path = os.path.join(self.log_path, "{}_scalars.csv".format(mode))
-            self.scalar_log_files[mode] = open(scalar_log_path, "a", newline="")
-            self.scalar_log_writers[mode] = csv.DictWriter(
-                self.scalar_log_files[mode],
-                fieldnames=["step", "epoch", "mode", "tag", "value"])
-            if os.path.getsize(scalar_log_path) == 0:
-                self.scalar_log_writers[mode].writeheader()
 
         if not self.opt.no_ssim:
             self.ssim = SSIM()
@@ -798,8 +788,6 @@ class Trainer:
         writer = self.writers[mode]
         for l, v in losses.items():
             writer.add_scalar("{}".format(l), v, self.step)
-            self.write_scalar_csv(mode, l, v)
-        self.scalar_log_files[mode].flush()
 
         for j in range(min(4, self.opt.batch_size)):  # write a maxmimum of four images
             for s in self.opt.scales:
@@ -827,24 +815,6 @@ class Trainer:
                     writer.add_image(
                         "automask_{}/{}".format(s, j),
                         outputs["identity_selection/{}".format(s)][j][None, ...], self.step)
-
-    def write_scalar_csv(self, mode, tag, value):
-        """Write scalar logs in a simple CSV format for later PNG plotting."""
-        if hasattr(value, "detach"):
-            value = value.detach().cpu()
-        if hasattr(value, "item"):
-            value = value.item()
-        try:
-            value = float(value)
-        except (TypeError, ValueError):
-            return
-        self.scalar_log_writers[mode].writerow({
-            "step": self.step,
-            "epoch": self.epoch,
-            "mode": mode,
-            "tag": tag,
-            "value": value,
-        })
 
     def save_opts(self):
         """Save options to disk so we know what we ran this experiment with
