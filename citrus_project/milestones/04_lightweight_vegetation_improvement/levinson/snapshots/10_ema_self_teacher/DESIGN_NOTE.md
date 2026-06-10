@@ -1,9 +1,12 @@
 # DESIGN_NOTE — Snapshot 10 (S10): EMA In-Domain Self-Teacher with Independent DC/GC Consistency Gating
 
-Status: DESIGN ONLY (not yet implemented or tested). Produced 2026-06-05 by a multi-agent
-research + design + adversarial-review workflow (20 agents). Awaiting user OK before build.
-This is the research-ranked-#1 direction (EC-Depth/ER-Depth family), with four review-fatal bugs
-of the naive versions explicitly fixed.
+Status: BUILT, RUN, and a WIN. Produced 2026-06-05 by a multi-agent research + design +
+adversarial-review workflow (20 agents); implemented + smoke-tested 2026-06-05; full 30-epoch run
+completed 2026-06-10. RESULT (selected weights_29, test median-scaled): abs_rel=0.3080, a1=0.6258 —
+a clean win over original Lite-Mono on BOTH metrics and the first Milestone 4 method to BEAT (not
+tie) the original on abs_rel; beats Snapshot 07 on abs_rel by ~20% for a small a1 give-back. See
+`results/final_result.md`. This is the research-ranked-#1 direction (EC-Depth/ER-Depth family) with
+four review-fatal bugs of the naive versions fixed. The spec below is the as-built design.
 
 ## 1. Summary
 
