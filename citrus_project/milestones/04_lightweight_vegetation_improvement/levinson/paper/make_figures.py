@@ -130,21 +130,31 @@ try:
 except Exception as e:
     print("[F5 fail]", e)
 
-# ---------- F6 per-epoch validation curve ----------
+# ---------- F6 per-epoch validation curve: S10 vs S07 vs B0 baseline ----------
 try:
-    sweep = LEV / "snapshots/10_ema_self_teacher/results/validation_sweep.csv"
-    ep, ar, a1 = [], [], []
-    for r in csv.DictReader(open(sweep)):
-        ep.append(int(r["epoch"])); ar.append(float(r["median_scaled_abs_rel"]))
-        a1.append(float(r["median_scaled_a1"]))
-    fig, ax1 = plt.subplots(figsize=(6.4, 3.2))
-    ax1.plot(ep, ar, color="#2a7fb8", marker="o", ms=3, label="val abs_rel")
-    ax1.set_xlabel("epoch"); ax1.set_ylabel("median-scaled abs_rel", color="#2a7fb8")
-    ax2 = ax1.twinx(); ax2.plot(ep, a1, color="#d1701f", marker="s", ms=3, label="val a1")
-    ax2.set_ylabel("median-scaled a1", color="#d1701f")
-    ax1.set_title("S10 validation over training (epoch 2 = early scale artifact)")
-    fig.tight_layout(); fig.savefig(FIG/"fig_val_curve.png", dpi=160)
-    plt.close(fig); print("[ok] fig_val_curve.png")
+    def load_sweep(p):
+        ep, ar = [], []
+        for r in csv.DictReader(open(p)):
+            ep.append(int(r["epoch"])); ar.append(float(r["median_scaled_abs_rel"]))
+        return ep, ar
+    s10_ep, s10_ar = load_sweep(LEV / "snapshots/10_ema_self_teacher/results/validation_sweep.csv")
+    s07_ep, s07_ar = load_sweep(LEV / "snapshots/07_structure_aware_label_free_vegetation_depth/results/validation_sweep.csv")
+    # B0 baseline has no per-epoch curve (only a final eval) -> horizontal reference line.
+    b0 = load_json(LEV / "snapshots/00_plain_citrus_baseline/results/val_lite-mono_full_summary.json")
+    b0_ar = (b0.get("mean_median_scaled_metrics", {}) or {}).get("abs_rel") if b0 else None
+
+    fig, ax = plt.subplots(figsize=(6.4, 3.4))
+    ax.plot(s07_ep, s07_ar, color="#d1701f", marker="s", ms=3, lw=1.4, label="S07 (prev best)")
+    ax.plot(s10_ep, s10_ar, color="#2a7fb8", marker="o", ms=3, lw=1.6, label="S10 (ours)")
+    if b0_ar:
+        ax.axhline(b0_ar, color="#777777", ls="--", lw=1.3,
+                   label=f"B0 plain-Citrus baseline ({b0_ar:.3f}, no per-epoch curve)")
+    ax.set_xlabel("epoch")
+    ax.set_ylabel("validation median-scaled abs_rel (lower = better)")
+    ax.set_title("Validation abs_rel over training (epoch 2 = early scale artifact)")
+    ax.legend(fontsize=8); ax.grid(alpha=0.25)
+    fig.tight_layout(); fig.savefig(FIG / "fig_val_curve.png", dpi=160)
+    plt.close(fig); print("[ok] fig_val_curve.png (S10 + S07 + B0 baseline)")
 except Exception as e:
     print("[F6 fail]", e)
 

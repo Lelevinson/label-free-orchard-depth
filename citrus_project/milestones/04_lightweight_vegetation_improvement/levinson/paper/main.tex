@@ -23,7 +23,11 @@
 \usepackage{subcaption}
 \usepackage{xcolor}
 \usepackage{url}
-\usepackage[hidelinks]{hyperref}
+% Colored hyperlinks: citations + figure/section/equation refs + URLs.
+\definecolor{citecolor}{HTML}{0B6E4F}   % green-teal for \cite
+\definecolor{linkcolor}{HTML}{1A56DB}   % blue for \ref (figures, tables, sections, eqs)
+\definecolor{urlcolor}{HTML}{8B2FC9}    % purple for URLs
+\usepackage[colorlinks=true,citecolor=citecolor,linkcolor=linkcolor,urlcolor=urlcolor]{hyperref}
 
 \graphicspath{{figures/}}
 
