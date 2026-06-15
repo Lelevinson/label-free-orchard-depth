@@ -368,6 +368,22 @@ class Trainer:
             self.opt.ema_dc_delta = 0.03
         if not hasattr(self.opt, "ema_min_keep_ratio"):
             self.opt.ema_min_keep_ratio = 0.05
+        if not hasattr(self.opt, "crop_self_distillation"):
+            self.opt.crop_self_distillation = False
+        if not hasattr(self.opt, "crop_distill_weight"):
+            self.opt.crop_distill_weight = 0.2
+        if not hasattr(self.opt, "crop_distill_warmup_steps"):
+            self.opt.crop_distill_warmup_steps = 1000
+        if not hasattr(self.opt, "crop_scale_min"):
+            self.opt.crop_scale_min = 0.5
+        if not hasattr(self.opt, "crop_scale_max"):
+            self.opt.crop_scale_max = 0.8
+        if not hasattr(self.opt, "crop_struct_weight"):
+            self.opt.crop_struct_weight = 0.5
+        if not hasattr(self.opt, "crop_distill_subbatch"):
+            self.opt.crop_distill_subbatch = 0
+        if not hasattr(self.opt, "crop_view_downsample"):
+            self.opt.crop_view_downsample = 1
         if not hasattr(self.opt, "teacher_path"):
             self.opt.teacher_path = os.path.join("weights", "lite-mono")
         if not hasattr(self.opt, "structure_aware_teacher"):
@@ -536,6 +552,27 @@ class Trainer:
             raise ValueError(
                 "--citrus_color_aug_probability must be between 0 and 1, "
                 "got {}".format(self.opt.citrus_color_aug_probability))
+        if getattr(self.opt, "crop_self_distillation", False):
+            if not getattr(self.opt, "ema_self_distillation", False):
+                raise ValueError(
+                    "--crop_self_distillation requires --ema_self_distillation: the "
+                    "crop branch distills toward the EMA teacher's clean-view prediction")
+            if not 0.0 < self.opt.crop_scale_min <= self.opt.crop_scale_max <= 1.0:
+                raise ValueError(
+                    "--crop_scale_min/--crop_scale_max must satisfy 0 < min <= max <= 1")
+            if self.opt.crop_distill_weight < 0.0:
+                raise ValueError("--crop_distill_weight must be non-negative")
+            if self.opt.crop_distill_warmup_steps < 0:
+                raise ValueError("--crop_distill_warmup_steps must be non-negative")
+            if self.opt.crop_struct_weight < 0.0:
+                raise ValueError("--crop_struct_weight must be non-negative")
+            if self.opt.crop_distill_subbatch < 0:
+                raise ValueError(
+                    "--crop_distill_subbatch must be non-negative (0 = full batch)")
+            if self.opt.crop_view_downsample not in (1, 2):
+                raise ValueError(
+                    "--crop_view_downsample must be 1 or 2 (the crop view height/width "
+                    "must stay multiples of 32)")
 
         if self.opt.dataset == "citrus":
             default_kitti_path = os.path.abspath(os.path.join(
@@ -1210,6 +1247,10 @@ class Trainer:
             ema_total = self.compute_ema_distill_loss(inputs, outputs, losses)
             total_loss = total_loss + ema_total
 
+        if getattr(self.opt, "crop_self_distillation", False):
+            crop_total = self.compute_crop_distill_loss(inputs, outputs, losses)
+            total_loss = total_loss + crop_total
+
         losses["loss"] = total_loss
         return losses
 
@@ -1275,6 +1316,13 @@ class Trainer:
         canopy = M[:, :, int(0.4 * M.shape[-2]):, :]
         keep_canopy = canopy.mean()
 
+        if getattr(self.opt, "crop_self_distillation", False):
+            # Snapshot 11 reuses the EMA teacher's clean-view disparity and the
+            # DC*GC reliability mask; cached only when the crop branch is on so
+            # S10-only runs stay byte-for-byte identical.
+            outputs[("crop_teacher_disp", 0)] = t_disp
+            outputs[("crop_teacher_mask", 0)] = M
+
         # Warmup ramp from ema_start_step; starvation guard.
         denom = max(1, self.opt.ema_distill_warmup_steps)
         prog = min(1.0, max(0.0, float(self.step + 1 - self.opt.ema_start_step) / float(denom)))
@@ -1303,6 +1351,123 @@ class Trainer:
         losses["ema_distill/keep_ratio_canopy"] = keep_canopy.detach()
         losses["ema_distill/gamma"] = torch.tensor(gamma, device=self.device)
         losses["ema_distill/total"] = total.detach()
+        return total
+
+    def compute_crop_distill_loss(self, inputs, outputs, losses):
+        """Snapshot 11: resizing-crop self-distillation (training-only, label-free).
+
+        The student's prediction on a cropped/zoomed CLEAN view is pulled toward the
+        matching crop of the EMA teacher's clean-view prediction (cached by
+        compute_ema_distill_loss), reusing Snapshot 10's SI-log + normalized-structure
+        terms. Crop-zoom multiplies apparent depth by an unknown per-sample factor, so
+        the SI offset is removed PER SAMPLE (not batch-wide as in the EMA loss, where
+        both views share one image). Targets the image-row->depth position shortcut
+        identified by the 2026-06-11 failure autopsy. Inference unchanged. See
+        snapshots/11_resizing_crop_self_distillation/DESIGN_NOTE.md.
+        """
+        zero = outputs[("disp", 0)].new_tensor(0.0)
+        if self.step < self.opt.ema_start_step or not self.ema_models:
+            return zero
+        if ("crop_teacher_disp", 0) not in outputs:
+            return zero
+
+        color = inputs[("color", 0, 0)]
+        t_disp = outputs[("crop_teacher_disp", 0)]
+        m_rel = outputs[("crop_teacher_mask", 0)]
+        if t_disp.shape[-2:] != color.shape[-2:]:
+            t_disp = F.interpolate(t_disp, color.shape[-2:], mode="bilinear",
+                                   align_corners=False)
+        if m_rel.shape[-2:] != color.shape[-2:]:
+            m_rel = F.interpolate(m_rel, color.shape[-2:], mode="nearest")
+        if self.opt.crop_distill_subbatch > 0:
+            n = min(self.opt.crop_distill_subbatch, color.shape[0])
+            color, t_disp, m_rel = color[:n], t_disp[:n], m_rel[:n]
+        b = color.shape[0]
+
+        # Per-sample crop boxes expressed as affine sampling grids. theta maps the
+        # output view onto a scale-sized window at (cx, cy) inside the input, so
+        # grid_sample(image, grid) IS the cropped-and-resized view.
+        scale = (self.opt.crop_scale_min
+                 + (self.opt.crop_scale_max - self.opt.crop_scale_min)
+                 * torch.rand(b, device=color.device, dtype=color.dtype))
+        max_shift = 1.0 - scale
+        cx = (2.0 * torch.rand(b, device=color.device, dtype=color.dtype) - 1.0) * max_shift
+        cy = (2.0 * torch.rand(b, device=color.device, dtype=color.dtype) - 1.0) * max_shift
+        theta = torch.zeros(b, 2, 3, device=color.device, dtype=color.dtype)
+        theta[:, 0, 0] = scale
+        theta[:, 1, 1] = scale
+        theta[:, 0, 2] = cx
+        theta[:, 1, 2] = cy
+        # The crop view can be sampled directly at reduced resolution (S08-precedent
+        # memory lever): the grid defines both the crop AND the output size, so no
+        # extra resize pass is needed. Height/width stay multiples of 32.
+        ds = max(1, int(getattr(self.opt, "crop_view_downsample", 1)))
+        out_h = color.shape[-2] // ds
+        out_w = color.shape[-1] // ds
+        grid = F.affine_grid(theta, [b, color.shape[1], out_h, out_w],
+                             align_corners=False)
+
+        color_crop = F.grid_sample(color, grid, mode="bilinear",
+                                   padding_mode="border", align_corners=False)
+        with torch.no_grad():
+            t_crop = F.grid_sample(t_disp, grid, mode="bilinear",
+                                   padding_mode="border", align_corners=False).detach()
+            m_crop = F.grid_sample(m_rel, grid, mode="nearest",
+                                   padding_mode="zeros", align_corners=False)
+            border = torch.zeros_like(m_crop)
+            border[:, :, 4:-4, 4:-4] = 1.0
+            m_crop = (m_crop * border).detach()
+
+        # Freeze BatchNorm during the crop forward: this extra TRAIN-MODE student pass
+        # sees zoomed/half-res inputs whose batch statistics would otherwise pollute the
+        # BN running stats used at eval (verified failure: first launch 2026-06-13,
+        # epoch-5 val scale-ratio 12.2 / abs_rel 0.5774 artifact). BN in eval mode uses
+        # the running stats as fixed affine; gradients still flow; the main full-res
+        # forward keeps updating the stats normally.
+        bn_frozen = []
+        for module_name in ("encoder", "depth"):
+            for sub in self.models[module_name].modules():
+                if isinstance(sub, torch.nn.BatchNorm2d) and sub.training:
+                    bn_frozen.append(sub)
+                    sub.eval()
+        try:
+            s_disp = self.models["depth"](self.models["encoder"](color_crop))[("disp", 0)]
+        finally:
+            for sub in bn_frozen:
+                sub.train()
+        if s_disp.shape[-2:] != (out_h, out_w):
+            s_disp = F.interpolate(s_disp, (out_h, out_w), mode="bilinear",
+                                   align_corners=False)
+
+        keep = m_crop.mean()
+        denom = max(1, self.opt.crop_distill_warmup_steps)
+        prog = min(1.0, max(0.0, float(self.step + 1 - self.opt.ema_start_step) / float(denom)))
+        gamma = self.opt.crop_distill_weight * prog
+        if float(keep) < self.opt.ema_min_keep_ratio:
+            gamma = 0.0
+
+        # Term A: SI-log metric term with PER-SAMPLE offset removal (kills the
+        # per-sample crop-zoom scale ambiguity exactly).
+        _, z_s = disp_to_depth(s_disp, self.opt.min_depth, self.opt.max_depth)
+        _, z_t = disp_to_depth(t_crop, self.opt.min_depth, self.opt.max_depth)
+        r = torch.log(z_s.clamp_min(1e-6)) - torch.log(z_t.clamp_min(1e-6)).detach()
+        m_sum = m_crop.sum(dim=(1, 2, 3), keepdim=True) + 1e-6
+        r_bar = (m_crop * r).sum(dim=(1, 2, 3), keepdim=True) / m_sum
+        l_si = ((m_crop * self.charbonnier(r - r_bar)).sum(dim=(1, 2, 3), keepdim=True)
+                / m_sum).mean()
+
+        # Term B: normalized-log structure anchor (already per-image normalized).
+        s_struct = self.normalized_log_inverse_from_disp(s_disp)
+        t_struct = self.normalized_log_inverse_from_disp(t_crop).detach()
+        l_struct = self.weighted_mean(self.charbonnier(s_struct - t_struct), m_crop)
+
+        total = gamma * (l_si + self.opt.crop_struct_weight * l_struct)
+
+        losses["crop_distill/l_si"] = l_si.detach()
+        losses["crop_distill/l_struct"] = l_struct.detach()
+        losses["crop_distill/keep_ratio"] = keep.detach()
+        losses["crop_distill/gamma"] = torch.tensor(gamma, device=self.device)
+        losses["crop_distill/total"] = total.detach()
         return total
 
     def compute_tsob_mixture_loss(self, inputs, outputs, losses):
