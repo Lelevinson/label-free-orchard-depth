@@ -30,3 +30,38 @@ S10 val (weights_29): abs_rel=0.3453, a1=0.5712.
 
 Remaining honest limitations: a1 slightly below S07; sky/far-field confusion and canopy
 over-smoothing are not visually solved (S10 targets accuracy, not appearance).
+
+## Post-hoc verification (2026-06-11, fresh-session review)
+
+1. **Headline result independently reproduced.** Re-ran the full test eval on the preserved
+   snapshot checkpoint (`checkpoint/`): abs_rel=0.3080, a1=0.6258, a2=0.8118, a3=0.9005 —
+   exact match. Durable machine-generated evidence now at `results/weights29_test_reverify/`
+   (previously the weights_29 test numbers existed only as transcribed markdown; the run-log
+   `test_selected/` folder held only the auto-rule weights_2 eval).
+2. **Keep-ratio finally inspected directly** (TB event file parsed with
+   `diagnostics/read_tb_scalars.py`; scalars in `diagnostics/ema_distill_scalars_train.csv`).
+   Finding: the DC∧GC filters were NEAR-INERT for the whole run — overall keep-ratio
+   0.874–0.917 (mean 0.89) and canopy-band keep-ratio 0.841–0.918 (mean 0.88), never inside
+   the design target band 0.2–0.8. The feared canopy starvation never happened, but the flip
+   side is that ~88% of all pixels passed both gates (adaptive τ=3.0 on a τ·mean threshold is
+   very loose for right-skewed error distributions). Honest implication: the abs_rel win came
+   from near-DENSE EMA SI-log self-distillation, not from selective reliability gating; the
+   gating story needs an ablation (and/or tighter percentile thresholds) before it can be
+   credited in the paper.
+3. **a1 deficit is a method property, not a selection artifact.** Val a1 plateaus ≈0.57
+   across ALL converged checkpoints (max 0.5743 at weights_19); no S10 checkpoint reaches
+   B0's a1>=0.59 selection bar. weights_25 (test 0.3088/0.6296) is metrically interchangeable
+   with weights_29.
+4. **Paired per-frame test comparison vs S07 weights_25** (407 common frames): S10 better on
+   abs_rel on 62.4% of frames (median per-frame delta -0.032; mean -0.076 boosted by a tail
+   of large wins, best -0.787). The 56 frames improving >0.2 cluster in contiguous
+   time-blocks where S07 was worst (abs_rel 0.45–0.6 → ~0.25–0.30) — S10 fixes S07's worst
+   segments. The a1 give-back is broad (S07 better on 68.1% of frames, mean -0.028), not an
+   outlier effect.
+5. Protocol notes: the DESIGN_NOTE's 10-epoch control-vs-experiment gate and pre-gate
+   mechanism check were not run as written; the first (killed) run's epoch-12 eval served as
+   the watch-and-bail gate. The full run trained from ImageNet pretrain with the S07 stack
+   (NOT warm-started from the S07 checkpoint as the DESIGN_NOTE protocol sketched) — this
+   matches the B0/S05/S07 recipe and is the fairer comparison. The "canopy" keep-ratio band
+   is rows below 40% image height, which includes much ground; treat it as a lower-image
+   proxy, not a true canopy mask.

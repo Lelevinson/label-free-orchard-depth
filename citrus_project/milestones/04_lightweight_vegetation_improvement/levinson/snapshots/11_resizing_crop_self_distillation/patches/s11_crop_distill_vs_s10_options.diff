@@ -1,0 +1,39 @@
+diff --git "a/citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\10_ema_self_teacher\\code\\options.py" b/options.py
+index 9d5df16..a9bf4e7 100644
+--- "a/citrus_project\\milestones\\04_lightweight_vegetation_improvement\\levinson\\snapshots\\10_ema_self_teacher\\code\\options.py"
++++ b/options.py
+@@ -426,6 +426,34 @@ class LiteMonoOptions:
+                                  help="fixed DC threshold in raw disparity units")
+         self.parser.add_argument("--ema_min_keep_ratio", type=float, default=0.05,
+                                  help="starvation guard: skip the distill loss if kept-pixel ratio < this")
++        # --- Snapshot 11: resizing-crop self-distillation (training-only) ---
++        self.parser.add_argument("--crop_self_distillation",
++                                 help="if set (requires --ema_self_distillation), adds a training-only "
++                                      "resizing-crop consistency loss: the student's prediction on a "
++                                      "cropped/zoomed clean view is distilled toward the matching crop "
++                                      "of the EMA teacher's clean-view prediction, reusing the "
++                                      "scale-tolerant SI-log + normalized-structure terms. Targets the "
++                                      "image-row->depth position shortcut. Inference unchanged, "
++                                      "label-free.",
++                                 action="store_true")
++        self.parser.add_argument("--crop_distill_weight", type=float, default=0.2,
++                                 help="weight of the resizing-crop self-distillation loss")
++        self.parser.add_argument("--crop_distill_warmup_steps", type=int, default=1000,
++                                 help="linear warmup steps for the crop distillation weight "
++                                      "(ramp starts at ema_start_step)")
++        self.parser.add_argument("--crop_scale_min", type=float, default=0.5,
++                                 help="minimum linear crop scale (fraction of image side)")
++        self.parser.add_argument("--crop_scale_max", type=float, default=0.8,
++                                 help="maximum linear crop scale (fraction of image side)")
++        self.parser.add_argument("--crop_struct_weight", type=float, default=0.5,
++                                 help="weight of the normalized-structure term inside the crop loss")
++        self.parser.add_argument("--crop_distill_subbatch", type=int, default=0,
++                                 help="apply the crop branch to only the first N samples per batch "
++                                      "(0 = full batch); memory fallback lever")
++        self.parser.add_argument("--crop_view_downsample", type=int, default=1,
++                                 help="run the cropped student view at 1/N resolution (1 = full; "
++                                      "2 = half, the S08-precedent memory lever; the main losses "
++                                      "stay full resolution)")
+         self.parser.add_argument("--teacher_path",
+                                  type=str,
+                                  help="folder containing frozen RGB teacher encoder.pth and "
