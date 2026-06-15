@@ -1,6 +1,6 @@
 # Active Root Code State
 
-Date: 2026-06-05 (updated; was 2026-05-20)
+Date: 2026-06-11 (updated; was 2026-06-05, 2026-05-20)
 
 This note exists to prevent future Milestone 4 chats from confusing the live repo-root training code with frozen snapshot copies.
 
@@ -18,9 +18,10 @@ Root `trainer.py` and `options.py` are the active Snapshot 07 structure-aware te
 
 - Snapshot 08 (feature-metric loss) — `--feature_metric_loss` + `networks/feature_net.py`; NEGATIVE result, packaged in `snapshots/08_feature_metric_loss/`.
 - Snapshot 09 (TSOB mixture) — `--tsob_mixture_loss` + `networks/mixture_head.py` + one-line `networks/depth_decoder.py` exposure; NEGATIVE result, packaged in `snapshots/09_tsob_boundary_uncertainty_mixture/`.
-- Snapshot 10 (EMA in-domain self-teacher) — `--ema_self_distillation` (+ `--ema_*` flags), `update_ema`/`compute_ema_distill_loss` in `trainer.py`; CURRENT IN-PROGRESS BUILD. Design at `snapshots/10_ema_self_teacher/DESIGN_NOTE.md`; tested `trainer.py`/`options.py` are to be copied into `snapshots/10_ema_self_teacher/code/` once smoke-tested and run (do NOT repeat the 08/09 miss where this copy step was skipped).
+- Snapshot 10 (EMA in-domain self-teacher) — `--ema_self_distillation` (+ `--ema_*` flags), `update_ema`/`compute_ema_distill_loss` in `trainer.py`; COMPLETED WIN (weights_29), tested code copied into `snapshots/10_ema_self_teacher/code/` (verified byte-identical to root on 2026-06-11 before the S11 edits).
+- Snapshot 11 (resizing-crop self-distillation) — `--crop_self_distillation` (+ `--crop_*` flags), `compute_crop_distill_loss` in `trainer.py`, plus a crop-flag-gated two-line cache of the EMA teacher disparity/mask inside `compute_ema_distill_loss`; builds ON TOP of the active S10 stack (decision documented in `snapshots/11_resizing_crop_self_distillation/DESIGN_NOTE.md`). Implemented 2026-06-11 as insertions only (no deletions vs the S10 code copy; diffs in `snapshots/11_resizing_crop_self_distillation/patches/`). Requires `--ema_self_distillation` when enabled.
 
-With NO new flags, `train.py` reproduces Snapshot 07 behavior byte-for-byte — every 08/09/10 path is gated behind its off-by-default master flag. They are not restored to the original Lite-Mono baseline and not restored to the shared Milestone 2/3 baseline trainer state.
+With NO new flags, `train.py` reproduces Snapshot 07 behavior byte-for-byte — every 08/09/10/11 path is gated behind its off-by-default master flag. They are not restored to the original Lite-Mono baseline and not restored to the shared Milestone 2/3 baseline trainer state.
 
 The active root code is what `train.py` imports and runs by default.
 

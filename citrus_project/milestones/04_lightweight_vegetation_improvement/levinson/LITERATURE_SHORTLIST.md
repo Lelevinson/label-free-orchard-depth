@@ -142,3 +142,80 @@ teacher/pseudo-label. Verified deep-research pass: 23 sources, 25 claims, 23 con
 - ALL quantitative evidence is KITTI / KITTI-C (urban + synthetic corruption), NOT CitrusFarm
   vegetation. The OOD/corruption regime is the closest analog, but the magnitude of any abs_rel
   gain on dense vegetation is unverified — must be gated in-domain.
+
+---
+
+# Round 3 (2026-06-13) — Position-shortcut debiasing + canopy structure (post-failure-autopsy)
+
+Targeted deep-research pass run AFTER the 2026-06-11 failure autopsy (pass run 2026-06-13) diagnosed (1) the
+image-row→depth POSITION SHORTCUT (ground-ramp predictions, ~12% crop-vs-full
+self-inconsistency, clearing blow-ups) and (2) the unexplained canopy-blob problem.
+Verified pass: 5 angles, 20 sources, 100 claims extracted, top 25 adversarially verified
+(3-vote), 23 confirmed / 2 refuted. Full cited report archived in the session task output;
+key findings below.
+
+## Diagnosis VALIDATED by peer-reviewed literature (paper-grade support)
+
+1. **The position shortcut is a known, measured property of exactly our model class.**
+   van Dijk & de Croon (ICCV 2019): MonoDepth-family networks read obstacle distance almost
+   entirely from vertical image position / ground-contact point and IGNORE apparent size;
+   extended to SfMLearner/Semodepth/LKVOLearner. EPCDepth (ICCV 2021) and DaCCN (ICCV 2023)
+   independently confirm vertical position is the dominant cue (horizontal translation
+   barely changes depth; vertical changes it a lot). A 2023 ICLR blogpost shows large
+   supervised ViTs escape the shortcut — it is specific to small photometric-self-supervised
+   CNNs, i.e. precisely the Lite-Mono regime. OUR AUTOPSY INDEPENDENTLY MEASURED THIS ON
+   VEGETATION — strong related-work framing for the paper.
+2. **The clearing blow-ups have a published mechanism**: the vertical-position cue assumes a
+   fixed camera pose over flat ground; MonoDepth only PARTIALLY compensates pitch
+   (regression coeff 0.60–0.71) — when scene/camera geometry deviates from the training
+   template (open clearings; crops ≈ principal-point shifts), depth shifts systematically.
+3. **The canopy-blob/S08-S09 failure now has a principled explanation** (van Dijk ICCV 2019):
+   these networks detect objects via strong GROUND-CONTACT edges and bottom shadows (adding
+   a fake bottom shadow makes an undetected object detected). Canopies have no ground-contact
+   edge at their lateral/upper boundaries → no learned cue exists for sharpening losses to
+   amplify → FeatDepth/TSOB sharpened nothing. Implication: cue-DIVERSIFYING training (make
+   the model use non-row, non-ground-contact cues) is the lever; sharper losses are not.
+
+## Verified label-free candidates for the position shortcut (ranked)
+
+1. **AugUndo (ECCV 2024, peer-reviewed; arXiv 2310.09739)** — geometric augmentations
+   (flips, zoom, rotation, translation, patch removal) where the photometric loss is
+   computed on the ORIGINAL image after inverse-warping the prediction (avoids resampling
+   artifacts). VALIDATED ON LITE-MONO ITSELF: VOID abs_rel 0.209→0.200; KITTI ties/improves.
+   Strictly contains S11's resizing-crop transform family; the undo trick can wrap our
+   teacher-student consistency. Caveat: KITTI Lite-Mono gain is marginal (±0.001).
+2. **Data Grafting / EPCDepth (ICCV 2021, peer-reviewed; arXiv 2109.12484)** — vertically
+   splice proportion r∈{0,.2,.4,.6,.8} of one image onto another, EXPLICITLY designed to
+   decorrelate depth from image row (the most direct published counter to our shortcut).
+   KITTI ablation: grafting alone abs_rel 0.101→0.098. Near-zero memory. CRITICAL CAVEAT:
+   evidence is from STEREO-trained regime; in our mono+PoseNet pipeline the safe port is the
+   DISTILLATION BRANCH ONLY (student sees grafted image, EMA-teacher target from clean
+   image) — untested engineering proposal, fits our S11 plumbing directly.
+3. **RA-Depth (ECCV 2022, peer-reviewed; arXiv 2207.11984)** — arbitrary-scale augmentation
+   + cross-scale depth consistency; the published sibling of S11/BDEdepth (key design
+   reference: it adjusts INTRINSICS during scaling). Gains partly from its HRNet backbone.
+4. **PDA re-derivation (from Camera Pose Matters, CVPR 2021 oral)** — pitch/roll homography
+   warps (±0.1 rad, rotation-only) as a label-free equivariance self-distillation loss vs
+   the EMA teacher (published version recomputes GT depth → must be re-derived label-free).
+   Most direct attack on the partial-pitch-compensation defect behind clearing failures.
+   UNPUBLISHED as label-free → novelty opportunity. (CPP encoding from the same paper
+   violates RGB-only inference; GenDepth (preprint) and FUMET (ECCV 2024) confirm the
+   ground-plane-bias family but fail label-free purity as published — FUMET-as-clean-fit
+   was REFUTED 0-3; DaCCN's per-module ablation numbers were REFUTED 0-3, do not cite.)
+
+## Verified gaps (= paper novelty space)
+
+- NO verified self-supervised monocular depth work validated on orchard/forest/agricultural
+  data; NO wind/foliage-motion robustness method; NO published gentle canopy-structure fix.
+  An orchard-validated, label-free position-debiasing result occupies unclaimed territory.
+- Coverage thins after mid-2024; GVDepth/GroCo (2024-25) appeared only in verifier notes and
+  were NOT verified — worth a follow-up look before paper submission.
+
+## Queue implication (recorded 2026-06-11)
+
+S11 (resizing-crop self-distillation) remains the right first shot — Round 3 confirms its
+mechanism family is the best-evidenced label-free counter to the diagnosed shortcut. If S11
+passes, optional enhancements: AugUndo-style transform widening, intrinsics-aware scaling
+(RA-Depth). If S11 is killed: next candidates are (a) Data Grafting in the distillation
+branch (cheapest, most direct), then (b) the PDA pitch/roll equivariance re-derivation
+(novelty). All remain label-free, training-only, inference-unchanged.

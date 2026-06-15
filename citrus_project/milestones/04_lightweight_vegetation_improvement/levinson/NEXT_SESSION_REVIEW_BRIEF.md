@@ -33,9 +33,12 @@ the job is to push further honestly, not to rehash.
 3. **Selection-rule quirk.** The B0-close-a1 selection rule mis-fell-back to an early scale-artifact
    checkpoint (weights_2, scale-ratio 6.2); weights_29 (final converged) was chosen manually. The
    rule may need revisiting for methods whose a1 sits in a different range than B0/S07.
-4. **Keep-ratio never directly verified.** The canopy keep-ratio (the #1 design risk = GC filter
-   starving canopy) is logged only to TensorBoard, and the env lacked a TB reader. It worked
-   (abs_rel improved), but the filter behaviour was not directly inspected — worth confirming.
+4. **Keep-ratio — RESOLVED 2026-06-11.** TB scalars were extracted with a hand-written parser
+   (`snapshots/10_ema_self_teacher/diagnostics/`). Finding: keep-ratio stayed 0.87–0.92 (canopy
+   band 0.84–0.92) the whole run — no canopy starvation, but the DC∧GC filters were NEAR-INERT
+   (τ·mean with τ=3.0 keeps ~88% of pixels). The win came from near-dense distillation, not
+   selective gating; gating needs an ablation before being credited, and tightening the
+   thresholds is an untried lever.
 5. **EMA hyperparameters are first-shot defaults** (decay 0.99 constant, ~5-epoch warmup, weight 0.3,
    no decay ramp, adaptive tau=3.0). Likely room to tune.
 6. **Single-domain evidence.** Only CitrusFarm Sequence 01. Generalization unverified.
