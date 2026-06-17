@@ -1,8 +1,8 @@
 <div align="center">
 
-# Label-Free Lightweight Monocular Depth for Vegetation-Dense Orchards
+# Toward Label-Free Lightweight Monocular Depth in Orchards
 
-**An in-domain EMA self-teacher for self-supervised depth estimation on a citrus farm — built on [Lite-Mono](https://github.com/noahzn/Lite-Mono).**
+**In-domain self-distillation and an anatomy of domain shift — a label-free, RGB-only depth study, built on [Lite-Mono](https://github.com/noahzn/Lite-Mono) and validated on a citrus orchard.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
 ![Backbone: Lite-Mono ~3M](https://img.shields.io/badge/backbone-Lite--Mono%20~3M-success)
@@ -181,8 +181,8 @@ If you use this work, please cite both this project and Lite-Mono. *(This work i
 citation details are provisional.)*
 ```bibtex
 @misc{citrus_litemono_selfteacher,
-  title  = {Label-Free Self-Distillation for Lightweight Monocular Depth in Vegetation-Dense Orchards:
-            An In-Domain Self-Teacher},
+  title  = {Toward Label-Free Lightweight Monocular Depth in Orchards:
+            In-Domain Self-Distillation and an Anatomy of Domain Shift},
   author = {Amelya, Carlene and Levinson and Aiken, Marvel},
   year   = {2026},
   note   = {Yuan Ze University; research draft}
