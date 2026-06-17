@@ -46,25 +46,37 @@ What Does Not Transfer}
 %% AUTHOR BLOCK -- PLACEHOLDER. Replace before submission.
 %% ---------------------------------------------------------------------------
 \author{
-\IEEEauthorblockN{[Author Name(s) -- placeholder]}
-\IEEEauthorblockA{[Affiliation -- placeholder]\\
-[City, Country] \\
-[email@domain]}
+\IEEEauthorblockN{Carlene Amelya}
+\IEEEauthorblockA{Yuan Ze University\\
+Taoyuan, Taiwan\\
+s1123522@mail.yzu.edu.tw}
+\and
+\IEEEauthorblockN{Levinson}
+\IEEEauthorblockA{
+Yuan Ze University\\
+Taoyuan, Taiwan\\
+s1123542@mail.yzu.edu.tw
+}
+\and
+\IEEEauthorblockN{Marvel Aiken}
+\IEEEauthorblockA{
+Yuan Ze University\\
+Taoyuan, Taiwan\\
+s1123543@mail.yzu.edu.tw
+}
 }
 
 \maketitle
 
 \begin{abstract}
 Lightweight self-supervised monocular depth estimation is attractive for
-low-cost agricultural robots, but models tuned on urban driving data transfer
-poorly to vegetation-dense scenes. Using CitrusFarm, a citrus-orchard robotics
+low-cost agricultural robots,  because it can estimate scene depth from a single RGB camera without expensive sensors at inference time. However, models developed mainly on urban driving datasets often struggle in vegetation-dense orchards, where repeated leaf texture, shadows, sky regions, and weak tree-ground boundaries make depth prediction difficult. Using CitrusFarm, a citrus-orchard robotics
 dataset, as the validation domain, we study how to improve a \mbox{$\sim$3.07M}
 parameter Lite-Mono network \emph{without} any change to inference: training
 stays label-free and self-supervised (RGB-only; ground-truth LiDAR depth is used
 for evaluation only), and at test time the network is the unmodified
 single-image Lite-Mono depth decoder. Our central method is an \emph{in-domain
-exponential-moving-average (EMA) self-teacher} that distills a
-scale-and-shift-invariant (SI-log) metric term plus a normalized-structure
+exponential-moving-average (EMA) self-teacher} that distills a scale-and-shift-invariant (SI-log) metric term plus a normalized-structure
 anchor from a slowly-updated copy of the student itself. On the CitrusFarm test
 split it reaches median-scaled \mbox{abs\_rel\,$=0.3080$} and
 \mbox{$\delta_1=0.6258$}, improving over the original Lite-Mono baseline on
@@ -146,48 +158,110 @@ from a single orchard sequence.
 %% ===========================================================================
 \section{Related Work}
 %% ===========================================================================
-\textbf{Self-supervised monocular depth.}
-Monodepth2~\cite{godard2019monodepth2} established the modern recipe:
-photometric reprojection loss across temporally adjacent frames, per-pixel
-minimum reprojection, and auto-masking of static pixels. Lite-Mono~\cite{zhang2023litemono}
-brings this to a $\sim$3M-parameter CNN--Transformer hybrid suitable for
-embedded use; it is our backbone and baseline.
+\label{sec:related}
 
-\textbf{Self-distillation and mean teachers.}
-Weight-averaged ``mean teacher'' targets stabilize semi-supervised
-learning~\cite{tarvainen2017meanteacher}. In depth, consistency-based
-self-distillation~\cite{ecdepth2023} and augmentation-based self-distillation
-(BDEdepth~\cite{bdedepth2023}, RA-Depth~\cite{he2022radepth},
-AugUndo~\cite{wu2024augundo}) improve robustness without labels. Our method is in
-this family: an EMA copy of the student supervises the student, but with a
-scale-and-shift-invariant metric term (rooted in the scale-invariant log loss of
-Eigen \emph{et al.}~\cite{eigen2014depth}) that, unlike a purely normalized
-structure term, can move the scale-sensitive component of the error.
+\subsection{Self-supervised monocular depth estimation}
+Self-supervised monocular depth removes the need for ground-truth depth by turning
+structure-from-motion into a training signal. SfMLearner~\cite{zhou2017sfmlearner}
+first jointly trained a depth network and a pose network from monocular video,
+supervising both through a photometric reconstruction loss: the predicted depth and
+relative pose warp a neighbouring frame onto the target frame, and the appearance
+difference becomes the loss. Monodepth~\cite{godard2017monodepth} introduced a
+left--right consistency formulation for the stereo case, and
+Monodepth2~\cite{godard2019monodepth2} consolidated the monocular recipe that almost
+all later work---including ours---builds on: a combined SSIM and $L_1$ photometric
+term, a \emph{per-pixel minimum} over source frames to handle occlusion, an
+auto-masking rule that ignores pixels which do not change appearance under motion, and
+an edge-aware smoothness prior, all applied at multiple decoder scales. These
+components are powerful on driving data but rest on an assumption---that photometric
+matching is reliable---that is fragile in dense vegetation, where repeated leaf
+texture produces many spurious matches and wind introduces non-rigid motion.
 
-\textbf{The vertical-position shortcut.}
-A line of work shows these networks infer object distance largely from vertical
-image position and the ground-contact point, not apparent
-size~\cite{vandijk2019howdo}; EPCDepth~\cite{peng2021epcdepth} names vertical
-position the dominant cue and proposes data grafting to weaken it;
-DaCCN~\cite{han2023daccn} demonstrates a strong vertical-vs-horizontal asymmetry;
-and Camera Pose Matters~\cite{zhao2021camerapose} frames the bias as a
-consequence of the camera-pose distribution in training data. Our diagnosis
-reproduces this shortcut on vegetation and motivates (and then critiques) a
-crop-equivariance attempt.
+\subsection{Lightweight and efficient depth networks}
+Field robots impose tight compute and memory budgets, motivating architectures that
+keep accuracy while shrinking parameter count and latency.
+Lite-Mono~\cite{zhang2023litemono} is a $\sim$3\,M-parameter hybrid that interleaves
+convolutional stages with lightweight self-attention to capture both local detail and
+long-range context at a fraction of the cost of ResNet-based encoders. We adopt
+Lite-Mono as both backbone and baseline, and constrain every contribution to be
+\emph{training-only} so the deployed network keeps exactly this footprint and its
+single-image RGB interface.
 
-\textbf{Sharpening and multi-frame methods.}
-Feature-metric losses~\cite{shu2020featdepth} and boundary
-representations~\cite{tsob2025} aim to sharpen depth discontinuities; multi-frame
-cost-volume methods~\cite{watson2021manydepth} achieve strong urban abs\_rel but
-require multiple frames (or a cost volume) at inference unless distilled. We tried
-the first two (Section~\ref{sec:negatives}); the third was rejected for
-exceeding our 8\,GB training budget.
+\subsection{Knowledge distillation, mean teachers, and self-distillation}
+Knowledge distillation transfers knowledge from a teacher into a student by training
+the student to match the teacher's outputs~\cite{hinton2015distillation}. In
+semi-supervised learning, the \emph{mean teacher}~\cite{tarvainen2017meanteacher}
+showed that an exponential moving average (EMA) of the student's own weights makes a
+remarkably stable teacher, because temporal weight averaging smooths the noisy
+trajectory of the student. This idea has migrated into self-supervised depth:
+consistency-based self-distillation~\cite{ecdepth2023} and augmentation-based
+self-distillation (BDEdepth~\cite{bdedepth2023}, RA-Depth~\cite{he2022radepth},
+AugUndo~\cite{wu2024augundo}) improve robustness without labels by enforcing agreement
+across perturbations. Our method sits in this family but differs in two ways. First,
+the teacher is an \emph{in-domain} EMA copy of the student---not a fixed external
+network but a slowly-updated average that adapts to the orchard as training proceeds.
+Second, the distillation target is \emph{scale-and-shift aware}: as we show below, a
+purely normalized agreement term cannot move the scale-sensitive part of the error,
+whereas ours can.
 
-\textbf{Out of scope: supervised foundation-model distillation.}
+\subsection{Scale ambiguity and scale-invariant objectives}
+Monocular self-supervision recovers depth only up to an unknown global scale, so the
+community evaluates with \emph{median scaling}, dividing each prediction by the ratio
+of medians before computing error. An easily overlooked consequence is that any
+objective which only constrains per-image scale, or normalizes depth to zero mean and
+unit variance, is \emph{invisible} to median-scaled error: median scaling removes
+exactly the degree of freedom such objectives constrain. The scale-invariant log
+(SI-log) loss of Eigen \emph{et al.}~\cite{eigen2014depth} provides the right tool: it
+penalizes the residual log-depth error after removing a single global offset,
+constraining the \emph{shape} of the depth field rather than its absolute scale. Our
+metric distillation term is built on this principle, which is what lets it improve
+median-scaled abs\_rel rather than merely tie it.
+
+\subsection{The vertical-position shortcut}
+A recurring finding is that monocular depth networks do not reason about object size;
+they read distance largely from \emph{vertical image position} and the ground-contact
+point. van~Dijk and de~Croon~\cite{vandijk2019howdo} showed that translating an object
+vertically changes the predicted distance while scaling it does not.
+EPCDepth~\cite{peng2021epcdepth} identifies vertical position as the dominant cue and
+proposes data grafting to weaken it; DaCCN~\cite{han2023daccn} reports a strong
+vertical-versus-horizontal asymmetry; and Camera Pose
+Matters~\cite{zhao2021camerapose} attributes the bias to the narrow camera-pose
+distribution of typical training data. Our diagnosis
+(Section~\ref{sec:diagnosis}) reproduces this shortcut on vegetation, where it appears
+as a smooth bottom-to-top ``ground ramp,'' explaining our negative sharpening results
+and motivating the crop-equivariance attempt we could not stabilize.
+
+\subsection{Boundary sharpening and multi-frame teachers}
+Several methods target the blurry-boundary weakness of self-supervised depth.
+Feature-metric losses~\cite{shu2020featdepth} supervise depth in a learned feature
+space with better-conditioned gradients, and boundary/uncertainty
+representations~\cite{tsob2025} model depth discontinuities explicitly. Multi-frame
+cost-volume methods~\cite{watson2021manydepth} achieve strong urban abs\_rel by
+aggregating several frames, but require multiple frames or a cost volume at inference
+unless distilled into a single-frame student. We evaluate the first two
+(Section~\ref{sec:negatives}) and find that sharpening a representation the network
+never populates with object structure does not help in our domain; the multi-frame
+route was excluded for exceeding our 8\,GB training budget.
+
+\subsection{Depth estimation in agricultural and natural scenes}
+Most self-supervised depth research is developed and benchmarked on urban driving
+(e.g.\ KITTI~\cite{geiger2013kitti}), whose scene statistics---planar roads, rigid
+vehicles, strong man-made edges, a clear horizon---differ sharply from an orchard.
+Agricultural and other natural environments instead present fractal foliage, weak and
+self-similar texture, non-rigid motion from wind, large bare-ground clearings, and
+sky regions with no usable photometric signal. The CitrusFarm~\cite{citrusfarm}
+dataset provides synchronized RGB and LiDAR in a citrus orchard and lets us study this
+domain quantitatively. To our knowledge, label-free lightweight monocular depth has
+not been systematically characterized in this setting; we treat the orchard not as an
+incidental test bed but as the central domain whose structure drives both our design
+and our failure analysis.
+
+\subsection{Out of scope: supervised foundation-model distillation}
 Distilling a large supervised model such as Depth
-Anything~\cite{yang2024depthanything} typically gives the largest gains but
-converts the task into a supervised one. We treat this as a separate
-hybrid/supervised path and exclude it from our label-free study.
+Anything~\cite{yang2024depthanything} typically yields the largest gains, but it
+imports supervision from the foundation model's labeled pre-training and converts the
+task into a (hybrid-)supervised one. We deliberately exclude this route to keep our
+study label-free, and regard it as a separate, complementary path.
 
 %% ===========================================================================
 \section{Dataset and Evaluation Protocol}
@@ -227,20 +301,60 @@ Section~\ref{sec:journey}). The idea: maintain an exponential-moving-average
 vegetation as training proceeds, and distill its predictions back into the
 student where they are reliable.
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\fbox{\parbox[c][4.6cm][c]{0.90\linewidth}{\centering
-\textbf{[Figure 1 --- METHOD SCHEMATIC: TO BE DRAWN BY A HUMAN]}\\[6pt]
-\footnotesize Student Lite-Mono (grad) and a frozen EMA copy (no grad) both see
-the clean target image. The EMA prediction supplies (a) an SI-log metric
-distillation target and (b) a normalized-structure target. Two reliability gates
-(GC: geometric min-reprojection error; DC: horizontal-flip consistency) mask the
-loss. EMA weights update after each optimizer step. At inference the EMA copy is
-discarded; only the student encoder+decoder run on a single RGB image.}}
-\caption{Training-only EMA self-teacher (placeholder; a proper schematic must be
-drawn). Inference is the unmodified single-image Lite-Mono depth network.}
+\includegraphics[width=\textwidth]{fig_method}
+\caption{Overview of the Snapshot~10 training objective. The Snapshot~07 base
+objective (self-supervised photometric/smoothness, frozen-teacher structure, and
+sky/far prior) is augmented with a training-only \emph{EMA in-domain self-teacher}:
+a slowly-updated copy of the student supplies a scale-invariant (SI-log) metric
+target and a normalized-structure target on reliable pixels (DC flip-consistency
+and GC min-reprojection gates). Only the student is updated; at inference the
+teacher and all training losses are discarded and a single RGB image runs through
+the unmodified Lite-Mono depth network.}
 \label{fig:method}
-\end{figure}
+\end{figure*}
+
+
+\subsection{Preliminaries: self-supervised photometric training}
+Our starting point is the standard self-supervised objective. Given a target frame and
+its temporal neighbours, the student depth network predicts a dense depth map and a
+pose network predicts the relative camera motion; together they warp each neighbour
+onto the target, and the network is trained to minimize the photometric discrepancy
+between the real and warped target~\cite{godard2019monodepth2}. Following Monodepth2,
+the photometric term combines SSIM and $L_1$, takes the per-pixel minimum over
+neighbours to suppress occlusions, auto-masks pixels that do not change under motion,
+and is regularized by an edge-aware smoothness prior across decoder scales. In an
+orchard this objective is unusually weak: dense, self-similar foliage offers many
+equally good (and wrong) photometric matches, wind violates the static-scene
+assumption, and the sky provides no signal at all. Much of our snapshot lineage
+(Section~\ref{sec:journey}) consists of attempts to add a more reliable signal on top
+of this base.
+
+\subsection{Why scale-invariance is the crux}
+Because monocular self-supervision fixes depth only up to a global scale, we evaluate
+with median scaling, and this has a subtle but decisive consequence for objective
+design. Any auxiliary loss that constrains only per-image scale, or that normalizes
+depth to zero mean and unit variance, is removed by median scaling and therefore
+cannot change median-scaled abs\_rel---at best it ties it. This is exactly what we
+observe for our strongest structure-only variant (S07): it improves threshold accuracy
+but only matches the original on abs\_rel. To \emph{move} abs\_rel, an objective must
+constrain the relative depth distribution in a way that survives removal of a single
+global offset. The scale-invariant log formulation~\cite{eigen2014depth} provides
+precisely this, and it is the technical heart of our method.
+
+\subsection{Design principle: a gentle, in-domain teacher}
+Two observations shape the design. First, our negative results
+(Section~\ref{sec:negatives}) show that \emph{aggressive} objectives---sharpening
+edges, committing to boundaries, forcing crop-equivariance---tend to destabilize a
+lightweight network in this domain. We therefore favour a \emph{gentle agreement}
+objective: ask the student to agree with a slightly better version of itself rather
+than chase a hard new target. Second, an external frozen teacher (such as the original
+Lite-Mono, used for structure in S07) never learns the orchard, which caps how much it
+can teach about vegetation depth. We instead use an \emph{in-domain} teacher: an EMA
+copy of the student that, being a temporally smoothed average of the model as it
+adapts, is both more stable than the student at any single step and increasingly
+orchard-aware as training proceeds. The remainder of this section makes this concrete.
 
 \textbf{Distillation targets.} Let $D_s$ be the student disparity (with
 gradient) and $D_t$ the EMA-teacher disparity (no gradient), both on the clean

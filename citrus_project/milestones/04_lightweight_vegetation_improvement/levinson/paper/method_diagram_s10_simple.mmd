@@ -1,0 +1,41 @@
+%% Snapshot 10 method diagram (SIMPLE draft version).
+%% Snapshot 07 is collapsed into one box; the focus is the new EMA self-teacher.
+%% Render at https://mermaid.live or import into draw.io (Arrange > Insert > Advanced > Mermaid).
+flowchart TB
+    RGB["RGB video frames"]
+    STU["Lite-Mono Student<br/>(the model we train + ship)"]
+    RGB --> STU
+
+    S07["Snapshot 07 base objective<br/>(self-supervised photometric + smoothness,<br/>frozen-teacher structure, sky/far prior)"]
+    STU --> S07
+
+    subgraph NEW["Snapshot 10 - NEW: EMA in-domain self-teacher"]
+      direction TB
+      ET["EMA Self-Teacher<br/>slow average copy of the Student,<br/>adapted to the orchard"]
+      GATE["Reliability gates<br/>(DC flip-consistency + GC min-reprojection):<br/>keep only trustworthy pixels"]
+      EDL["EMA self-distillation loss<br/>- SI-log depth-shape match -> lowers abs_rel<br/>- structure anchor -> protects a1"]
+      ET -->|teacher depth = target| EDL
+      GATE -->|reliable-pixel mask| EDL
+    end
+
+    STU ==>|slowly copies its weights| ET
+    STU -->|student depth| EDL
+    STU --> GATE
+
+    OBJ["Total Training Objective"]
+    S07 --> OBJ
+    EDL --> OBJ
+    OBJ --> UPD["Update Student only"]
+    UPD --> INF["Inference: RGB -> Student -> Depth<br/>(self-teacher + all losses discarded, no extra cost)"]
+
+    classDef plain   fill:#ededed,stroke:#888888,color:#000;
+    classDef s07     fill:#dbe7f7,stroke:#6f9bd1,color:#000;
+    classDef stu     fill:#cdeccd,stroke:#6aa66a,color:#000;
+    classDef newnode fill:#fff1d6,stroke:#e0922f,color:#000;
+    classDef newloss fill:#ffd9b0,stroke:#e0922f,color:#000;
+    class RGB,OBJ,UPD,INF plain;
+    class S07 s07;
+    class STU stu;
+    class ET,GATE newnode;
+    class EDL newloss;
+    style NEW fill:#ffe8c2,stroke:#e0922f,color:#000;
