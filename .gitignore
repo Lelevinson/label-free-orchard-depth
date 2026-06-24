@@ -175,3 +175,7 @@ lite-mono-paper.pdf
 
 # Milestone 6 paper package - kept local-only (bulky drawio/figures + WIP draft)
 citrus_project/milestones/06_paper_package/
+
+# Local-only project context (kept on disk, not published)
+AGENTS.md
+CLAUDE.md
