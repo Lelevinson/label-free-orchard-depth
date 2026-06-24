@@ -4,6 +4,26 @@ This folder collects Levinson's Milestone 4 progress so the completed baseline a
 
 Read this file first for this workstream, then open only the needed snapshot README.
 
+## Current Status Note
+
+For the current paper cycle, Levinson's label-free result is Snapshot 10
+`weights_29` (EMA in-domain self-teacher), not Snapshot 07. Snapshot 07 remains the
+prior best / strongest-a1 reference, and Snapshot 11 is a documented negative crop
+self-distillation gate. The paper package has been promoted out of this workstream to:
+
+```text
+citrus_project/milestones/06_paper_package/paper/
+```
+
+The old local `paper/` folder is only a pointer to that Milestone 6 location.
+
+Start with these current evidence files:
+
+```text
+snapshots/10_ema_self_teacher/results/final_result.md
+snapshots/11_resizing_crop_self_distillation/DESIGN_NOTE.md
+```
+
 For a compact human/AI navigation map, read:
 
 ```text
@@ -20,7 +40,7 @@ Before editing root training code or starting any future Levinson method work, r
 ACTIVE_ROOT_CODE_STATE.md
 ```
 
-Root `trainer.py` and `options.py` are currently the active Snapshot 07 structure-aware teacher-anchor workbench used by `train.py`. Snapshot `code/` folders are frozen archival copies, not automatically imported runtime code.
+Root `trainer.py` and `options.py` are currently the active Snapshot 07 structure-aware teacher-anchor workbench with later off-by-default Snapshot 08/09/10/11 code layered on top. Snapshot `code/` folders are frozen archival copies, not automatically imported runtime code.
 
 ## Contents
 
@@ -170,7 +190,7 @@ snapshots/07_structure_aware_label_free_vegetation_depth/
 
 Visual read: promising mixed. Metrics now nearly close original Lite-Mono's test median-scaled `abs_rel` gap while preserving B0-like `a1`, and Snapshot 07 beats Snapshot 05 `weights_19` on both test median-scaled metrics. Full-image qualitative outputs still show smooth vegetation masses and some sky/far-canopy weakness, so it is a strong paper candidate but not a solved visual story.
 
-After the 01/02/03 gates were packaged, the live root `options.py` and `trainer.py` were restored to the shared baseline state for collaboration. Snapshot 04 later left the live root as the active temporal-cross-view method branch. Snapshot 05 superseded it, Snapshot 06 reused the same teacher-anchored implementation, and Snapshot 07 now supersedes that active branch with structure-aware teacher/sky-far code. Live root `options.py`, `trainer.py`, `render_teacher_structure_diagnostics.py`, and the visual comparison helper currently remain as the active Snapshot 07 method branch. The tested experimental code remains in each snapshot's `code/` folder for reproducibility or later reapplication.
+After the 01/02/03 gates were packaged, the live root `options.py` and `trainer.py` were restored to the shared baseline state for collaboration. Snapshot 04 later left the live root as the active temporal-cross-view method branch. Snapshot 05 superseded it, Snapshot 06 reused the same teacher-anchored implementation, and Snapshot 07 superseded that branch with structure-aware teacher/sky-far code. Later snapshots layered additional off-by-default code on top; read `ACTIVE_ROOT_CODE_STATE.md` for the current root state. The tested experimental code remains in each snapshot's `code/` folder for reproducibility or later reapplication.
 
 The `runs/` folder is ignored by Git because it can contain optimizer states, pose-network weights, and TensorBoard logs. The legacy B0 folder under `results/` remains tracked for existing references, but new compact evidence should live in the relevant snapshot or checkpoint-selection folder while bulky generated outputs stay under ignored `local_evidence/` or `local_results/`.
 

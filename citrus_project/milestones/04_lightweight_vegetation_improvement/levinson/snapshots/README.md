@@ -15,24 +15,43 @@ Read this file first, then open only the stage folder needed for the task.
 | `04_vegetation_general_temporal_cross_view_consistency/` | temporal geometry, visibility, texture ambiguity, and feature cross-view method-family gate; stable weak negative evidence, conclusion `do not scale` |
 | `05_teacher_anchored_relative_structure_regularization/` | full teacher-anchored label-free self-supervised adaptation run; selected checkpoint `weights_19` was the pre-Snapshot07 best teacher-anchor candidate |
 | `06_teacher_anchor_stabilization/` | reduced-ranking/no-texture stabilization of Snapshot 05; promising mixed marginal ablation, not a clean replacement |
-| `07_structure_aware_label_free_vegetation_depth/` | structure-aware RGB-teacher-guided label-free method; selected checkpoint `weights_25` is the current strongest Levinson label-free candidate (still the lead) |
+| `07_structure_aware_label_free_vegetation_depth/` | structure-aware RGB-teacher-guided label-free method; selected checkpoint `weights_25` is the prior best / strongest-a1 reference |
 | `08_feature_metric_loss/` | FeatDepth-style feature-metric loss on the S07 stack; 3-epoch gate weak/mixed (abs_rel worsened), conclusion `stop` |
 | `09_tsob_boundary_uncertainty_mixture/` | TSOB-style K=2 depth-mixture loss on the S07 stack; full 30-epoch run worse than S07 on both test metrics, no visible de-blobbing, conclusion `stop` |
+| `10_ema_self_teacher/` | EMA in-domain self-teacher on the S07 stack; selected checkpoint `weights_29` is the shipped label-free paper result (`abs_rel=0.3080`, `a1=0.6258` on test) |
+| `11_resizing_crop_self_distillation/` | resizing-crop self-distillation on the S10 stack; killed by gate after flat-depth collapse, conclusion `negative result / stop` |
 
 ## Latest Stage
 
-Snapshot 07 is now implemented, full-run tested, validation-selected, and visually packaged:
+Snapshot 10 is the current shipped Levinson label-free paper result:
 
 ```text
-07_structure_aware_label_free_vegetation_depth/
+10_ema_self_teacher/results/final_result.md
 ```
 
-It builds from the active Snapshot 05/06 training-only frozen RGB teacher implementation, but adds reliable-boundary teacher weighting from RGB edges plus teacher disparity edges and an RGB-only sky/far ordinal pseudo-structure loss. It remains label-free for Citrus training: no `depth_gt`, `valid_mask`, dense LiDAR, sparse LiDAR, ZED depth, or LiDAR-derived label is used as a training loss or mask.
+It builds on the S07 stack and adds an EMA in-domain self-teacher via
+scale-and-shift-aware SI-log self-distillation plus a normalized structure anchor.
+It remains label-free for Citrus training: no `depth_gt`, `valid_mask`, dense LiDAR,
+sparse LiDAR, ZED depth, or LiDAR-derived label is used as a training loss or mask.
+Inference remains the unchanged single-image RGB Lite-Mono depth network.
 
-The selected `weights_25` checkpoint gets test median-scaled `abs_rel=0.3840` and `a1=0.6539`, beating B0 and Snapshot 05 `weights_19` on `abs_rel` while nearly matching original Lite-Mono `abs_rel=0.3836`. Visuals remain mixed, so the conclusion is `promising mixed / strongest Levinson label-free candidate so far`. Open:
+The selected `weights_29` checkpoint gets test median-scaled `abs_rel=0.3080`
+and `a1=0.6258`, beating original Lite-Mono (`0.3836`, `0.4989`) on both
+headline metrics. Visuals remain mixed and the reliability gates were near-inert,
+so the conclusion is a real metric win with honest limitations.
+
+Snapshot 11 is the latest attempted method, but it was killed by gate:
 
 ```text
-07_structure_aware_label_free_vegetation_depth/README.md
+11_resizing_crop_self_distillation/DESIGN_NOTE.md
+```
+
+It is paper-usable negative evidence, not the shipped method.
+
+Current paper package:
+
+```text
+citrus_project/milestones/06_paper_package/paper/
 ```
 
 Previous checkpoint-selection decision:
@@ -91,4 +110,8 @@ When a stage changes Python code, duplicate the tested `.py` files into that sta
 
 The live root `trainer.py` and `options.py` were restored to the shared baseline state after the 01/02/03 gates were packaged. Snapshot 04 later left the live root trainer/options as the active temporal-cross-view method branch. Snapshot 05 superseded that branch, Snapshot 06 reused the teacher-anchored implementation with different flags, and Snapshot 07 now supersedes that active root workbench with structure-aware teacher/sky-far code. Root `trainer.py`, `options.py`, `render_teacher_structure_diagnostics.py`, and the visual comparison helper remain active for Snapshot 07. Tested copies and patch artifacts live in `05_teacher_anchored_relative_structure_regularization/`, `06_teacher_anchor_stabilization/`, and `07_structure_aware_label_free_vegetation_depth/`. Use each stage README and command scripts to see which method was actually enabled.
 
-Snapshots 08 (feature-metric) and 09 (TSOB) added further off-by-default experimental code directly to root `options.py`/`trainer.py` (plus `networks/feature_net.py`, `networks/mixture_head.py`, and a one-line `networks/depth_decoder.py` exposure), committed together in git commit `2d3e4a2` on top of the S07 baseline commit `ccd0f70`. Both are negative results and are NOT promoted; their stage `code/` copies and a combined diff vs the S07 baseline live in their snapshot folders. Snapshot 07 `weights_25` remains the Levinson lead.
+Snapshots 08 (feature-metric), 09 (TSOB), 10 (EMA self-teacher), and 11
+(crop self-distillation) added further off-by-default experimental code directly
+to root `options.py`/`trainer.py` and supporting network/helper files. S08, S09,
+and S11 are negative results. Snapshot 10 `weights_29` is promoted as the Levinson
+label-free paper result; Snapshot 07 `weights_25` remains the strongest-a1 reference.

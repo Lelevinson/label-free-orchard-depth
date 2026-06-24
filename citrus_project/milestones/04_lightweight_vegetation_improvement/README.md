@@ -6,12 +6,35 @@ Use this folder for milestone-specific helpers, notes, or experiment files relat
 - vegetation-focused loss or feature ideas
 - ablations and efficiency checks
 
+## Current Status Note
+
+Levinson's label-free method search for the current paper cycle has advanced beyond the
+older Snapshot 07 sections in this README. Snapshot 10 `weights_29` is now the shipped
+label-free paper result; Snapshot 11 is a documented negative gate. Paper work has moved
+to the canonical Milestone 6 package:
+
+```text
+citrus_project/milestones/06_paper_package/paper/
+```
+
+The detailed Snapshot 10 result is:
+
+```text
+levinson/snapshots/10_ema_self_teacher/results/final_result.md
+```
+
+The Snapshot 11 negative-result note is:
+
+```text
+levinson/snapshots/11_resizing_crop_self_distillation/DESIGN_NOTE.md
+```
+
 ## Read Map
 
 For Milestone 4 work, use this README as the main handoff. Do not inspect every result or snapshot folder by default.
 
 - Baseline recipe, final metrics, checkpoint paths, and visual paths: this README.
-- Levinson's Milestone 4 workstream, including B0/Snapshot 00 through Snapshot 07 and the current Snapshot 07 label-free lead: `levinson/README.md`.
+- Levinson's Milestone 4 workstream, including B0/Snapshot 00 through Snapshot 11 and the current Snapshot 10 label-free paper result: `levinson/README.md`.
 - Levinson's AI/human documentation map and cleanup notes: `levinson/DOCUMENTATION_INDEX.md`.
 - Marvel's supervised/hybrid Milestone 4 workstream: `Marvel/README.md`.
 - Original full baseline metric JSON/CSV result folder, preserved for existing references: `levinson/results/plain_litemono_imagenet_b12_30ep_final_weights29/`. New large generated Levinson outputs should go under the relevant snapshot's local `local_evidence/` folder or checkpoint-selection `local_results/` folder instead of this shared results area.
@@ -622,4 +645,4 @@ Conclusion:
 promising mixed / strongest Levinson label-free candidate so far
 ```
 
-Snapshot 07 beats B0 and Snapshot 05 `weights_19` on test median-scaled `abs_rel`, improves test median-scaled `a1` over Snapshot 05 `weights_19`, and nearly matches original Lite-Mono on test median-scaled `abs_rel` while strongly beating original on `a1`. It still slightly trails B0 on test median-scaled `a1`, and qualitative full-image depth remains mixed with smooth vegetation masses and some sky/far-canopy weakness. Treat it as the current lead label-free paper candidate, not a visually solved final method.
+Snapshot 07 beats B0 and Snapshot 05 `weights_19` on test median-scaled `abs_rel`, improves test median-scaled `a1` over Snapshot 05 `weights_19`, and nearly matches original Lite-Mono on test median-scaled `abs_rel` while strongly beating original on `a1`. It still slightly trails B0 on test median-scaled `a1`, and qualitative full-image depth remains mixed with smooth vegetation masses and some sky/far-canopy weakness. After Snapshot 10, treat it as the prior best / strongest-a1 reference, not the current paper result.

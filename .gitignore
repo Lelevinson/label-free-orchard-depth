@@ -172,3 +172,6 @@ citrus-farm-dataset
 
 # Paper
 lite-mono-paper.pdf
+
+# Milestone 6 paper package - kept local-only (bulky drawio/figures + WIP draft)
+citrus_project/milestones/06_paper_package/

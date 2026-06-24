@@ -1,6 +1,8 @@
 # Levinson Documentation Index
 
-Status: current navigation index for Levinson's Milestone 4 folder after Snapshot 07 packaging.
+Status: navigation index for Levinson's Milestone 4 folder, refreshed after the
+Snapshot 10 paper result, Snapshot 11 negative gate, and Milestone 6 paper-package
+promotion.
 
 Use this file to decide what to read. Do not treat every Markdown file under this folder as current guidance; many are preserved historical plans, diagnostic reports, or snapshot-local evidence notes.
 
@@ -8,10 +10,10 @@ Use this file to decide what to read. Do not treat every Markdown file under thi
 
 1. `README.md`
    - Main Levinson workstream doorway.
-   - Summarizes B0, Snapshots 01-07, current lead result, evidence ownership, and rules for bulky outputs.
+   - Summarizes the workstream and points to the current S10/S11 evidence.
 2. `ACTIVE_ROOT_CODE_STATE.md`
    - Current root-code policy.
-   - Root `trainer.py` and `options.py` are active Snapshot 07 workbench code, not original Lite-Mono baseline.
+   - Root `trainer.py` and `options.py` are active Snapshot 07 workbench code with off-by-default Snapshot 08/09/10/11 code layered on top, not original Lite-Mono baseline.
    - Snapshot `code/` folders are frozen archival copies and are not imported automatically by `train.py`.
 3. `snapshots/README.md`
    - Compact map of all snapshot folders.
@@ -25,39 +27,53 @@ Use this file to decide what to read. Do not treat every Markdown file under thi
 
 ## Current Lead Method
 
-Snapshot 07 is the current lead Levinson label-free candidate:
+Snapshot 10 is the shipped Levinson label-free paper result:
+
+```text
+snapshots/10_ema_self_teacher/results/final_result.md
+```
+
+Use it for current method/result framing:
+
+- label-free Citrus training;
+- RGB-only Lite-Mono DepthNet inference;
+- selected `weights_29`;
+- test median-scaled `abs_rel=0.3080`, `a1=0.6258`;
+- first Levinson method to beat original Lite-Mono on both headline median-scaled metrics;
+- qualitative visuals remain mixed, and the reliability gates were near-inert.
+
+Snapshot 11 is the post-S10 negative gate that stays in the paper story:
+
+```text
+snapshots/11_resizing_crop_self_distillation/DESIGN_NOTE.md
+```
+
+Paper package:
+
+```text
+citrus_project/milestones/06_paper_package/paper/
+```
+
+Snapshot 07 is the prior best / strongest-a1 reference:
 
 ```text
 snapshots/07_structure_aware_label_free_vegetation_depth/README.md
 snapshots/07_structure_aware_label_free_vegetation_depth/final_result_summary.md
 ```
 
-Use these for current method/result framing:
-
-- label-free Citrus training;
-- RGB-only Lite-Mono DepthNet inference;
-- selected `weights_25`;
-- test median-scaled `abs_rel=0.3840`, `a1=0.6539`;
-- numerically strongest Levinson result so far;
-- qualitative visuals remain mixed.
-
-Snapshot 07 design provenance:
-
-```text
-snapshots/07_structure_aware_label_free_vegetation_depth/DESIGN_NOTE.md
-```
-
-This is historical design context. Prefer the Snapshot 07 README and final summary for presentation wording.
+Use Snapshot 07 for comparison wording, not as the current lead.
 
 ## Next-Direction Candidates
 
-Verified literature shortlist for the next label-free improvement after Snapshot 07:
+Verified literature shortlist and post-S11 next-method queue:
 
 ```text
 LITERATURE_SHORTLIST.md
 ```
 
-Use it to choose the next method. Self-supervised-pure options (feature-metric loss, boundary-uncertainty mixtures, normal/planarity priors, multi-frame cost-volume as a training-only teacher) keep Levinson's label-free identity; foundation-model distillation (Depth Anything / MiDaS / Marigold) is the highest-gain but non-pure option and belongs in Marvel's supervised/hybrid workstream. Chosen direction (2026-06-03): feature-metric loss (FeatDepth-style) first this week; boundary-uncertainty mixtures (TSOB) and the multi-frame training-only teacher queued over the next ~2-3 weeks.
+Use it for post-paper or paper-polish ideas only. For the current paper cycle,
+S10 ships; S11 is killed by gate. Foundation-model distillation remains outside
+Levinson's label-free scope and belongs in a clearly labeled hybrid branch.
 
 ## Previous Best And Ablations
 
@@ -182,7 +198,8 @@ Treat those files as slide-support material, not research source-of-truth. They 
 
 Use this wording hierarchy:
 
-- Current lead: Snapshot 07 `weights_25`.
+- Current lead / paper result: Snapshot 10 `weights_29`.
+- Prior best / strongest-a1 reference: Snapshot 07 `weights_25`.
 - Previous best: Snapshot 05 `weights_19`.
 - Snapshot 06: marginal/mixed ablation.
 - Snapshot 01/02/03/04: useful negative or non-scaling gates.

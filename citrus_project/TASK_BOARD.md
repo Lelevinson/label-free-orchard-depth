@@ -1,8 +1,22 @@
 # Task Board
 
-Date: 2026-05-25
+Date: 2026-06-22
 
 ## Current Project Position
+
+- Paper packaging is now the active project focus.
+- The canonical paper package is `citrus_project/milestones/06_paper_package/paper/`.
+- The old Levinson paper folder now only points to the Milestone 6 package.
+- Levinson's label-free Milestone 4 method search for this paper cycle is frozen at Snapshot 10 `weights_29` as the shipped result.
+- Snapshot 10 test median-scaled result: `abs_rel=0.3080`, `a1=0.6258`; it is a clean win over original Lite-Mono on both headline metrics.
+- Snapshot 07 `weights_25` remains the prior best / strongest-a1 reference (`abs_rel=0.3840`, `a1=0.6539`), not the current paper result.
+- Snapshot 11 resizing-crop self-distillation is a documented negative result: the crop loss caused flat-depth collapse after activation, so it supports the failure-analysis story rather than replacing S10.
+- Immediate paper tasks: compile on Overleaf, verify `% UNVERIFIED` bibliography entries, review the author block, review/polish Figure 1, and decide whether any paper-strengthening evidence such as S10 gate ablation or second-sequence generalization is still worth the time.
+
+## Historical Snapshot 07 Board (Superseded 2026-06-22)
+
+The notes below are preserved for handoff history. They describe the state before
+Snapshots 10/11 and the Milestone 6 paper promotion.
 
 - Milestone 0 is complete through the full prepared Citrus dataset build.
 - Milestone 1 original Lite-Mono Citrus baseline is complete with full validation/test metrics, visuals, FPS, parameter count, and checkpoint metadata.
@@ -29,7 +43,7 @@ Date: 2026-05-25
 - Milestone 4 workstream ownership is split: Levinson focuses on self-supervised RGB-only training methods, while Marvel can explore supervised/hybrid methods using valid depth labels, valid masks, or LiDAR-guided training.
 - Next main research step: review Snapshot 07 as the lead label-free paper candidate, especially whether its mixed full-image visuals need one final principled refinement before freezing Levinson's method.
 
-## Ownership
+## Historical Ownership Snapshot
 
 ### Main Integrator
 
@@ -119,14 +133,14 @@ Expected near-term output:
 - example-frame shortlist
 - notes on why certain scenes are hard for depth estimation
 
-## Blocked / Waiting
+## Historical Blocked / Waiting
 
 1. Friend B’s deeper work still depends on a small curated sample pack being prepared.
 2. Milestone 4 method work is not blocked by more Milestone 3 training.
 3. Do not launch another long run without a specific method, settings, checkpoint plan, workstream folder, and explicit user confirmation; Snapshots 05, 06, and 07 are already full-run tested.
 4. Do not mix Levinson self-supervised methods and Marvel supervised/hybrid methods in one run unless a new combined branch is explicitly approved.
 
-## Next Review Point
+## Historical Next Review Point
 
 In the next Milestone 4 chat:
 
