@@ -164,9 +164,6 @@ citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/snapsho
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/checkpoint_selection/*/local_results/
 citrus_project/milestones/04_lightweight_vegetation_improvement/levinson/presentation_assets/
 
-# Local Codex project config / MCP secrets
-.codex/
-
 # Marvel's gitignore
 citrus-farm-dataset
 
@@ -175,7 +172,3 @@ lite-mono-paper.pdf
 
 # Milestone 6 paper package - kept local-only (bulky drawio/figures + WIP draft)
 citrus_project/milestones/06_paper_package/
-
-# Local-only project context (kept on disk, not published)
-AGENTS.md
-CLAUDE.md
